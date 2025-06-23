@@ -26,7 +26,6 @@ export interface ScanError {
 export class VirusScanner {
   private host: string;
   private port: number;
-  private timeout: number;
   private initialized = false;
 
   constructor() {
@@ -59,12 +58,15 @@ export class VirusScanner {
       throw new Error(`File not found: ${filePath}`);
     }
 
-    // If ClamAV is not available, return clean result for development
+    // If ClamAV is not available, use mock detection for testing
     if (!this.initialized) {
-      console.log('ClamAV not available, skipping virus scan in development mode');
+      console.log('ClamAV not available, using mock virus detection for development');
+      const filename = path.basename(filePath).toLowerCase();
+      const isInfected = filename.includes('virus') || filename.includes('malware') || filename.includes('infected');
+      
       return {
-        isInfected: false,
-        viruses: [],
+        isInfected,
+        viruses: isInfected ? ['Mock.Test.VIRUS_DETECTED'] : [],
         file: path.basename(filePath)
       };
     }
@@ -91,24 +93,7 @@ export class VirusScanner {
     }
   }
 
-  /**
-   * Mock scanner for development environment
-   * Simulates virus detection based on filename patterns
-   */
-  private mockScan(filePath: string): ScanResult {
-    const filename = path.basename(filePath).toLowerCase();
-    
-    // Simulate infected files for testing
-    const isInfected = filename.includes('virus') || 
-                      filename.includes('malware') || 
-                      filename.includes('infected');
-    
-    return {
-      isInfected,
-      viruses: isInfected ? ['Win.Test.EICAR_HDB-1'] : [],
-      file: path.basename(filePath)
-    };
-  }
+
 
   /**
    * Validate MIME type for ZIP files
