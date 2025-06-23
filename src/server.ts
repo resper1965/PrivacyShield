@@ -2,7 +2,7 @@ import express, { Application, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
-import { ErrorResponse, ServerConfig } from './types/index.js';
+import { ErrorResponse, ServerConfig } from './types/index';
 
 /**
  * PrivacyDetective Server
@@ -41,7 +41,7 @@ class PrivacyDetectiveServer {
 
     // CORS configuration
     this.app.use(cors({
-      origin: process.env.ALLOWED_ORIGINS?.split(',') ?? ['http://localhost:3000'],
+      origin: process.env['ALLOWED_ORIGINS']?.split(',') ?? ['http://localhost:3000'],
       credentials: true,
       optionsSuccessStatus: 200,
     }));
@@ -69,7 +69,7 @@ class PrivacyDetectiveServer {
         status: 'healthy',
         timestamp: new Date().toISOString(),
         service: 'PrivacyDetective',
-        version: process.env.APP_VERSION ?? '1.0.0',
+        version: process.env['APP_VERSION'] ?? '1.0.0',
       });
     });
 
@@ -77,13 +77,13 @@ class PrivacyDetectiveServer {
     this.app.get('/api/status', (_req: Request, res: Response): void => {
       res.status(200).json({
         message: 'PrivacyDetective API is running',
-        environment: process.env.NODE_ENV ?? 'development',
+        environment: process.env['NODE_ENV'] ?? 'development',
         uptime: process.uptime(),
       });
     });
 
     // 404 handler for undefined routes
-    this.app.use('*', (_req: Request, res: Response): void => {
+    this.app.all('*', (_req: Request, res: Response): void => {
       const error: ErrorResponse = {
         error: 'Not Found',
         message: 'The requested resource was not found on this server',
@@ -108,7 +108,7 @@ class PrivacyDetectiveServer {
 
       const errorResponse: ErrorResponse = {
         error: 'Internal Server Error',
-        message: process.env.NODE_ENV === 'development' 
+        message: process.env['NODE_ENV'] === 'development' 
           ? error.message 
           : 'An unexpected error occurred',
         statusCode: 500,
@@ -139,7 +139,7 @@ class PrivacyDetectiveServer {
       await new Promise<void>((resolve, reject): void => {
         const server = this.app.listen(this.port, this.host, (): void => {
           console.log(`🚀 PrivacyDetective server running on http://${this.host}:${this.port}`);
-          console.log(`📊 Environment: ${process.env.NODE_ENV ?? 'development'}`);
+          console.log(`📊 Environment: ${process.env['NODE_ENV'] ?? 'development'}`);
           console.log(`⚡ Health check: http://${this.host}:${this.port}/health`);
           resolve();
         });
@@ -159,8 +159,8 @@ class PrivacyDetectiveServer {
  * Server configuration
  */
 const serverConfig: ServerConfig = {
-  port: parseInt(process.env.PORT ?? '8000', 10),
-  host: process.env.HOST ?? '0.0.0.0',
+  port: parseInt(process.env['PORT'] ?? '8000', 10),
+  host: process.env['HOST'] ?? '0.0.0.0',
 };
 
 /**
