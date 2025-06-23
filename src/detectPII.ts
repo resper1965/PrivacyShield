@@ -18,7 +18,7 @@ const PII_PATTERNS = {
   CPF: /\b(?:\d{3}\.?\d{3}\.?\d{3}-?\d{2})\b/g,
   
   // CNPJ: 00.000.000/0000-00 or 00000000000000
-  CNPJ: /\b(?:\d{2}\.?\d{3}\.?\d{3}\/?\d{4}-?\d{2})\b/g,
+  CNPJ: /\b\d{2}\.?\d{3}\.?\d{3}\/\d{4}-?\d{2}\b/g,
   
   // Email: basic email pattern
   Email: /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g,

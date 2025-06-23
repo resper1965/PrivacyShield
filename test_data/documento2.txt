@@ -1,0 +1,8 @@
+Empresa: Tech Solutions LTDA
+CNPJ: 12.345.678/0001-90
+Contato: maria.santos@techsolutions.com.br
+Telefone: +55 (21) 3333-4444
+
+Dados do responsável:
+CPF: 987.654.321-00
+Email: responsavel@techsolutions.com.br
