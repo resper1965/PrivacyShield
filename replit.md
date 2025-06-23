@@ -2,7 +2,7 @@
 
 ## Overview
 
-This is a Node.js/Express application built with TypeScript that appears to be the foundation for a privacy detection service. The project is configured with modern development tools including ESLint, Prettier, and strict TypeScript settings. The server includes security middleware and is designed to handle privacy-related API operations.
+This is a Node.js/Express application built with TypeScript for detecting personally identifiable information (PII) in ZIP files. The system processes uploaded ZIP files, validates them using MIME type checking and ClamAV virus scanning, extracts contents, and detects CPF, CNPJ, Email, and Phone patterns using regex. All data is stored in memory with no external database dependencies. The server provides RESTful API endpoints for file upload and filtered reporting by data subjects.
 
 ## System Architecture
 
@@ -94,7 +94,9 @@ Preferred communication style: Simple, everyday language.
 ## Changelog
 
 Changelog:
-- June 23, 2025. Initial setup
+- June 23, 2025: Initial setup with TypeScript project scaffold
+- June 23, 2025: Implemented complete PII detection system with ZIP processing
+- June 23, 2025: Added ClamAV virus scanning with MIME validation and 422 error responses
 
 ## Notes for Development
 
