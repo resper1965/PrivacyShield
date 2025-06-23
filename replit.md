@@ -97,6 +97,7 @@ Changelog:
 - June 23, 2025: Initial setup with TypeScript project scaffold
 - June 23, 2025: Implemented complete PII detection system with ZIP processing
 - June 23, 2025: Added ClamAV virus scanning with MIME validation and 422 error responses
+- June 23, 2025: Added local directory file processing with listing and validation capabilities
 
 ## Notes for Development
 

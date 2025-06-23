@@ -90,6 +90,8 @@ class PIIDetectorServer {
         endpoints: {
           health: 'GET /health',
           uploadZip: 'POST /api/zip',
+          listFiles: 'GET /api/zip/list',
+          processLocal: 'GET /api/zip/local?name=filename.zip',
           getReport: 'GET /api/report/titulares?domain=example.com&cnpj=12.345.678/0001-90'
         },
         timestamp: new Date().toISOString()
