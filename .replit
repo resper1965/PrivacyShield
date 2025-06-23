@@ -5,25 +5,6 @@ channel = "stable-24_05"
 packages = ["zip"]
 
 [workflows]
-runButton = "Project"
-
-[[workflows.workflow]]
-name = "Project"
-mode = "parallel"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "PIIDetector Server"
-
-[[workflows.workflow]]
-name = "PIIDetector Server"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npx ts-node src/server.ts"
-waitForPort = 8000
 
 [deployment]
 run = ["sh", "-c", "npm install express cors helmet compression @types/express @types/cors @types/helmet @types/compression typescript ts-node @typescript-eslint/parser @typescript-eslint/eslint-plugin eslint prettier eslint-config-prettier eslint-plugin-prettier"]

@@ -115,7 +115,8 @@ export class VirusScanner {
       'application/zip',
       'application/x-zip-compressed',
       'application/x-zip',
-      'multipart/x-zip'
+      'multipart/x-zip',
+      'application/octet-stream' // Common fallback for ZIP files
     ];
 
     return allowedMimeTypes.includes(file.mimetype);
