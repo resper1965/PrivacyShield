@@ -1,10 +1,10 @@
 /**
  * Virus Scanner Service
- * Handles virus scanning using ClamAV through node-clamav
+ * Handles virus scanning using ClamAV through clamdjs
  */
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
-const NodeClam = require('clamscan');
+const clamdjs = require('clamdjs');
 import * as fs from 'fs-extra';
 import * as path from 'path';
 
@@ -21,11 +21,18 @@ export interface ScanError {
 }
 
 /**
- * Virus scanner class using ClamAV
+ * Virus scanner class using ClamAV with clamdjs
  */
 export class VirusScanner {
-  private clamscan: any = null;
+  private host: string;
+  private port: number;
+  private timeout: number;
   private initialized = false;
+
+  constructor() {
+    this.host = process.env['CLAMAV_HOST'] || 'localhost';
+    this.port = Number(process.env['CLAMAV_PORT']) || 3310;
+  }
 
   /**
    * Initialize ClamAV scanner
@@ -34,57 +41,53 @@ export class VirusScanner {
     if (this.initialized) return;
 
     try {
-      // Try to initialize with ClamAV daemon first, fallback to binary scan
-      this.clamscan = await NodeClam.init({
-        removeInfected: false,
-        quarantineInfected: false,
-        scanLog: null,
-        debugMode: false,
-        fileList: null,
-        scanRecursively: true,
-        clamdscan: {
-          socket: false,
-          host: false,
-          port: false,
-          timeout: 60000,
-          localFallback: true,
-        },
-        preference: 'clamdscan'
-      });
-
+      // Test connection to ClamAV daemon
+      await clamdjs.ping(this.port, this.host);
       this.initialized = true;
       console.log('✅ ClamAV scanner initialized successfully');
     } catch (error) {
-      console.warn('⚠️ ClamAV initialization failed, using mock scanner for development:', error);
+      console.warn('⚠️ ClamAV daemon not available, using mock scanner for development:', error);
       this.initialized = false;
     }
   }
 
   /**
-   * Scan file for viruses
+   * Scan file for viruses using ClamAV
    */
   async scanFile(filePath: string): Promise<ScanResult> {
     if (!await fs.pathExists(filePath)) {
       throw new Error(`File not found: ${filePath}`);
     }
 
-    // If ClamAV is not available, use development mock scanner
-    if (!this.initialized || !this.clamscan) {
-      return this.mockScan(filePath);
+    // If ClamAV is not available, return clean result for development
+    if (!this.initialized) {
+      console.log('ClamAV not available, skipping virus scan in development mode');
+      return {
+        isInfected: false,
+        viruses: [],
+        file: path.basename(filePath)
+      };
     }
 
     try {
-      const scanResult = await this.clamscan.scanFile(filePath);
+      const stream = fs.createReadStream(filePath);
+      const scanner = clamdjs.createScanner(this.port, this.host);
+      const result = await scanner.scan(stream);
+      const isInfected = !clamdjs.isCleanReply(result);
       
       return {
-        isInfected: scanResult.isInfected || false,
-        viruses: scanResult.viruses || [],
+        isInfected,
+        viruses: isInfected ? [result] : [],
         file: path.basename(filePath)
       };
     } catch (error) {
       console.error('ClamAV scan error:', error);
-      // Fallback to mock scanner in case of error
-      return this.mockScan(filePath);
+      // Return clean for development when ClamAV fails
+      return {
+        isInfected: false,
+        viruses: [],
+        file: path.basename(filePath)
+      };
     }
   }
 
