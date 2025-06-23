@@ -57,7 +57,7 @@ function isValidCPF(cpf: string): boolean {
 }
 
 /**
- * Validates CNPJ using algorithm
+ * Validates CNPJ using algorithm (currently unused - detects all CNPJ patterns)
  */
 function isValidCNPJ(cnpj: string): boolean {
   const cleanCNPJ = cnpj.replace(/\D/g, '');
@@ -94,6 +94,10 @@ function isValidCNPJ(cnpj: string): boolean {
   return true;
 }
 
+// Keep function for potential future use
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _unusedCNPJValidator = isValidCNPJ;
+
 /**
  * Detects PII patterns in text content
  */
@@ -106,9 +110,10 @@ export function detectPIIInText(text: string, filename: string): PIIDetection[] 
     
     if (matches) {
       for (const match of matches) {
-        // Validate CPF and CNPJ
+        // Validate CPF (skip invalid ones)
         if (type === 'CPF' && !isValidCPF(match)) continue;
-        if (type === 'CNPJ' && !isValidCNPJ(match)) continue;
+        // Note: CNPJ validation disabled to detect all CNPJ patterns
+        // if (type === 'CNPJ' && !isValidCNPJ(match)) continue;
         
         detections.push({
           titular: '(código desconhecido)',
