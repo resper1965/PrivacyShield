@@ -80,6 +80,21 @@ class PIIDetectorServer {
    * Setup application routes
    */
   private setupRoutes(): void {
+    // Root endpoint with API information
+    this.app.get('/', (_req: Request, res: Response): void => {
+      res.status(200).json({
+        name: 'PIIDetector API',
+        version: '1.0.0',
+        description: 'API for detecting PII (CPF, CNPJ, Email, Phone) in ZIP files',
+        endpoints: {
+          health: 'GET /health',
+          uploadZip: 'POST /api/zip',
+          getReport: 'GET /api/report/titulares?domain=example.com&cnpj=12.345.678/0001-90'
+        },
+        timestamp: new Date().toISOString()
+      });
+    });
+
     // Health check endpoint
     this.app.get('/health', (_req: Request, res: Response): void => {
       res.status(200).json({
