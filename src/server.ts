@@ -119,6 +119,51 @@ class PIIDetectorServer {
           return;
         }
 
+        // Log and validate MIME type
+        console.log(`File MIME type: ${req.file.mimetype}, Original name: ${req.file.originalname}`);
+        
+        if (!VirusScanner.validateZipMimeType(req.file)) {
+          await fs.remove(req.file.path);
+          res.status(400).json({
+            error: 'Bad Request',
+            message: `Invalid file type. Expected ZIP file, got: ${req.file.mimetype}`,
+            statusCode: 400,
+            timestamp: new Date().toISOString(),
+          });
+          return;
+        }
+
+        // Validate file extension
+        if (!VirusScanner.validateZipExtension(req.file.originalname)) {
+          await fs.remove(req.file.path);
+          res.status(400).json({
+            error: 'Bad Request',
+            message: 'Invalid file extension. Only .zip files are allowed.',
+            statusCode: 400,
+            timestamp: new Date().toISOString(),
+          });
+          return;
+        }
+
+        // Initialize and scan for viruses
+        await virusScanner.initialize();
+        const scanResult = await virusScanner.scanFile(req.file.path);
+        
+        if (scanResult.isInfected) {
+          await fs.remove(req.file.path);
+          res.status(422).json({
+            error: 'Unprocessable Entity',
+            message: `File is infected with virus: ${scanResult.viruses.join(', ')}`,
+            statusCode: 422,
+            timestamp: new Date().toISOString(),
+            details: {
+              viruses: scanResult.viruses,
+              file: scanResult.file
+            }
+          });
+          return;
+        }
+
         const zipPath = req.file.path;
         const extractDir = path.join(TMP_DIR, `extract_${Date.now()}`);
         
@@ -141,6 +186,10 @@ class PIIDetectorServer {
         res.status(200).json({
           message: 'ZIP file processed successfully',
           detectionsCount: detections.length,
+          scanResult: {
+            isClean: true,
+            scannedFile: scanResult.file
+          },
           timestamp: new Date().toISOString(),
         });
 
