@@ -5,6 +5,11 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
+# Project specific
+uploads/
+tmp/
+detections.json
+
 # Build outputs
 build/
 dist/

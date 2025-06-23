@@ -13,40 +13,16 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Install Dependencies"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Dev Server"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Build"
+args = "PIIDetector Server"
 
 [[workflows.workflow]]
-name = "Install Dependencies"
+name = "PIIDetector Server"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm install express cors helmet compression @types/express @types/cors @types/helmet @types/compression typescript ts-node @typescript-eslint/parser @typescript-eslint/eslint-plugin eslint prettier eslint-config-prettier eslint-plugin-prettier"
-
-[[workflows.workflow]]
-name = "Dev Server"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npx ts-node-dev --respawn --transpile-only src/server.ts"
+args = "npx ts-node src/server.ts"
 waitForPort = 8000
-
-[[workflows.workflow]]
-name = "Build"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npx tsc"
 
 [deployment]
 run = ["sh", "-c", "npm install express cors helmet compression @types/express @types/cors @types/helmet @types/compression typescript ts-node @typescript-eslint/parser @typescript-eslint/eslint-plugin eslint prettier eslint-config-prettier eslint-plugin-prettier"]

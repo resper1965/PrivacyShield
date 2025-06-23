@@ -2,13 +2,30 @@ import express, { Application, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
+import multer from 'multer';
+import fs from 'fs-extra';
+import path from 'path';
+import * as yauzl from 'yauzl';
 import { ErrorResponse, ServerConfig } from './types/index';
+import { detectPIIInFiles, PIIDetection } from './detectPII';
+
+// Create required directories
+const UPLOAD_DIR = path.join(process.cwd(), 'uploads');
+const TMP_DIR = path.join(process.cwd(), 'tmp');
+const DETECTIONS_FILE = path.join(process.cwd(), 'detections.json');
+
+// Ensure directories exist
+fs.ensureDirSync(UPLOAD_DIR);
+fs.ensureDirSync(TMP_DIR);
+
+// Configure multer for file uploads
+const upload = multer({ dest: UPLOAD_DIR });
 
 /**
- * PrivacyDetective Server
+ * PIIDetector Server
  * Main server entry point with Express.js setup
  */
-class PrivacyDetectiveServer {
+class PIIDetectorServer {
   private app: Application;
   private readonly port: number;
   private readonly host: string;
@@ -68,18 +85,112 @@ class PrivacyDetectiveServer {
       res.status(200).json({
         status: 'healthy',
         timestamp: new Date().toISOString(),
-        service: 'PrivacyDetective',
+        service: 'PIIDetector',
         version: process.env['APP_VERSION'] ?? '1.0.0',
       });
     });
 
-    // API status endpoint
-    this.app.get('/api/status', (_req: Request, res: Response): void => {
-      res.status(200).json({
-        message: 'PrivacyDetective API is running',
-        environment: process.env['NODE_ENV'] ?? 'development',
-        uptime: process.uptime(),
-      });
+    // POST /api/zip - Upload ZIP file and detect PII
+    this.app.post('/api/zip', upload.single('file'), async (req: Request, res: Response): Promise<void> => {
+      try {
+        if (!req.file) {
+          res.status(400).json({
+            error: 'Bad Request',
+            message: 'No file uploaded',
+            statusCode: 400,
+            timestamp: new Date().toISOString(),
+          });
+          return;
+        }
+
+        const zipPath = req.file.path;
+        const extractDir = path.join(TMP_DIR, `extract_${Date.now()}`);
+        
+        // Create extraction directory
+        await fs.ensureDir(extractDir);
+
+        // Extract ZIP file
+        const files = await this.extractZipFile(zipPath, extractDir);
+        
+        // Detect PII in extracted files
+        const detections = detectPIIInFiles(files);
+        
+        // Save detections to JSON file
+        await fs.writeJson(DETECTIONS_FILE, detections, { spaces: 2 });
+        
+        // Clean up
+        await fs.remove(zipPath);
+        await fs.remove(extractDir);
+
+        res.status(200).json({
+          message: 'ZIP file processed successfully',
+          detectionsCount: detections.length,
+          timestamp: new Date().toISOString(),
+        });
+
+      } catch (error) {
+        console.error('Error processing ZIP file:', error);
+        res.status(500).json({
+          error: 'Internal Server Error',
+          message: 'Failed to process ZIP file',
+          statusCode: 500,
+          timestamp: new Date().toISOString(),
+        });
+      }
+    });
+
+    // GET /api/report/titulares - Get filtered PII report
+    this.app.get('/api/report/titulares', async (req: Request, res: Response): Promise<void> => {
+      try {
+        const { domain, cnpj } = req.query;
+        
+        // Load detections
+        let detections: PIIDetection[] = [];
+        if (await fs.pathExists(DETECTIONS_FILE)) {
+          detections = await fs.readJson(DETECTIONS_FILE);
+        }
+
+        // Filter detections
+        let filteredDetections = detections;
+        
+        if (domain && typeof domain === 'string') {
+          filteredDetections = filteredDetections.filter(d => 
+            d.documento === 'Email' && d.valor.includes(`@${domain}`)
+          );
+        }
+        
+        if (cnpj && typeof cnpj === 'string') {
+          filteredDetections = filteredDetections.filter(d => 
+            d.documento === 'CNPJ' && d.valor.replace(/\D/g, '') === cnpj.replace(/\D/g, '')
+          );
+        }
+
+        // Group by titular
+        const groupedByTitular = filteredDetections.reduce((acc, detection) => {
+          const titular = detection.titular;
+          if (!acc[titular]) {
+            acc[titular] = [];
+          }
+          acc[titular].push(detection);
+          return acc;
+        }, {} as Record<string, PIIDetection[]>);
+
+        res.status(200).json({
+          filters: { domain, cnpj },
+          totalDetections: filteredDetections.length,
+          titulares: groupedByTitular,
+          timestamp: new Date().toISOString(),
+        });
+
+      } catch (error) {
+        console.error('Error generating report:', error);
+        res.status(500).json({
+          error: 'Internal Server Error',
+          message: 'Failed to generate report',
+          statusCode: 500,
+          timestamp: new Date().toISOString(),
+        });
+      }
     });
 
     // 404 handler for undefined routes
@@ -132,13 +243,72 @@ class PrivacyDetectiveServer {
   }
 
   /**
+   * Extract ZIP file and return file contents
+   */
+  private async extractZipFile(zipPath: string, _extractDir: string): Promise<Array<{ content: string; filename: string }>> {
+    return new Promise((resolve, reject) => {
+      const files: Array<{ content: string; filename: string }> = [];
+      
+      yauzl.open(zipPath, { lazyEntries: true }, (err, zipfile) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+
+        zipfile.readEntry();
+        
+        zipfile.on('entry', (entry) => {
+          if (/\/$/.test(entry.fileName)) {
+            // Directory entry
+            zipfile.readEntry();
+          } else {
+            // File entry
+            zipfile.openReadStream(entry, (err, readStream) => {
+              if (err) {
+                reject(err);
+                return;
+              }
+
+              const chunks: Buffer[] = [];
+              readStream.on('data', (chunk) => {
+                chunks.push(chunk);
+              });
+
+              readStream.on('end', () => {
+                const content = Buffer.concat(chunks).toString('utf-8');
+                files.push({
+                  content,
+                  filename: entry.fileName
+                });
+                zipfile.readEntry();
+              });
+
+              readStream.on('error', (err) => {
+                reject(err);
+              });
+            });
+          }
+        });
+
+        zipfile.on('end', () => {
+          resolve(files);
+        });
+
+        zipfile.on('error', (err) => {
+          reject(err);
+        });
+      });
+    });
+  }
+
+  /**
    * Start the server
    */
   public async start(): Promise<void> {
     try {
       await new Promise<void>((resolve, reject): void => {
         const server = this.app.listen(this.port, this.host, (): void => {
-          console.log(`🚀 PrivacyDetective server running on http://${this.host}:${this.port}`);
+          console.log(`🚀 PIIDetector server running on http://${this.host}:${this.port}`);
           console.log(`📊 Environment: ${process.env['NODE_ENV'] ?? 'development'}`);
           console.log(`⚡ Health check: http://${this.host}:${this.port}/health`);
           resolve();
@@ -166,9 +336,9 @@ const serverConfig: ServerConfig = {
 /**
  * Initialize and start the server
  */
-const server = new PrivacyDetectiveServer(serverConfig);
+const server = new PIIDetectorServer(serverConfig);
 
 // Start server
 void server.start();
 
-export default PrivacyDetectiveServer;
+export default PIIDetectorServer;
