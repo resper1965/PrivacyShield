@@ -8,6 +8,7 @@ import path from 'path';
 import * as yauzl from 'yauzl';
 import { ErrorResponse, ServerConfig } from './types/index';
 import { detectPIIInFiles, PIIDetection } from './detectPII';
+import { virusScanner, VirusScanner } from './virusScanner';
 
 // Create required directories
 const UPLOAD_DIR = path.join(process.cwd(), 'uploads');
