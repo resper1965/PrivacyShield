@@ -204,10 +204,143 @@ class PIIDetectorServer {
       }
     });
 
+    // GET /api/zip/list - List available ZIP files in uploads directory
+    this.app.get('/api/zip/list', async (_req: Request, res: Response): Promise<void> => {
+      try {
+        const files = await fs.readdir(UPLOAD_DIR);
+        const zipFiles = files.filter(file => file.toLowerCase().endsWith('.zip'));
+        
+        const fileDetails = await Promise.all(
+          zipFiles.map(async (file) => {
+            const filePath = path.join(UPLOAD_DIR, file);
+            const stats = await fs.stat(filePath);
+            return {
+              name: file,
+              size: stats.size,
+              created: stats.birthtime,
+              modified: stats.mtime
+            };
+          })
+        );
+
+        res.status(200).json({
+          message: 'Available ZIP files listed successfully',
+          count: zipFiles.length,
+          files: fileDetails,
+          timestamp: new Date().toISOString(),
+        });
+
+      } catch (error) {
+        console.error('Error listing ZIP files:', error);
+        res.status(500).json({
+          error: 'Internal Server Error',
+          message: 'Failed to list ZIP files',
+          statusCode: 500,
+          timestamp: new Date().toISOString(),
+        });
+      }
+    });
+
+    // GET /api/zip/local - Process local ZIP file by name
+    this.app.get('/api/zip/local', async (req: Request, res: Response): Promise<void> => {
+      try {
+        const filename = String(req.query['name'] || '');
+        
+        if (!filename) {
+          res.status(400).json({
+            error: 'Bad Request',
+            message: 'Filename parameter is required',
+            statusCode: 400,
+            timestamp: new Date().toISOString(),
+          });
+          return;
+        }
+
+        const filePath = path.join(UPLOAD_DIR, filename);
+        
+        // Check if file exists
+        if (!await fs.pathExists(filePath)) {
+          res.status(404).json({
+            error: 'Not Found',
+            message: 'File not found in uploads directory',
+            statusCode: 404,
+            timestamp: new Date().toISOString(),
+          });
+          return;
+        }
+
+        // Validate file extension
+        if (!VirusScanner.validateZipExtension(filename)) {
+          res.status(400).json({
+            error: 'Bad Request',
+            message: 'Invalid file extension. Only .zip files are allowed.',
+            statusCode: 400,
+            timestamp: new Date().toISOString(),
+          });
+          return;
+        }
+
+        // Initialize and scan for viruses
+        await virusScanner.initialize();
+        const scanResult = await virusScanner.scanFile(filePath);
+        
+        if (scanResult.isInfected) {
+          res.status(422).json({
+            error: 'Unprocessable Entity',
+            message: `File is infected with virus: ${scanResult.viruses.join(', ')}`,
+            statusCode: 422,
+            timestamp: new Date().toISOString(),
+            details: {
+              viruses: scanResult.viruses,
+              file: scanResult.file
+            }
+          });
+          return;
+        }
+
+        const extractDir = path.join(TMP_DIR, `extract_${Date.now()}`);
+        
+        // Create extraction directory
+        await fs.ensureDir(extractDir);
+
+        // Extract ZIP file
+        const files = await this.extractZipFile(filePath, extractDir);
+        
+        // Detect PII in extracted files
+        const detections = detectPIIInFiles(files);
+        
+        // Save detections to JSON file
+        await fs.writeJson(DETECTIONS_FILE, detections, { spaces: 2 });
+        
+        // Clean up extraction directory (keep original file)
+        await fs.remove(extractDir);
+
+        res.status(200).json({
+          message: 'Local ZIP file processed successfully',
+          filename: filename,
+          detectionsCount: detections.length,
+          scanResult: {
+            isClean: true,
+            scannedFile: scanResult.file
+          },
+          timestamp: new Date().toISOString(),
+        });
+
+      } catch (error) {
+        console.error('Error processing local ZIP file:', error);
+        res.status(500).json({
+          error: 'Internal Server Error',
+          message: 'Failed to process local ZIP file',
+          statusCode: 500,
+          timestamp: new Date().toISOString(),
+        });
+      }
+    });
+
     // GET /api/report/titulares - Get filtered PII report
     this.app.get('/api/report/titulares', async (req: Request, res: Response): Promise<void> => {
       try {
-        const { domain, cnpj } = req.query;
+        const { domain, cnpj } = req.query as { domain?: string; cnpj?: string };
         
         // Load detections
         let detections: PIIDetection[] = [];
