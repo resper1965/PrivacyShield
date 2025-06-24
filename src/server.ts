@@ -9,6 +9,7 @@ import { ErrorResponse, ServerConfig } from './types/index';
 import { processZipExtractionAndSave, PIIDetection } from './detectPII';
 import { virusScanner, VirusScanner } from './virusScanner';
 import { extractZipFiles, validateZipFile, type ExtractionResult } from './zipExtractor';
+import { addArchiveJob, getQueueStatus } from './queues/simpleQueue';
 
 // Create required directories
 const UPLOAD_DIR = path.join(process.cwd(), 'uploads');
@@ -108,6 +109,26 @@ class PIIDetectorServer {
       });
     });
 
+    // Queue status endpoint
+    this.app.get('/api/queue/status', (_req: Request, res: Response): void => {
+      try {
+        const queueStatus = getQueueStatus();
+        res.status(200).json({
+          message: 'Queue status retrieved successfully',
+          queues: queueStatus,
+          timestamp: new Date().toISOString(),
+        });
+      } catch (error) {
+        console.error('Error getting queue status:', error);
+        res.status(500).json({
+          error: 'Internal Server Error',
+          message: 'Failed to get queue status',
+          statusCode: 500,
+          timestamp: new Date().toISOString(),
+        });
+      }
+    });
+
     // POST /api/zip - Upload ZIP file and detect PII
     this.app.post('/api/zip', upload.single('file'), async (req: Request, res: Response): Promise<void> => {
       try {
@@ -166,25 +187,20 @@ class PIIDetectorServer {
           return;
         }
 
-        const zipPath = req.file.path;
-        const extractDir = path.join(TMP_DIR, `extract_${Date.now()}`);
-        
-        // Create extraction directory
-        await fs.ensureDir(extractDir);
+        // Add to archive processing queue
+        const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        const jobId = await addArchiveJob({
+          zipPath: req.file.path,
+          originalName: req.file.originalname || 'uploaded.zip',
+          sessionId: sessionId,
+          mimeType: req.file.mimetype,
+          size: req.file.size,
+        });
 
-        // Extract ZIP file
-        const files = await this.extractZipFile(zipPath, extractDir);
-        
-        // Process ZIP extraction and save detections to JSON file (R3 implementation)
-        const detections = await processZipExtractionAndSave(files, req.file.originalname || 'uploaded.zip');
-        
-        // Clean up
-        await fs.remove(zipPath);
-        await fs.remove(extractDir);
-
-        res.status(200).json({
-          message: 'ZIP file processed successfully',
-          detectionsCount: detections.length,
+        res.status(202).json({
+          message: 'ZIP file queued for processing',
+          jobId: jobId,
+          sessionId: sessionId,
           scanResult: {
             isClean: true,
             scannedFile: scanResult.file
