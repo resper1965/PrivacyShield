@@ -1,0 +1,19 @@
+
+=== COMANDOS PARA SERVIDOR monster.e-ness.com.br ===
+
+# Comando principal (recomendado):
+curl -fsSL https://raw.githubusercontent.com/resper1965/PrivacyShield/main/install-vps-complete.sh -o install-vps.sh && chmod +x install-vps.sh && ./install-vps.sh
+
+# OU por etapas:
+# 1. Docker:
+curl -fsSL https://raw.githubusercontent.com/resper1965/PrivacyShield/main/scripts/install-docker.sh | sudo bash
+
+# 2. Aplicação (após clonar repo):
+curl -fsSL https://raw.githubusercontent.com/resper1965/PrivacyShield/main/scripts/install-production.sh | sudo -u ncrisis bash
+
+# 3. SSL:
+curl -fsSL https://raw.githubusercontent.com/resper1965/PrivacyShield/main/scripts/ssl-setup.sh | sudo bash
+
+=== URLs CORRETAS DOS SCRIPTS ===
+Base: https://raw.githubusercontent.com/resper1965/PrivacyShield/main/scripts/
+

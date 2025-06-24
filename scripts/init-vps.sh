@@ -9,6 +9,7 @@ set -euo pipefail
 # Configuration
 readonly DOMAIN="monster.e-ness.com.br"
 readonly REPO_URL="https://github.com/resper1965/PrivacyShield.git"
+readonly SCRIPTS_BASE_URL="https://raw.githubusercontent.com/resper1965/PrivacyShield/main/scripts"
 readonly APP_DIR="/opt/ncrisis"
 readonly LOG_FILE="/var/log/ncrisis-init.log"
 
