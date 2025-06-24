@@ -1,191 +1,170 @@
-import React, { ReactNode, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, AlertTriangle, FileText, BarChart3, Settings, Menu, X, User } from 'lucide-react';
+import React, { ReactNode } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
 
 interface AppLayoutProps {
   children: ReactNode;
 }
 
 const menuItems = [
-  { 
-    path: '/dashboard', 
-    label: 'Dashboard',
-    icon: <LayoutDashboard size={20} />
-  },
-  { 
-    path: '/casos', 
-    label: 'Casos',
-    icon: <AlertTriangle size={20} />
-  },
-  { 
-    path: '/arquivos', 
-    label: 'Arquivos',
-    icon: <FileText size={20} />
-  },
-  { 
-    path: '/relatorio', 
-    label: 'Relatório',
-    icon: <BarChart3 size={20} />
-  },
-  { 
-    path: '/configuracao', 
-    label: 'Configuração',
-    icon: <Settings size={20} />
-  },
+  { path: '/dashboard', label: 'Dashboard' },
+  { path: '/casos', label: 'Casos' },
+  { path: '/arquivos', label: 'Arquivos' },
+  { path: '/relatorio', label: 'Relatório' },
+  { path: '/configuracao', label: 'Configuração' },
 ];
 
 export function AppLayout({ children }: AppLayoutProps) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { pathname } = useLocation();
-  const current = menuItems.find(item => item.path === pathname);
+  const location = useLocation();
+  const current = menuItems.find(item => item.path === location.pathname);
   const title = current?.label || 'n.crisis';
 
   return (
-    <div className="min-h-screen flex" style={{ backgroundColor: 'var(--color-bg)' }}>
-      {/* Mobile overlay */}
-      {sidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
+    <div 
+      style={{ 
+        display: 'flex', 
+        minHeight: '100vh',
+        backgroundColor: '#0D1B2A',
+        color: '#E0E1E6',
+        fontFamily: 'Montserrat, sans-serif'
+      }}
+    >
       {/* Sidebar */}
-      <div 
-        className={`fixed lg:static inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out
-          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-          flex flex-col w-60`}
+      <nav 
         style={{ 
-          backgroundColor: 'var(--color-surface)',
-          borderRight: '1px solid var(--color-border)'
+          width: '240px',
+          backgroundColor: '#112240',
+          borderRight: '1px solid #1B263B',
+          display: 'flex',
+          flexDirection: 'column'
         }}
       >
         {/* Logo */}
-        <div className="flex items-center justify-between p-6 border-b" style={{ borderColor: 'var(--color-border)' }}>
-          <div className="flex items-center gap-3">
-            <div 
-              className="flex items-center justify-center w-10 h-10 rounded-xl"
-              style={{ 
-                backgroundColor: 'rgba(0, 173, 224, 0.1)',
-                border: '1px solid rgba(0, 173, 224, 0.2)'
-              }}
-            >
-              <AlertTriangle className="w-5 h-5" style={{ color: 'var(--color-primary)' }} />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
-                n<span style={{ color: 'var(--color-primary)' }}>.</span>crisis
-              </h1>
-              <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-                PII Detection & LGPD
-              </p>
-            </div>
-          </div>
-          
-          <button
-            onClick={() => setSidebarOpen(false)}
-            className="lg:hidden p-2 rounded-lg transition-colors"
-            style={{ color: 'var(--color-text-secondary)' }}
-          >
-            <X className="w-5 h-5" />
-          </button>
+        <div style={{ padding: '24px', borderBottom: '1px solid #1B263B' }}>
+          <h1 style={{ 
+            fontSize: '20px', 
+            fontWeight: 'bold',
+            color: '#E0E1E6',
+            margin: 0
+          }}>
+            n<span style={{ color: '#00ade0' }}>.</span>crisis
+          </h1>
+          <p style={{ 
+            fontSize: '12px',
+            color: '#A5A8B1',
+            margin: '4px 0 0 0'
+          }}>
+            PII Detection & LGPD
+          </p>
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+        {/* Menu */}
+        <div style={{ flex: 1, padding: '16px' }}>
           {menuItems.map((item) => (
-            <Link
+            <NavLink
               key={item.path}
               to={item.path}
-              className="group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200"
-              style={pathname === item.path ? {
-                backgroundColor: 'var(--color-primary)',
-                color: 'white'
-              } : {
-                color: 'var(--color-text-primary)'
-              }}
+              style={({ isActive }) => ({
+                display: 'block',
+                padding: '12px 16px',
+                margin: '4px 0',
+                borderRadius: '8px',
+                textDecoration: 'none',
+                color: isActive ? 'white' : '#E0E1E6',
+                backgroundColor: isActive ? '#00ade0' : 'transparent',
+                fontSize: '14px',
+                fontWeight: '500',
+                transition: 'all 0.2s ease'
+              })}
               onMouseEnter={(e) => {
-                if (pathname !== item.path) {
+                if (!e.currentTarget.style.backgroundColor.includes('rgb(0, 173, 224)')) {
                   e.currentTarget.style.backgroundColor = 'rgba(0, 173, 224, 0.1)';
                 }
               }}
               onMouseLeave={(e) => {
-                if (pathname !== item.path) {
+                if (!e.currentTarget.style.backgroundColor.includes('rgb(0, 173, 224)')) {
                   e.currentTarget.style.backgroundColor = 'transparent';
                 }
               }}
-              onClick={() => setSidebarOpen(false)}
             >
-              {item.icon}
-              <span>{item.label}</span>
-            </Link>
+              {item.label}
+            </NavLink>
           ))}
-        </nav>
+        </div>
 
         {/* Status */}
-        <div className="p-4 border-t" style={{ borderColor: 'var(--color-border)' }}>
-          <div 
-            className="flex items-center gap-3 p-3 rounded-lg"
-            style={{ backgroundColor: 'var(--color-bg)' }}
-          >
-            <div 
-              className="w-2 h-2 rounded-full animate-pulse"
-              style={{ backgroundColor: '#10b981' }} 
-            />
+        <div style={{ 
+          padding: '16px',
+          borderTop: '1px solid #1B263B'
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            padding: '12px',
+            backgroundColor: '#0D1B2A',
+            borderRadius: '8px'
+          }}>
+            <div style={{
+              width: '8px',
+              height: '8px',
+              backgroundColor: '#10b981',
+              borderRadius: '50%',
+              animation: 'pulse 2s infinite'
+            }} />
             <div>
-              <div className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
+              <div style={{ fontSize: '14px', fontWeight: '500', color: '#E0E1E6' }}>
                 Sistema Online
               </div>
-              <div className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+              <div style={{ fontSize: '12px', color: '#A5A8B1' }}>
                 Operacional
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </nav>
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         {/* Header */}
-        <header 
-          className="sticky top-0 z-30 flex items-center justify-between px-6 py-4 border-b"
-          style={{
-            backgroundColor: 'var(--color-bg)',
-            borderColor: 'var(--color-border)'
-          }}
-        >
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="lg:hidden p-2 rounded-lg transition-colors"
-              style={{ color: 'var(--color-text-secondary)' }}
-            >
-              <Menu className="w-5 h-5" />
-            </button>
-            
-            <h1 className="text-2xl font-semibold" style={{ color: 'var(--color-text-primary)' }}>
-              {title}
-            </h1>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <div 
-              className="w-8 h-8 rounded-full flex items-center justify-center"
-              style={{ 
-                backgroundColor: 'var(--color-surface)',
-                border: '1px solid var(--color-border)'
-              }}
-            >
-              <User className="w-4 h-4" style={{ color: 'var(--color-text-secondary)' }} />
-            </div>
+        <header style={{
+          height: '64px',
+          backgroundColor: '#0D1B2A',
+          borderBottom: '1px solid #1B263B',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '0 24px'
+        }}>
+          <h1 style={{ 
+            fontSize: '24px', 
+            fontWeight: '600',
+            color: '#E0E1E6',
+            margin: 0
+          }}>
+            {title}
+          </h1>
+          
+          <div style={{
+            width: '32px',
+            height: '32px',
+            backgroundColor: '#112240',
+            border: '1px solid #1B263B',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <span style={{ fontSize: '12px', color: '#A5A8B1' }}>US</span>
           </div>
         </header>
 
-        {/* Page content */}
-        <main 
-          className="flex-1 overflow-auto p-6"
-          style={{ backgroundColor: 'var(--color-bg)' }}
-        >
+        {/* Content */}
+        <main style={{
+          flex: 1,
+          padding: '24px',
+          backgroundColor: '#0D1B2A',
+          overflow: 'auto'
+        }}>
           {children}
         </main>
       </div>
