@@ -234,8 +234,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           }}
         >
           <div className="flex items-center justify-between w-full">
-            <h2 className="text-h2" style={{ color: 'var(--color-text-primary)' }}>
-              PIIDetector
+            <h2 className="text-xl font-bold" style={{ 
+              color: 'var(--color-text-primary)',
+              fontFamily: 'Montserrat, sans-serif',
+              fontWeight: '700'
+            }}>
+              n<span style={{ color: 'var(--color-primary)' }}>.</span>crisis
             </h2>
             <div className="flex items-center gap-4">
               <div 

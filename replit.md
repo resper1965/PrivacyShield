@@ -1,8 +1,8 @@
-# PrivacyDetective Project
+# n.crisis - PII Detection & LGPD Compliance Platform
 
 ## Overview
 
-This is a Node.js/Express application built with TypeScript for detecting personally identifiable information (PII) in ZIP files. The system processes uploaded ZIP files asynchronously using BullMQ queues, validates them using MIME type checking and ClamAV virus scanning, extracts contents securely, and detects CPF, CNPJ, Email, and Phone patterns with Brazilian validation algorithms. Data is persisted in PostgreSQL database using Prisma ORM. The server provides RESTful API endpoints for file upload, queue monitoring, and filtered reporting by data subjects.
+This is a Node.js/Express application built with TypeScript for detecting personally identifiable information (PII) in ZIP files. The system is branded as "n.crisis" with Montserrat typography and uses a distinctive blue dot (#00ade0) in the logo. The system processes uploaded ZIP files asynchronously using BullMQ queues, validates them using MIME type checking and ClamAV virus scanning, extracts contents securely, and detects CPF, CNPJ, Email, and Phone patterns with Brazilian validation algorithms. Data is persisted in PostgreSQL database using Prisma ORM. The server provides RESTful API endpoints for file upload, queue monitoring, and filtered reporting by data subjects.
 
 ## System Architecture
 
@@ -98,6 +98,7 @@ Currently, the application is in initial setup phase with the following planned 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+Brand identity: "n.crisis" with Montserrat font, white/black text with blue dot (#00ade0).
 
 ## Changelog
 

@@ -116,7 +116,7 @@ export const Dashboard: React.FC = () => {
     <div className="space-y-6 fade-in">
       <div className="flex items-center justify-between">
         <h1 className="text-h1" style={{ color: 'var(--color-text-primary)' }}>
-          Dashboard
+          Dashboard - n<span style={{ color: 'var(--color-primary)' }}>.</span>crisis
         </h1>
         <Link
           to="/files/upload"
