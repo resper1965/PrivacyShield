@@ -98,6 +98,9 @@ Changelog:
 - June 23, 2025: Implemented complete PII detection system with ZIP processing
 - June 23, 2025: Added ClamAV virus scanning with MIME validation and 422 error responses
 - June 23, 2025: Added local directory file processing with listing and validation capabilities
+- June 24, 2025: Implemented R2 - Secure ZIP extraction with unzipper, traversal protection, and 100x compression ratio limits
+- June 24, 2025: Implemented R3 - Enhanced PII detection with Brazilian validation algorithms, session-based storage in detections.json with append mode
+- June 24, 2025: Implemented R4 - Titulares report with domain/CNPJ grouping and OR filter logic
 
 ## Notes for Development
 

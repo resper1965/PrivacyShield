@@ -425,12 +425,15 @@ class PIIDetectorServer {
             };
           }
 
-          groupedTitulares[groupKey]!.detections.push(detection);
-          groupedTitulares[groupKey]!.totalOccurrences++;
+          const group = groupedTitulares[groupKey];
+          if (group) {
+            group.detections.push(detection);
+            group.totalOccurrences++;
 
-          // Track unique titulares
-          if (!groupedTitulares[groupKey]!.uniqueTitulares.includes(detection.titular)) {
-            groupedTitulares[groupKey]!.uniqueTitulares.push(detection.titular);
+            // Track unique titulares
+            if (!group.uniqueTitulares.includes(detection.titular)) {
+              group.uniqueTitulares.push(detection.titular);
+            }
           }
         });
 
