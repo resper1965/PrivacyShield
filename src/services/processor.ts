@@ -64,13 +64,13 @@ function isValidCNPJ(cnpj: string): boolean {
 
   let sum = 0;
   for (let i = 0; i < 12; i++) {
-    sum += parseInt(cleanCNPJ.charAt(i)) * weights1[i];
+    sum += parseInt(cleanCNPJ.charAt(i)) * (weights1[i] || 0);
   }
   let digit1 = sum % 11 < 2 ? 0 : 11 - (sum % 11);
 
   sum = 0;
   for (let i = 0; i < 13; i++) {
-    sum += parseInt(cleanCNPJ.charAt(i)) * weights2[i];
+    sum += parseInt(cleanCNPJ.charAt(i)) * (weights2[i] || 0);
   }
   let digit2 = sum % 11 < 2 ? 0 : 11 - (sum % 11);
 
@@ -90,12 +90,11 @@ function isValidBrazilianPhone(phone: string): boolean {
  */
 function extractTitular(text: string, detection: string): string {
   const beforeDetection = text.substring(0, text.indexOf(detection));
-  const words = beforeDetection.split(/\s+/).slice(-10);
   
   const namePattern = /([A-ZÁÀÂÃÉÊÍÓÔÕÚÇ][a-záàâãéêíóôõúç]+(?:\s+[A-ZÁÀÂÃÉÊÍÓÔÕÚÇ][a-záàâãéêíóôõúç]+)*)/g;
   const matches = beforeDetection.match(namePattern);
   
-  return matches ? matches[matches.length - 1] : 'Não identificado';
+  return matches && matches.length > 0 ? (matches[matches.length - 1] || 'Não identificado') : 'Não identificado';
 }
 
 /**

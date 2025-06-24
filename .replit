@@ -26,7 +26,7 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npx ts-node src/main.ts"
+args = "npx ts-node src/server-simple.ts"
 waitForPort = 8000
 
 [[workflows.workflow]]
