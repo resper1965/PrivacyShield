@@ -2,7 +2,7 @@
 
 ## Overview
 
-This is a Node.js/Express application built with TypeScript for detecting personally identifiable information (PII) in ZIP files. The system processes uploaded ZIP files, validates them using MIME type checking and ClamAV virus scanning, extracts contents, and detects CPF, CNPJ, Email, and Phone patterns using regex. All data is stored in memory with no external database dependencies. The server provides RESTful API endpoints for file upload and filtered reporting by data subjects.
+This is a Node.js/Express application built with TypeScript for detecting personally identifiable information (PII) in ZIP files. The system processes uploaded ZIP files asynchronously using BullMQ queues, validates them using MIME type checking and ClamAV virus scanning, extracts contents securely, and detects CPF, CNPJ, Email, and Phone patterns with Brazilian validation algorithms. Data is persisted in PostgreSQL database using Prisma ORM. The server provides RESTful API endpoints for file upload, queue monitoring, and filtered reporting by data subjects.
 
 ## System Architecture
 
@@ -101,6 +101,8 @@ Changelog:
 - June 24, 2025: Implemented R2 - Secure ZIP extraction with unzipper, traversal protection, and 100x compression ratio limits
 - June 24, 2025: Implemented R3 - Enhanced PII detection with Brazilian validation algorithms, session-based storage in detections.json with append mode
 - June 24, 2025: Implemented R4 - Titulares report with domain/CNPJ grouping and OR filter logic
+- June 24, 2025: Implemented R5 - PostgreSQL migration with Prisma ORM, File and Detection tables with database persistence
+- June 24, 2025: Implemented R6 - BullMQ queue system with archiveQueue (ZIP) and fileQueue (individual files), asynchronous processing with Redis connection
 
 ## Notes for Development
 
