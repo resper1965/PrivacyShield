@@ -10,15 +10,12 @@ import { extractZipFiles } from '../zipExtractor';
 import { detectPIIInText } from '../detectPII';
 import { piiRepository } from '../repository';
 import { virusScanner } from '../virusScanner';
-import * as path from 'path';
 import * as fs from 'fs-extra';
 
 // Worker options
 const workerOptions = {
   connection: redisConnection,
   concurrency: 3,
-  removeOnComplete: 50,
-  removeOnFail: 100,
 };
 
 /**
@@ -45,15 +42,18 @@ export const archiveWorker = new Worker<ArchiveJobData>(
       const extractionResult = await extractZipFiles(zipPath);
       
       // Step 3: Create file record in database
-      const fileRecord = await piiRepository.createFile({
+      const createFileData: any = {
         filename: originalName,
         originalName: originalName,
         zipSource: originalName,
-        mimeType: mimeType,
-        size: size,
         sessionId: sessionId,
         totalFiles: extractionResult.totalFiles,
-      });
+      };
+      
+      if (mimeType) createFileData.mimeType = mimeType;
+      if (size) createFileData.size = size;
+      
+      const fileRecord = await piiRepository.createFile(createFileData);
       
       // Step 4: Queue individual files for processing
       const fileJobs: Promise<string>[] = [];
@@ -189,11 +189,9 @@ export function getWorkersStatus() {
   return {
     archiveWorker: {
       isRunning: archiveWorker.isRunning(),
-      isClosed: archiveWorker.isClosed(),
     },
     fileWorker: {
       isRunning: fileWorker.isRunning(),
-      isClosed: fileWorker.isClosed(),
     },
   };
 }
