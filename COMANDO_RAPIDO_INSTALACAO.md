@@ -5,7 +5,15 @@
 Para instalar o N.Crisis completo em uma VPS Ubuntu 22.04+:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/resper1965/PrivacyShield/main/scripts/init-vps.sh | sudo bash
+# Método 1: Download e execução do script completo
+curl -fsSL https://raw.githubusercontent.com/resper1965/PrivacyShield/main/install-vps-complete.sh -o install-vps.sh
+chmod +x install-vps.sh
+./install-vps.sh
+```
+
+**OU em uma linha:**
+```bash
+curl -fsSL https://raw.githubusercontent.com/resper1965/PrivacyShield/main/install-vps-complete.sh | sudo bash
 ```
 
 ## Pré-requisitos
