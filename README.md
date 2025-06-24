@@ -1,125 +1,224 @@
-# PIIDetector - PrivacyDetective
+# N.Crisis - PII Detection & LGPD Compliance Platform
 
-Sistema TypeScript para processamento seguro e detecção de PII em arquivos ZIP com proteções de segurança abrangentes.
+Sistema completo de detecção de informações pessoais (PII) com foco na conformidade com a LGPD brasileira.
 
-## Funcionalidades Principais
+## 🎯 Funcionalidades
 
-- **Processamento Seguro de ZIP**: Upload e processamento com validações avançadas de segurança
-- **Detecção de PII**: Detecta CPF, CNPJ, Email e Telefone usando validação por regex
-- **Escaneamento de Vírus**: Integração ClamAV com fallback para desenvolvimento
-- **Proteções de Segurança**: 
-  - Prevenção contra ataques de zip traversal
-  - Limite de ratio de compressão (máximo 100x)
-  - Limites de tamanho (100MB por arquivo, 50MB por ZIP)
-  - Validação de tipo MIME
-- **Acesso Duplo a Arquivos**: Upload via API ou cópia direta para diretório compartilhado
-- **Armazenamento em Memória**: Sem dependência de banco externo
-- **API RESTful**: Endpoints abrangentes com respostas padronizadas
+### Detecção de PII
+- **CPF/CNPJ**: Validação com algoritmos brasileiros
+- **Nome Próprio**: Detecção de nomes brasileiros completos
+- **Contatos**: Email e telefone com padrões nacionais
+- **Documentos**: RG, PIS/PASEP, Título de Eleitor, CEP
+- **Regex Personalizados**: Sistema flexível para padrões customizados
 
-## Proteções de Segurança
+### Análise de Arquivos
+- **Upload Individual**: Arquivos únicos via interface web
+- **Upload ZIP**: Processamento em lote de arquivos compactados
+- **Arquivos Locais**: Análise de ZIPs já existentes no servidor
+- **Pastas Compartilhadas**: Análise recursiva de diretórios
 
-### Extração Segura de ZIP (Implementação R2)
+### Gestão de Incidentes LGPD
+- **Cadastro de Incidentes**: Registro completo de violações
+- **Análise LGPD**: Mapeamento automático de artigos aplicáveis
+- **Organizações**: Gestão de empresas e CNPJs
+- **Usuários**: Controle de acesso e responsabilidades
 
-A função `extractZipFiles()` inclui múltiplas camadas de segurança:
+### Relatórios e Compliance
+- **Dashboard**: Estatísticas em tempo real
+- **Relatório Consolidado**: Visão geral das detecções
+- **Por Titular**: Agrupamento por pessoa física
+- **Por Organização**: Análise corporativa
+- **Export**: CSV e PDF para auditoria
 
-1. **Proteção contra Traversal**: Bloqueia `../`, caminhos absolutos e bytes nulos
-2. **Limite de Ratio de Compressão**: Máximo 100x (descomprimido/comprimido)
-3. **Limites de Tamanho**: 
-   - Arquivos individuais: 100MB máximo
-   - Arquivo ZIP: 50MB máximo
-4. **Limite de Quantidade**: Máximo 1.000 arquivos por ZIP
-5. **Validação MIME**: Aceita `application/zip` e `application/octet-stream`
+## 🏗️ Arquitetura
 
-### Escaneamento de Vírus
+### Backend
+- **Node.js 20** com TypeScript
+- **Express.js** para API REST
+- **PostgreSQL** com Prisma ORM
+- **Redis** para cache e filas
+- **Socket.IO** para atualizações em tempo real
 
-- Integração ClamAV usando `clamdjs`
-- Retorna status 422 para arquivos infectados
-- Fallback gracioso para ambientes de desenvolvimento
+### Frontend
+- **React 18** com TypeScript
+- **Vite** para build otimizado
+- **React Router** para navegação
+- **Axios** para comunicação com API
 
-## Endpoints da API
+### Segurança
+- **ClamAV** para escaneamento de vírus
+- **Helmet** para headers de segurança
+- **CORS** configurável por ambiente
+- **Validação** de entrada em todas as APIs
 
-### Verificação de Saúde
-```
-GET /health
-```
+## 🚀 Instalação
 
-### Upload de Arquivo ZIP
-```
-POST /api/zip
-Content-Type: multipart/form-data
-Body: file (arquivo ZIP)
-
-Resposta: JSON com contagem de detecções e resultados do scan
-```
-
-### Listar Arquivos Disponíveis
-```
-GET /api/zip/list
-
-Resposta: Array JSON de arquivos no diretório uploads
-```
-
-### Processar Arquivo ZIP Local
-```
-GET /api/zip/local?name=arquivo.zip
-
-Resposta: JSON com resultados de detecção para o arquivo especificado
-```
-
-### Relatório de PII (Filtrado)
-```
-GET /api/report/titulares?domain=empresa.com&cnpj=12.345.678/0001-90
-
-Resposta: Detecções de PII filtradas por domínio e/ou CNPJ
-```
-
-## Padrões de Detecção de PII
-
-- **CPF**: ID de contribuinte individual brasileiro com algoritmo de validação
-- **CNPJ**: ID de contribuinte empresa brasileira com algoritmo de validação  
-- **Email**: Validação de formato de email padrão
-- **Telefone**: Padrões de número de telefone brasileiro
-
-## Estrutura de Diretórios
-
-```
-uploads/          # Diretório compartilhado para arquivos enviados e copiados
-tmp/             # Diretório temporário de extração
-src/
-  ├── server.ts        # Servidor Express principal
-  ├── detectPII.ts     # Lógica de detecção de PII
-  ├── virusScanner.ts  # Integração ClamAV
-  ├── zipExtractor.ts  # Extração segura de ZIP (R2)
-  └── types/          # Definições TypeScript
-```
-
-## Desenvolvimento
-
+### Desenvolvimento
 ```bash
+# Clone o repositório
+git clone https://github.com/seu-usuario/ncrisis.git
+cd ncrisis
+
+# Instale dependências
 npm install
+cd frontend && npm install && cd ..
+
+# Configure o banco de dados
+cp .env.example .env
+# Edite .env com suas configurações
+
+# Execute migrações
+npm run db:push
+
+# Inicie o desenvolvimento
 npm run dev
 ```
 
-O servidor iniciará em `http://0.0.0.0:8000`
-
-## Produção
-
+### Produção com Docker
 ```bash
-npm run build
-npm start
+# Deploy completo
+./deploy.sh homolog
+
+# Ou manualmente
+docker-compose up --build -d
+
+# Verificar status
+docker-compose ps
 ```
 
-## Variáveis de Ambiente
+## 📁 Estrutura de Pastas
 
-- `NODE_ENV`: development/production
-- `PORT`: Porta do servidor (padrão: 8000)
-- `HOST`: Host do servidor (padrão: 0.0.0.0)
+```
+.
+├── src/                    # Backend TypeScript
+│   ├── server-simple.ts    # Servidor principal
+│   ├── detectPII.ts       # Engine de detecção
+│   ├── regexPatterns.ts    # Padrões regex
+│   └── ...
+├── frontend/               # Frontend React
+│   ├── src/
+│   │   ├── pages/         # Páginas da aplicação
+│   │   ├── components/    # Componentes reutilizáveis
+│   │   └── ...
+├── uploads/               # Arquivos via upload web
+├── local_files/          # ZIPs locais para análise
+├── shared_folders/       # Pastas compartilhadas
+├── docker-compose.yml    # Orquestração Docker
+└── deploy.sh            # Script de deploy
+```
 
-## Fluxo de Processamento de Arquivos
+## 🔧 Configuração
 
-1. **Upload/Acesso a Arquivo**: Via POST /api/zip ou cópia direta para uploads/
-2. **Validação MIME**: Verificar tipo de arquivo ZIP
-3. **Escaneamento de Vírus**: Scan ClamAV com resposta 422 para ameaças
-4. **Extração Segura**: Descompactar com proteção contra traversal e compressão
-5. **Detecção de PII**: Escanear conteúdo extraído para padrões PII brasileiros
-6. **Resposta**: JSON com contagem e detalhes das detecções
+### Variáveis de Ambiente
+```bash
+# Database
+DATABASE_URL=postgresql://user:pass@localhost:5432/ncrisis
+
+# Redis (opcional)
+REDIS_URL=redis://localhost:6379
+
+# OpenAI (para análise avançada)
+OPENAI_API_KEY=sk-...
+
+# Servidor
+NODE_ENV=production
+PORT=8000
+```
+
+### Arquivos de Dados
+
+#### Arquivos ZIP Locais
+Coloque arquivos ZIP em `/local_files/` para análise via interface:
+```bash
+cp seus_arquivos.zip local_files/
+```
+
+#### Pastas Compartilhadas
+Configure diretórios em `/shared_folders/` para análise recursiva:
+```bash
+mkdir -p shared_folders/documentos_empresa
+cp -r /path/to/docs/* shared_folders/documentos_empresa/
+```
+
+## 📊 APIs Principais
+
+### Detecções
+- `GET /api/v1/detections` - Lista detecções
+- `POST /api/v1/archives/upload` - Upload de arquivo
+
+### Regex Patterns
+- `GET /api/v1/regex-patterns` - Lista padrões
+- `POST /api/v1/regex-patterns` - Cria padrão
+- `POST /api/v1/regex-patterns/test` - Testa padrão
+
+### Pastas e Arquivos
+- `GET /api/v1/local-zips` - Lista ZIPs locais
+- `GET /api/v1/folders/available` - Lista pastas
+- `POST /api/v1/folders/analyze` - Analisa pasta
+
+### Relatórios
+- `GET /api/v1/reports/lgpd/consolidado` - Relatório consolidado
+- `GET /api/v1/reports/lgpd/titulares` - Por titular
+- `GET /api/v1/reports/lgpd/organizacoes` - Por organização
+
+## 🛡️ Segurança
+
+### Validação de Arquivos
+- Escaneamento antivírus obrigatório
+- Validação de tipos MIME
+- Proteção contra zip bombs
+- Limites de tamanho configuráveis
+
+### Detecção de PII
+- Validação algorítmica para CPF/CNPJ
+- Padrões específicos para Brasil
+- Falsos positivos minimizados
+- Context-aware detection
+
+### Compliance LGPD
+- Mapeamento automático de artigos
+- Classificação de riscos
+- Auditoria completa
+- Relatórios para DPO
+
+## 📈 Monitoramento
+
+### Health Checks
+- `GET /health` - Status da aplicação
+- `GET /api/queue/status` - Status das filas
+- Métricas do Docker incluídas
+
+### Logs
+- Logs estruturados com Pino
+- Rotação automática
+- Níveis configuráveis
+- Integração com Docker logs
+
+## 🤝 Contribuição
+
+1. Fork o projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
+
+## 📝 Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para detalhes.
+
+## 🆘 Suporte
+
+Para suporte e dúvidas:
+- 📧 Email: suporte@ncrisis.com.br
+- 📖 Documentação: [docs.ncrisis.com.br](https://docs.ncrisis.com.br)
+- 🐛 Issues: [GitHub Issues](https://github.com/seu-usuario/ncrisis/issues)
+
+## 🏆 Changelog
+
+### v1.0.0 (2025-06-24)
+- Sistema completo de detecção PII
+- Interface React moderna
+- Compliance LGPD integrado
+- Sistema de regex personalizados
+- Deploy Docker automatizado
+- Análise de pastas locais e compartilhadas

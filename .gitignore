@@ -1,22 +1,29 @@
 # Dependencies
 node_modules/
+*/node_modules/
+
+# Production builds
+build/
+dist/
+frontend/dist/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+logs/
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-pnpm-debug.log*
-
-# Project specific
-uploads/
-tmp/
-detections.json
-
-# Build outputs
-build/
-dist/
-*.tsbuildinfo
+lerna-debug.log*
 
 # Runtime data
-pids
+pids/
 *.pid
 *.seed
 *.pid.lock
@@ -28,19 +35,8 @@ coverage/
 # nyc test coverage
 .nyc_output
 
-# Grunt intermediate storage
-.grunt
-
-# Bower dependency directory
-bower_components
-
-# node-waf configuration
-.lock-wscript
-
-# Compiled binary addons
-build/Release
-
 # Dependency directories
+node_modules/
 jspm_packages/
 
 # TypeScript cache
@@ -51,9 +47,6 @@ jspm_packages/
 
 # Optional eslint cache
 .eslintcache
-
-# Optional stylelint cache
-.stylelintcache
 
 # Microbundle cache
 .rpt2_cache/
@@ -72,12 +65,9 @@ jspm_packages/
 
 # dotenv environment variables file
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.test
 
-# parcel-bundler cache
+# parcel-bundler cache (https://parceljs.org/)
 .cache
 .parcel-cache
 
@@ -86,38 +76,20 @@ jspm_packages/
 
 # Nuxt.js build / generate output
 .nuxt
-dist
 
 # Gatsby files
 .cache/
 public
 
-# Vuepress build output
-.vuepress/dist
+# Storybook build outputs
+.out
+.storybook-out
 
-# Serverless directories
-.serverless/
+# Temporary folders
+tmp/
+temp/
 
-# FuseBox cache
-.fusebox/
-
-# DynamoDB Local files
-.dynamodb/
-
-# TernJS port file
-.tern-port
-
-# Stores VSCode versions used for testing VSCode extensions
-.vscode-test
-
-# yarn v2
-.yarn/cache
-.yarn/unplugged
-.yarn/build-state.yml
-.yarn/install-state.gz
-.pnp.*
-
-# IDE files
+# IDE and editor files
 .vscode/
 .idea/
 *.swp
@@ -133,26 +105,30 @@ public
 ehthumbs.db
 Thumbs.db
 
-# Logs
-logs
-*.log
+# Application specific
+uploads/
+!uploads/.gitkeep
+local_files/
+!local_files/.gitkeep
+shared_folders/
+!shared_folders/.gitkeep
 
-# Runtime data
-pids
-*.pid
-*.seed
+# Database files
+*.sqlite
+*.db
 
-# Coverage directory used by tools like istanbul
-coverage
+# Replit specific
+.replit
+replit.nix
 
-# Grunt intermediate storage
-.grunt
+# Docker
+.dockerignore
 
-# Compiled binary addons
-build/Release
+# Test files with sensitive data
+infected_*.zip
+virus_*.zip
+test_*.zip
+*.infected
 
-# Users Environment Variables
-.lock-wscript
-
-# Runtime configuration for nginx
-nginx.conf
+# Detection results
+detections.json
