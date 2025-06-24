@@ -71,9 +71,9 @@ export const SimpleDashboard: React.FC = () => {
         </div>
 
         <div style={{
-          backgroundColor: '#1A2332',
-          border: '1px solid #2A3441',
-          borderRadius: '12px',
+          backgroundColor: '#112240',
+          border: '1px solid #1B263B',
+          borderRadius: '8px',
           padding: '24px',
           position: 'relative',
           overflow: 'hidden'
@@ -193,9 +193,9 @@ export const SimpleDashboard: React.FC = () => {
 
       {/* Activity Feed */}
       <div style={{
-        backgroundColor: '#1A2332',
-        border: '1px solid #2A3441',
-        borderRadius: '12px',
+        backgroundColor: '#112240',
+        border: '1px solid #1B263B',
+        borderRadius: '8px',
         padding: '24px'
       }}>
         <div style={{ 
@@ -238,9 +238,9 @@ export const SimpleDashboard: React.FC = () => {
               alignItems: 'center',
               gap: '12px',
               padding: '12px',
-              backgroundColor: '#0F1824',
+              backgroundColor: '#0D1B2A',
               borderRadius: '8px',
-              border: '1px solid #1E2835'
+              border: '1px solid #1B263B'
             }}>
               <div style={{
                 minWidth: '32px',
