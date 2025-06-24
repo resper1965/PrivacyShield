@@ -231,8 +231,8 @@ app.post('/api/v1/archives/upload', upload.single('file'), async (req: Request, 
       totalDetections,
       sessionId,
       scanResult: {
-        isClean: scanResult.isClean,
-        scanner: scanResult.scanner,
+        isClean: !scanResult.isInfected,
+        scanner: 'clamav',
         scanTime: scanResult.scanTime
       }
     };
