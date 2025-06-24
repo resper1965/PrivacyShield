@@ -101,7 +101,7 @@ const TelaCadastroCaso: React.FC = () => {
 
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#0D1B2A', position: 'relative' }}>
+    <div style={{ padding: '24px' }}>
       {/* Toast Notifications */}
       {showToast && (
         <div style={{
@@ -121,16 +121,32 @@ const TelaCadastroCaso: React.FC = () => {
         </div>
       )}
 
-      <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '16px 24px' }}>
-        <form 
-          onSubmit={handleSubmit(onSubmit)}
-          style={{
-            backgroundColor: '#112240',
-            border: '1px solid #1B263B',
-            borderRadius: '8px',
-            padding: '32px'
-          }}
-        >
+      {/* Header */}
+      <div style={{ marginBottom: '24px' }}>
+        <h1 style={{ 
+          color: '#E0E1E6', 
+          fontSize: '28px', 
+          fontWeight: '600',
+          margin: '0 0 8px 0'
+        }}>
+          Novo Incidente
+        </h1>
+        <p style={{ 
+          color: '#A5A8B1', 
+          fontSize: '16px',
+          margin: 0
+        }}>
+          Registre um novo incidente de segurança da informação
+        </p>
+      </div>
+
+      <div style={{ 
+        backgroundColor: '#112240',
+        border: '1px solid #1B263B',
+        borderRadius: '12px',
+        padding: '32px'
+      }}>
+        <form onSubmit={handleSubmit(onSubmit)}>
 
           {/* Grid para Empresa e Data */}
           <div style={{ 
@@ -287,16 +303,25 @@ const TelaCadastroCaso: React.FC = () => {
             {/* Tooltip específico para o tipo selecionado */}
             {watch('type') && incidentTooltips[watch('type') as keyof typeof incidentTooltips] && (
               <div style={{
-                marginTop: '10px',
-                padding: '12px',
-                backgroundColor: 'rgba(0, 173, 224, 0.1)',
-                border: '1px solid #00ade0',
-                borderRadius: '6px',
-                color: '#E0E1E6',
+                marginTop: '12px',
+                padding: '16px',
+                backgroundColor: '#0D1B2A',
+                border: '1px solid #1B263B',
+                borderRadius: '8px',
+                color: '#A5A8B1',
                 fontSize: '14px',
-                lineHeight: '1.4'
+                lineHeight: '1.5'
               }}>
-                <strong style={{ color: '#00ade0' }}>Definição:</strong><br />
+                <div style={{ 
+                  color: '#00ade0', 
+                  fontSize: '12px', 
+                  fontWeight: '600', 
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  marginBottom: '8px'
+                }}>
+                  Definição
+                </div>
                 {incidentTooltips[watch('type') as keyof typeof incidentTooltips]}
               </div>
             )}
@@ -364,11 +389,11 @@ const TelaCadastroCaso: React.FC = () => {
           {/* Loading State */}
           {createIncidentMutation.isPending && (
             <div style={{
-              padding: '12px',
+              padding: '16px',
               backgroundColor: 'rgba(0, 173, 224, 0.1)',
               border: '1px solid #00ade0',
-              borderRadius: '6px',
-              marginBottom: '16px',
+              borderRadius: '8px',
+              marginBottom: '24px',
               textAlign: 'center'
             }}>
               <p style={{ color: '#00ade0', fontSize: '14px', margin: 0 }}>
@@ -380,11 +405,11 @@ const TelaCadastroCaso: React.FC = () => {
           {/* Error State */}
           {createIncidentMutation.isError && !showToast && (
             <div style={{
-              padding: '12px',
+              padding: '16px',
               backgroundColor: 'rgba(239, 68, 68, 0.1)',
               border: '1px solid #ef4444',
-              borderRadius: '6px',
-              marginBottom: '16px'
+              borderRadius: '8px',
+              marginBottom: '24px'
             }}>
               <p style={{ color: '#ef4444', fontSize: '14px', margin: 0 }}>
                 Erro ao criar incidente. Tente novamente.
@@ -396,7 +421,7 @@ const TelaCadastroCaso: React.FC = () => {
           <div style={{
             display: 'flex',
             gap: '16px',
-            paddingTop: '24px',
+            paddingTop: '32px',
             borderTop: '1px solid #1B263B'
           }}>
             <button
@@ -404,22 +429,28 @@ const TelaCadastroCaso: React.FC = () => {
               onClick={saveDraft}
               disabled={isDraft}
               style={{
-                flex: 1,
-                padding: '16px 24px',
+                padding: '14px 24px',
                 backgroundColor: 'transparent',
-                border: '1px solid #1B263B',
+                border: '1px solid #374151',
                 borderRadius: '8px',
-                color: '#E0E1E6',
-                fontSize: '16px',
+                color: '#A5A8B1',
+                fontSize: '14px',
                 fontWeight: '500',
                 cursor: isDraft ? 'not-allowed' : 'pointer',
-                opacity: isDraft ? 0.6 : 1
+                opacity: isDraft ? 0.6 : 1,
+                transition: 'all 0.2s ease'
               }}
               onMouseEnter={(e) => {
-                if (!isDraft) e.target.style.backgroundColor = '#1B263B';
+                if (!isDraft) {
+                  e.target.style.backgroundColor = '#1B263B';
+                  e.target.style.borderColor = '#1B263B';
+                }
               }}
               onMouseLeave={(e) => {
-                if (!isDraft) e.target.style.backgroundColor = 'transparent';
+                if (!isDraft) {
+                  e.target.style.backgroundColor = 'transparent';
+                  e.target.style.borderColor = '#374151';
+                }
               }}
             >
               {isDraft ? 'Salvando...' : 'Salvar Rascunho'}
@@ -429,16 +460,26 @@ const TelaCadastroCaso: React.FC = () => {
               type="submit"
               disabled={!isValid || createIncidentMutation.isPending}
               style={{
-                flex: 1,
-                padding: '16px 24px',
+                padding: '14px 32px',
                 backgroundColor: isValid && !createIncidentMutation.isPending ? '#00ade0' : '#374151',
                 border: 'none',
                 borderRadius: '8px',
                 color: 'white',
-                fontSize: '16px',
-                fontWeight: '500',
+                fontSize: '14px',
+                fontWeight: '600',
                 cursor: isValid && !createIncidentMutation.isPending ? 'pointer' : 'not-allowed',
-                opacity: isValid && !createIncidentMutation.isPending ? 1 : 0.6
+                opacity: isValid && !createIncidentMutation.isPending ? 1 : 0.6,
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                if (isValid && !createIncidentMutation.isPending) {
+                  e.target.style.backgroundColor = '#0099c7';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (isValid && !createIncidentMutation.isPending) {
+                  e.target.style.backgroundColor = '#00ade0';
+                }
               }}
             >
               {createIncidentMutation.isPending ? 'Cadastrando...' : 'Cadastrar Incidente'}
@@ -446,6 +487,7 @@ const TelaCadastroCaso: React.FC = () => {
           </div>
         </form>
       </div>
+    </div>
 
       {/* CSS Animation for spinner */}
       <style>{`
