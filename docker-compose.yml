@@ -1,168 +1,80 @@
-version: "3.9"
+version: '3.8'
 
 services:
-  traefik:
-    image: traefik:v3.0
-    command:
-      - "--providers.file.filename=/dynamic.yml"
-      - "--providers.file.watch=true"
-      - "--providers.docker=true"
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
-      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
-      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
-      - "--certificatesresolvers.letsencrypt.acme.email=${EMAIL:-admin@example.com}"
-      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
-    volumes:
-      - "./traefik/traefik.yml:/traefik.yml:ro"
-      - "./traefik/dynamic.yml:/dynamic.yml:ro"
-      - "./traefik/letsencrypt:/letsencrypt"
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-    ports:
-      - "80:80"
-      - "443:443"
-      - "8080:8080"  # Traefik dashboard
-    restart: unless-stopped
-    networks:
-      - pii-network
-
-  api:
-    build: 
-      context: .
-      dockerfile: Dockerfile
-    container_name: piid-api
-    env_file: .env
-    environment:
-      - NODE_ENV=production
-      - PORT=3000
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.api.rule=Host(`api.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.api.entrypoints=websecure"
-      - "traefik.http.routers.api.tls.certResolver=letsencrypt"
-      - "traefik.http.services.api.loadbalancer.server.port=3000"
-    volumes:
-      - ./uploads:/uploads
-      - ./tmp:/tmp
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      clamav:
-        condition: service_started
-    restart: unless-stopped
-    networks:
-      - pii-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-
-  worker:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: piid-worker
-    command: ["npm", "run", "worker"]
-    env_file: .env
-    environment:
-      - NODE_ENV=production
-    volumes:
-      - ./uploads:/uploads
-      - ./tmp:/tmp
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      clamav:
-        condition: service_started
-    restart: unless-stopped
-    networks:
-      - pii-network
-
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: piid-frontend
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.ui.rule=Host(`${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.ui.entrypoints=websecure"
-      - "traefik.http.routers.ui.tls.certResolver=letsencrypt"
-      - "traefik.http.services.ui.loadbalancer.server.port=80"
-    restart: unless-stopped
-    networks:
-      - pii-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
+  # PostgreSQL Database
   postgres:
-    image: postgres:16-alpine
-    container_name: piid-postgres
-    env_file: .env
+    image: postgres:15-alpine
+    container_name: ncrisis-postgres
     environment:
-      - POSTGRES_USER=${POSTGRES_USER:-pii}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB:-piidetector}
-      - PGDATA=/var/lib/postgresql/data/pgdata
+      POSTGRES_DB: ncrisis_db
+      POSTGRES_USER: ncrisis_user
+      POSTGRES_PASSWORD: ncrisis_pass
+      POSTGRES_HOST_AUTH_METHOD: md5
+    ports:
+      - "5432:5432"
     volumes:
-      - ./db:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    restart: unless-stopped
     networks:
-      - pii-network
+      - ncrisis-network
+    restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-pii} -d ${POSTGRES_DB:-piidetector}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      test: ["CMD-SHELL", "pg_isready -U ncrisis_user -d ncrisis_db"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
+  # Redis (for future caching/queues)
   redis:
     image: redis:7-alpine
-    container_name: piid-redis
-    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    container_name: ncrisis-redis
+    ports:
+      - "6379:6379"
     volumes:
       - redis_data:/data
-    restart: unless-stopped
     networks:
-      - pii-network
+      - ncrisis-network
+    restart: unless-stopped
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 3s
-      retries: 3
-
-  clamav:
-    image: mkubecek/clamav:alpine
-    container_name: piid-clamav
-    restart: unless-stopped
-    volumes:
-      - clamav_db:/var/lib/clamav
-    networks:
-      - pii-network
-    environment:
-      - CLAMD_STARTUP_TIMEOUT=300
-    healthcheck:
-      test: ["CMD", "clamdscan", "--version"]
-      interval: 60s
+      interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 300s
+
+  # N.Crisis Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ncrisis-app
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://ncrisis_user:ncrisis_pass@postgres:5432/ncrisis_db
+      - REDIS_URL=redis://redis:6379
+      - PORT=8000
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - ncrisis-network
+    restart: unless-stopped
+    volumes:
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 volumes:
-  clamav_db:
-    driver: local
+  postgres_data:
   redis_data:
-    driver: local
 
 networks:
-  pii-network:
+  ncrisis-network:
     driver: bridge

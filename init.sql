@@ -1,41 +1,103 @@
--- PIIDetector Database Initialization
--- This script runs on first database startup
+-- N.Crisis Database Initialization Script
+-- Creates necessary tables for PII detection system
 
--- Create extensions
+-- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-CREATE EXTENSION IF NOT EXISTS "pg_trgm";
 
--- Create indexes for better performance
--- These will be applied after Prisma migrations
-
--- User audit log table (optional)
-CREATE TABLE IF NOT EXISTS audit_log (
+-- Files table
+CREATE TABLE IF NOT EXISTS files (
     id SERIAL PRIMARY KEY,
-    user_id VARCHAR(255),
-    action VARCHAR(100) NOT NULL,
-    table_name VARCHAR(100),
-    record_id VARCHAR(255),
-    old_values JSONB,
-    new_values JSONB,
-    ip_address INET,
-    user_agent TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    filename VARCHAR(255) NOT NULL,
+    original_name VARCHAR(255),
+    zip_source VARCHAR(255),
+    mime_type VARCHAR(100),
+    size BIGINT,
+    uploaded_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    processed_at TIMESTAMP WITH TIME ZONE,
+    session_id UUID DEFAULT uuid_generate_v4(),
+    total_files INTEGER,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Create index on audit log
-CREATE INDEX IF NOT EXISTS idx_audit_log_created_at ON audit_log(created_at);
-CREATE INDEX IF NOT EXISTS idx_audit_log_user_id ON audit_log(user_id);
-CREATE INDEX IF NOT EXISTS idx_audit_log_action ON audit_log(action);
+-- Detections table
+CREATE TABLE IF NOT EXISTS detections (
+    id SERIAL PRIMARY KEY,
+    titular VARCHAR(255) NOT NULL,
+    documento VARCHAR(50) NOT NULL,
+    valor TEXT NOT NULL,
+    arquivo VARCHAR(255) NOT NULL,
+    timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    file_id INTEGER REFERENCES files(id) ON DELETE CASCADE,
+    context TEXT,
+    is_false_positive BOOLEAN DEFAULT FALSE,
+    risk_level VARCHAR(20) DEFAULT 'medium',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
 
--- Performance settings
-ALTER SYSTEM SET shared_buffers = '256MB';
-ALTER SYSTEM SET effective_cache_size = '1GB';
-ALTER SYSTEM SET maintenance_work_mem = '64MB';
-ALTER SYSTEM SET checkpoint_completion_target = 0.9;
-ALTER SYSTEM SET wal_buffers = '16MB';
-ALTER SYSTEM SET default_statistics_target = 100;
-ALTER SYSTEM SET random_page_cost = 1.1;
-ALTER SYSTEM SET effective_io_concurrency = 200;
+-- Organizations table
+CREATE TABLE IF NOT EXISTS organizations (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL UNIQUE,
+    cnpj VARCHAR(18),
+    domain VARCHAR(255),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
 
--- Reload configuration
-SELECT pg_reload_conf();
+-- Incidents table
+CREATE TABLE IF NOT EXISTS incidents (
+    id SERIAL PRIMARY KEY,
+    company VARCHAR(255) NOT NULL,
+    type VARCHAR(100) NOT NULL,
+    description TEXT NOT NULL,
+    detected_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    reported_by VARCHAR(255),
+    status VARCHAR(50) DEFAULT 'open',
+    severity VARCHAR(20) DEFAULT 'medium',
+    affected_data_types TEXT[],
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Configuration table
+CREATE TABLE IF NOT EXISTS configurations (
+    id SERIAL PRIMARY KEY,
+    key VARCHAR(100) NOT NULL UNIQUE,
+    value TEXT NOT NULL,
+    description TEXT,
+    category VARCHAR(50),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Indexes for performance
+CREATE INDEX IF NOT EXISTS idx_files_session_id ON files(session_id);
+CREATE INDEX IF NOT EXISTS idx_files_uploaded_at ON files(uploaded_at);
+CREATE INDEX IF NOT EXISTS idx_detections_file_id ON detections(file_id);
+CREATE INDEX IF NOT EXISTS idx_detections_timestamp ON detections(timestamp);
+CREATE INDEX IF NOT EXISTS idx_detections_documento ON detections(documento);
+CREATE INDEX IF NOT EXISTS idx_incidents_company ON incidents(company);
+CREATE INDEX IF NOT EXISTS idx_incidents_type ON incidents(type);
+CREATE INDEX IF NOT EXISTS idx_incidents_detected_at ON incidents(detected_at);
+
+-- Insert default configuration values
+INSERT INTO configurations (key, value, description, category) VALUES
+('MAX_UPLOAD_MB', '100', 'Maximum upload size in MB', 'upload'),
+('ALLOWED_EXTS', '.zip,.pdf,.docx,.txt,.csv,.xlsx', 'Allowed file extensions', 'upload'),
+('ZIP_MAX_DEPTH', '5', 'Maximum ZIP extraction depth', 'security'),
+('ZIP_BOMB_RATIO', '100', 'Maximum compression ratio to prevent zip bombs', 'security'),
+('ENABLE_PII_DETECTION', 'true', 'Enable PII detection functionality', 'detection'),
+('CPF_VALIDATION', 'true', 'Enable CPF validation', 'detection'),
+('CNPJ_VALIDATION', 'true', 'Enable CNPJ validation', 'detection'),
+('EMAIL_VALIDATION', 'true', 'Enable email validation', 'detection'),
+('PHONE_VALIDATION', 'true', 'Enable phone validation', 'detection')
+ON CONFLICT (key) DO NOTHING;
+
+-- Sample organizations for testing
+INSERT INTO organizations (name, cnpj, domain) VALUES
+('Empresa Exemplo Ltda', '12.345.678/0001-90', 'exemplo.com.br'),
+('Tech Solutions SA', '98.765.432/0001-10', 'techsolutions.com.br'),
+('Consultoria Digital', '11.222.333/0001-44', 'consultoriadigital.com.br')
+ON CONFLICT (name) DO NOTHING;

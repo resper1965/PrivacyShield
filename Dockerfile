@@ -1,49 +1,69 @@
-# PIIDetector Backend Dockerfile
-FROM node:20-alpine
+# Multi-stage Dockerfile for N.Crisis PII Detection System
+FROM node:20-alpine AS builder
 
-# Install system dependencies
-RUN apk add --no-cache \
-    python3 \
-    make \
-    g++ \
-    git \
-    curl
-
-# Create app directory
+# Set working directory
 WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
-COPY tsconfig.json ./
+COPY frontend/package*.json ./frontend/
 
-# Install dependencies with audit fix
-RUN npm ci --only=production && npm audit fix --force
+# Install dependencies
+RUN npm ci --only=production
+RUN cd frontend && npm ci --only=production
 
 # Copy source code
-COPY src/ ./src/
-COPY prisma/ ./prisma/
+COPY . .
 
-# Build TypeScript
+# Build frontend
+RUN cd frontend && npm run build
+
+# Build backend (TypeScript compilation)
 RUN npm run build
 
-# Generate Prisma client
-RUN npx prisma generate
+# Production stage
+FROM node:20-alpine AS production
 
-# Create non-root user
+# Install system dependencies
+RUN apk add --no-cache \
+    curl \
+    dumb-init \
+    && rm -rf /var/cache/apk/*
+
+# Create app user
 RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nodejs -u 1001
+RUN adduser -S ncrisis -u 1001
 
-# Create directories with proper permissions
-RUN mkdir -p /uploads /tmp && \
-    chown -R nodejs:nodejs /app /uploads /tmp
+# Set working directory
+WORKDIR /app
 
-USER nodejs
+# Copy package files
+COPY package*.json ./
+
+# Install production dependencies only
+RUN npm ci --only=production && npm cache clean --force
+
+# Copy built application from builder stage
+COPY --from=builder --chown=ncrisis:nodejs /app/build ./build
+COPY --from=builder --chown=ncrisis:nodejs /app/frontend/dist ./dist
+COPY --from=builder --chown=ncrisis:nodejs /app/node_modules ./node_modules
+
+# Create necessary directories
+RUN mkdir -p uploads logs tmp && \
+    chown -R ncrisis:nodejs uploads logs tmp
+
+# Switch to non-root user
+USER ncrisis
+
+# Expose port
+EXPOSE 8000
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:3000/health || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
 
-EXPOSE 3000
+# Use dumb-init to handle signals properly
+ENTRYPOINT ["dumb-init", "--"]
 
-# Start application
-CMD ["npm", "start"]
+# Start the application
+CMD ["node", "build/src/server-simple.js"]
