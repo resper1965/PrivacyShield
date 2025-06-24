@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { SimpleLayout } from './components/SimpleLayout';
-import { Dashboard } from './pages/Dashboard';
+import { SimpleDashboard } from './pages/SimpleDashboard';
 import TelaCadastroCaso from './pages/TelaCadastroCaso';
 import { WebSocketProvider } from './hooks/useWebSocket';
 
@@ -11,8 +11,8 @@ function App() {
       <Router>
         <SimpleLayout>
           <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/" element={<SimpleDashboard />} />
+            <Route path="/dashboard" element={<SimpleDashboard />} />
             <Route path="/casos" element={<TelaCadastroCaso />} />
             <Route path="/arquivos" element={<div style={{color: '#E0E1E6'}}><h1>Arquivos - Em desenvolvimento</h1></div>} />
             <Route path="/relatorio" element={<div style={{color: '#E0E1E6'}}><h1>Relatório - Em desenvolvimento</h1></div>} />
