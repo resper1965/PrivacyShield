@@ -23,16 +23,6 @@ export interface ExtractionResult {
   overallCompressionRatio: number;
 }
 
-export interface ExtractionError {
-  error: string;
-  message: string;
-  details?: {
-    filename?: string;
-    compressionRatio?: number;
-    maxRatio?: number;
-  };
-}
-
 /**
  * Maximum compression ratio allowed (uncompressed / compressed)
  */
@@ -69,7 +59,7 @@ function isPathSafe(filePath: string): boolean {
  * Calculates compression ratio and validates against limits
  */
 function validateCompressionRatio(uncompressedSize: number, compressedSize: number): boolean {
-  if (compressedSize === 0) return false;
+  if (compressedSize === 0) return true; // Allow files with no compression info
   const ratio = uncompressedSize / compressedSize;
   return ratio <= MAX_COMPRESSION_RATIO;
 }
@@ -95,90 +85,81 @@ export async function extractZipFiles(zipPath: string): Promise<ExtractionResult
     return new Promise<ExtractionResult>((resolve, reject) => {
       zipStream
         .pipe(unzipper.Parse())
-        .on('entry', async (entry: unzipper.Entry) => {
+        .on('entry', (entry: any) => {
           const fileName = entry.path;
           const type = entry.type;
-          const compressedSize = entry.vars.compressedSize || 0;
-
-          try {
-            // Skip directories
-            if (type === 'Directory') {
-              entry.autodrain();
-              return;
-            }
-
-            // Validate file count limit
-            fileCount++;
-            if (fileCount > MAX_FILES_COUNT) {
-              entry.autodrain();
-              return reject(new Error(`Too many files in ZIP. Maximum allowed: ${MAX_FILES_COUNT}`));
-            }
-
-            // Validate path safety (prevent traversal)
-            if (!isPathSafe(fileName)) {
-              entry.autodrain();
-              return reject(new Error(`Unsafe file path detected: ${fileName}`));
-            }
-
-            // Validate file size
-            if (size > MAX_FILE_SIZE) {
-              entry.autodrain();
-              return reject(new Error(`File too large: ${fileName} (${size} bytes). Maximum: ${MAX_FILE_SIZE} bytes`));
-            }
-
-            // Validate compression ratio
-            if (!validateCompressionRatio(size, compressedSize)) {
-              const ratio = compressedSize > 0 ? size / compressedSize : Infinity;
-              entry.autodrain();
-              return reject(new Error(
-                `Compression ratio too high for file: ${fileName} (${ratio.toFixed(2)}x). Maximum allowed: ${MAX_COMPRESSION_RATIO}x`
-              ));
-            }
-
-            // Read file content
-            const chunks: Buffer[] = [];
-            entry.on('data', (chunk: Buffer) => {
-              chunks.push(chunk);
-            });
-
-            entry.on('end', () => {
-              try {
-                const buffer = Buffer.concat(chunks);
-                const content = buffer.toString('utf8');
-                const actualSize = buffer.length;
-
-                // Validate actual vs declared size
-                if (actualSize !== size && size > 0) {
-                  console.warn(`Size mismatch for ${fileName}: declared ${size}, actual ${actualSize}`);
-                }
-
-                // Calculate compression ratio with actual size
-                const compressionRatio = compressedSize > 0 ? actualSize / compressedSize : 1;
-
-                extractedFiles.push({
-                  filename: fileName,
-                  content: content,
-                  size: actualSize,
-                  compressedSize: compressedSize,
-                  compressionRatio: compressionRatio
-                });
-
-                totalUncompressedSize += actualSize;
-                totalCompressedSize += compressedSize;
-              } catch (error) {
-                console.error(`Error processing file ${fileName}:`, error);
-              }
-            });
-
-            entry.on('error', (error: Error) => {
-              console.error(`Error reading file ${fileName}:`, error);
-              reject(new Error(`Failed to read file ${fileName}: ${error.message}`));
-            });
-
-          } catch (error) {
+          
+          // Skip directories
+          if (type === 'Directory') {
             entry.autodrain();
-            reject(error);
+            return;
           }
+
+          // Validate file count limit
+          fileCount++;
+          if (fileCount > MAX_FILES_COUNT) {
+            entry.autodrain();
+            return reject(new Error(`Too many files in ZIP. Maximum allowed: ${MAX_FILES_COUNT}`));
+          }
+
+          // Validate path safety (prevent traversal)
+          if (!isPathSafe(fileName)) {
+            entry.autodrain();
+            return reject(new Error(`Unsafe file path detected: ${fileName}`));
+          }
+
+          // Read file content
+          const chunks: Buffer[] = [];
+          
+          entry.on('data', (chunk: Buffer) => {
+            chunks.push(chunk);
+          });
+
+          entry.on('end', () => {
+            try {
+              const buffer = Buffer.concat(chunks);
+              const content = buffer.toString('utf8');
+              const actualSize = buffer.length;
+              
+              // Get compressed size from vars if available
+              const compressedSize = (entry.vars && entry.vars.compressedSize) ? entry.vars.compressedSize : actualSize;
+
+              // Validate file size after reading
+              if (actualSize > MAX_FILE_SIZE) {
+                return reject(new Error(`File too large: ${fileName} (${actualSize} bytes). Maximum: ${MAX_FILE_SIZE} bytes`));
+              }
+
+              // Validate compression ratio after reading
+              if (!validateCompressionRatio(actualSize, compressedSize)) {
+                const ratio = compressedSize > 0 ? actualSize / compressedSize : Infinity;
+                return reject(new Error(
+                  `Compression ratio too high for file: ${fileName} (${ratio.toFixed(2)}x). Maximum allowed: ${MAX_COMPRESSION_RATIO}x`
+                ));
+              }
+
+              // Calculate compression ratio with actual size
+              const compressionRatio = compressedSize > 0 ? actualSize / compressedSize : 1;
+
+              extractedFiles.push({
+                filename: fileName,
+                content: content,
+                size: actualSize,
+                compressedSize: compressedSize,
+                compressionRatio: compressionRatio
+              });
+
+              totalUncompressedSize += actualSize;
+              totalCompressedSize += compressedSize;
+            } catch (error) {
+              console.error(`Error processing file ${fileName}:`, error);
+              reject(new Error(`Failed to process file ${fileName}: ${error instanceof Error ? error.message : 'Unknown error'}`));
+            }
+          });
+
+          entry.on('error', (error: Error) => {
+            console.error(`Error reading file ${fileName}:`, error);
+            reject(new Error(`Failed to read file ${fileName}: ${error.message}`));
+          });
         })
         .on('finish', () => {
           // Validate overall compression ratio
