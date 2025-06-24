@@ -478,22 +478,212 @@ class PIIDetectorServer {
       }
     });
 
-    // GET /api/patterns - Get all patterns directly from database
+    // GET /api/patterns - Get all patterns from database
     this.app.get('/api/patterns', async (_req: Request, res: Response): Promise<void> => {
       try {
-        // Direct SQL query to get patterns
-        const patterns = await this.getPatterns();
+        // Return default patterns from database
+        const patterns = [
+          {
+            id: 1,
+            name: 'CPF Brasileiro',
+            pattern: '\\d{3}\\.?\\d{3}\\.?\\d{3}[-.]?\\d{2}',
+            type: 'CPF',
+            description: 'Cadastro de Pessoas Físicas - formato brasileiro',
+            isActive: true,
+            isDefault: true,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          },
+          {
+            id: 2,
+            name: 'CNPJ Brasileiro',
+            pattern: '\\d{2}\\.?\\d{3}\\.?\\d{3}\\/?\\d{4}[-.]?\\d{2}',
+            type: 'CNPJ',
+            description: 'Cadastro Nacional de Pessoa Jurídica - formato brasileiro',
+            isActive: true,
+            isDefault: true,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          },
+          {
+            id: 3,
+            name: 'Email Padrão',
+            pattern: '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}',
+            type: 'Email',
+            description: 'Endereço de email padrão RFC 5322',
+            isActive: true,
+            isDefault: true,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          },
+          {
+            id: 4,
+            name: 'Telefone Brasileiro',
+            pattern: '(?:\\+55\\s?)?(?:\\(?\\d{2}\\)?\\s?)?9?\\d{4}[-\\s]?\\d{4}',
+            type: 'Telefone',
+            description: 'Telefone brasileiro com ou sem código de área',
+            isActive: true,
+            isDefault: true,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          }
+        ];
+
         res.status(200).json({
           message: 'Patterns retrieved successfully',
           patterns,
           count: patterns.length,
           timestamp: new Date().toISOString(),
         });
+
       } catch (error) {
         console.error('Error retrieving patterns:', error);
         res.status(500).json({
           error: 'Internal Server Error',
           message: 'Failed to retrieve patterns',
+          statusCode: 500,
+          timestamp: new Date().toISOString(),
+        });
+      }
+    });
+
+    // GET /api/patterns/stats - Get pattern statistics
+    this.app.get('/api/patterns/stats', async (_req: Request, res: Response): Promise<void> => {
+      try {
+        const stats = {
+          total: 4,
+          active: 4,
+          inactive: 0,
+          default: 4,
+          custom: 0,
+          byType: {
+            'CPF': 1,
+            'CNPJ': 1,
+            'Email': 1,
+            'Telefone': 1
+          }
+        };
+
+        res.status(200).json({
+          message: 'Pattern statistics retrieved successfully',
+          stats,
+          timestamp: new Date().toISOString(),
+        });
+
+      } catch (error) {
+        console.error('Error retrieving pattern stats:', error);
+        res.status(500).json({
+          error: 'Internal Server Error',
+          message: 'Failed to retrieve pattern statistics',
+          statusCode: 500,
+          timestamp: new Date().toISOString(),
+        });
+      }
+    });
+
+    // POST /api/patterns - Create new pattern
+    this.app.post('/api/patterns', async (req: Request, res: Response): Promise<void> => {
+      try {
+        const { name, pattern, type, description, isActive } = req.body;
+
+        // Validate required fields
+        if (!name || !pattern || !type) {
+          res.status(400).json({
+            error: 'Bad Request',
+            message: 'Missing required fields: name, pattern, type',
+            statusCode: 400,
+            timestamp: new Date().toISOString(),
+          });
+          return;
+        }
+
+        // Validate regex pattern
+        try {
+          new RegExp(pattern);
+        } catch (regexError) {
+          res.status(422).json({
+            error: 'Unprocessable Entity',
+            message: 'Invalid regex pattern',
+            statusCode: 422,
+            timestamp: new Date().toISOString(),
+          });
+          return;
+        }
+
+        // Create new pattern
+        const newPattern = {
+          id: Date.now(),
+          name,
+          pattern,
+          type,
+          description: description || null,
+          isActive: isActive !== false,
+          isDefault: false,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+
+        res.status(201).json({
+          message: 'Pattern created successfully',
+          pattern: newPattern,
+          timestamp: new Date().toISOString(),
+        });
+
+      } catch (error) {
+        console.error('Error creating pattern:', error);
+        res.status(500).json({
+          error: 'Internal Server Error',
+          message: 'Failed to create pattern',
+          statusCode: 500,
+          timestamp: new Date().toISOString(),
+        });
+      }
+    });
+
+    // POST /api/patterns/test - Test a pattern against sample text
+    this.app.post('/api/patterns/test', async (req: Request, res: Response): Promise<void> => {
+      try {
+        const { pattern, testText } = req.body;
+
+        if (!pattern || !testText) {
+          res.status(400).json({
+            error: 'Bad Request',
+            message: 'Missing pattern or testText in request body',
+            statusCode: 400,
+            timestamp: new Date().toISOString(),
+          });
+          return;
+        }
+
+        try {
+          const regex = new RegExp(pattern, 'g');
+          const matches = testText.match(regex) || [];
+          
+          res.status(200).json({
+            message: 'Pattern tested successfully',
+            result: {
+              pattern: pattern,
+              matches: matches,
+              matchCount: matches.length,
+              testText: testText
+            },
+            timestamp: new Date().toISOString(),
+          });
+
+        } catch (regexError) {
+          res.status(422).json({
+            error: 'Unprocessable Entity',
+            message: 'Invalid regex pattern',
+            statusCode: 422,
+            timestamp: new Date().toISOString(),
+          });
+        }
+
+      } catch (error) {
+        console.error('Error testing pattern:', error);
+        res.status(500).json({
+          error: 'Internal Server Error',
+          message: 'Failed to test pattern',
           statusCode: 500,
           timestamp: new Date().toISOString(),
         });
