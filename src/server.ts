@@ -362,7 +362,8 @@ class PIIDetectorServer {
             
             // Check domain filter for emails
             if (domain && typeof domain === 'string' && detection.documento === 'Email') {
-              const emailDomain = detection.valor.split('@')[1];
+              const emailParts = detection.valor.split('@');
+              const emailDomain = emailParts.length > 1 ? emailParts[1] : '';
               matchesDomain = emailDomain === domain;
             }
             
@@ -402,7 +403,7 @@ class PIIDetectorServer {
           if (detection.documento === 'Email') {
             // Extract domain from email
             const emailParts = detection.valor.split('@');
-            groupKey = emailParts.length > 1 ? emailParts[1] : detection.valor;
+            groupKey = emailParts.length > 1 && emailParts[1] ? emailParts[1] : detection.valor;
             groupType = 'domain';
           } else if (detection.documento === 'CNPJ') {
             // Use clean CNPJ as group key
@@ -424,12 +425,12 @@ class PIIDetectorServer {
             };
           }
 
-          groupedTitulares[groupKey].detections.push(detection);
-          groupedTitulares[groupKey].totalOccurrences++;
+          groupedTitulares[groupKey]!.detections.push(detection);
+          groupedTitulares[groupKey]!.totalOccurrences++;
 
           // Track unique titulares
-          if (!groupedTitulares[groupKey].uniqueTitulares.includes(detection.titular)) {
-            groupedTitulares[groupKey].uniqueTitulares.push(detection.titular);
+          if (!groupedTitulares[groupKey]!.uniqueTitulares.includes(detection.titular)) {
+            groupedTitulares[groupKey]!.uniqueTitulares.push(detection.titular);
           }
         });
 
