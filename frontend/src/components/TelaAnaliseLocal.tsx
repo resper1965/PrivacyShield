@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface LocalFolder {
   name: string;
@@ -14,14 +14,28 @@ export const TelaAnaliseLocal: React.FC = () => {
   const [scanProgress, setScanProgress] = useState(0);
   const [scanResults, setScanResults] = useState<any>(null);
 
-  // Mock pastas disponíveis
-  const availableFolders: LocalFolder[] = [
-    { name: 'Documentos Corporativos', path: '/shared/documentos', type: 'shared', files: 245, lastModified: '2025-01-20' },
-    { name: 'Base de Dados Clientes', path: '/local/dados_clientes', type: 'local', files: 1520, lastModified: '2025-01-19' },
-    { name: 'Arquivos RH', path: '//server/rh', type: 'network', files: 89, lastModified: '2025-01-18' },
-    { name: 'Backup Sistema', path: '/shared/backup', type: 'shared', files: 67, lastModified: '2025-01-17' },
-    { name: 'Relatórios Financeiros', path: '/local/financeiro', type: 'local', files: 156, lastModified: '2025-01-16' }
-  ];
+  const [availableFolders, setAvailableFolders] = useState<LocalFolder[]>([]);
+
+  // Load available folders from server
+  useEffect(() => {
+    const loadFolders = async () => {
+      try {
+        const response = await fetch('/api/v1/folders/available');
+        if (response.ok) {
+          const folders = await response.json();
+          setAvailableFolders(folders);
+        }
+      } catch (error) {
+        console.error('Error loading folders:', error);
+        // Fallback data
+        setAvailableFolders([
+          { name: 'Documentos Exemplo', path: '/shared_folders/documentos', type: 'shared', files: 0, lastModified: '2025-01-20' },
+          { name: 'Dados Exemplo', path: '/shared_folders/dados', type: 'shared', files: 0, lastModified: '2025-01-19' }
+        ]);
+      }
+    };
+    loadFolders();
+  }, []);
 
   const handleScanFolder = (folderPath: string) => {
     setSelectedPath(folderPath);

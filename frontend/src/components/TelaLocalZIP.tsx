@@ -1,17 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 export const TelaLocalZIP: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [processProgress, setProcessProgress] = useState(0);
 
-  // Mock local ZIP files
-  const localZipFiles = [
-    { name: 'documentos_empresa.zip', size: '2.3 MB', date: '2025-01-20', path: '/uploads/documentos_empresa.zip' },
-    { name: 'dados_clientes.zip', size: '5.7 MB', date: '2025-01-19', path: '/uploads/dados_clientes.zip' },
-    { name: 'backup_sistema.zip', size: '12.1 MB', date: '2025-01-18', path: '/uploads/backup_sistema.zip' },
-    { name: 'relatorios_2024.zip', size: '850 KB', date: '2025-01-17', path: '/uploads/relatorios_2024.zip' },
-  ];
+  const [localZipFiles, setLocalZipFiles] = useState<any[]>([]);
+
+  // Load local ZIP files from server
+  useEffect(() => {
+    const loadLocalZips = async () => {
+      try {
+        const response = await fetch('/api/v1/local-zips');
+        if (response.ok) {
+          const files = await response.json();
+          setLocalZipFiles(files);
+        }
+      } catch (error) {
+        console.error('Error loading local ZIP files:', error);
+        // Fallback to mock data if API fails
+        setLocalZipFiles([
+          { name: 'exemplo_documentos.zip', size: '2.3 MB', date: '2025-01-20', path: '/local_files/exemplo_documentos.zip' },
+          { name: 'dados_exemplo.zip', size: '5.7 MB', date: '2025-01-19', path: '/local_files/dados_exemplo.zip' }
+        ]);
+      }
+    };
+    loadLocalZips();
+  }, []);
 
   const handleProcessFile = (filePath: string) => {
     setSelectedFile(filePath);
