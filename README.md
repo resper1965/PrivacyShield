@@ -2,6 +2,12 @@
 
 Sistema completo de detecção de informações pessoais (PII) com foco na conformidade com a LGPD brasileira.
 
+## 📦 Repositório
+
+**GitHub**: https://github.com/resper1965/PrivacyShield  
+**Domínio**: monster.e-ness.com.br  
+**Licença**: MIT
+
 ## 🎯 Funcionalidades
 
 ### Detecção de PII

@@ -1,19 +1,18 @@
 # Deploy no GitHub - N.Crisis
 
-Este guia explica como enviar o projeto N.Crisis para um repositório GitHub.
+**Repositório**: https://github.com/resper1965/PrivacyShield  
+**Domínio**: monster.e-ness.com.br
 
-## 🚀 Passos para Deploy no GitHub
+Este guia explica como trabalhar com o repositório N.Crisis existente.
 
-### 1. Criar Repositório no GitHub
+## 🚀 Acesso ao Repositório
 
-1. Acesse [GitHub](https://github.com) e faça login
-2. Clique em **"New repository"** ou **"+"** > **"New repository"**
-3. Configure o repositório:
-   - **Repository name**: `ncrisis` (ou nome de sua preferência)
-   - **Description**: `PII Detection & LGPD Compliance Platform`
-   - **Visibility**: Public ou Private (sua escolha)
-   - **NÃO** marque "Initialize with README" (já temos um)
-4. Clique em **"Create repository"**
+### Repositório Privado
+O N.Crisis está hospedado em um repositório privado que requer autenticação.
+
+**URL**: https://github.com/resper1965/PrivacyShield  
+**Tipo**: Repositório privado  
+**Proprietário**: resper1965
 
 ### 2. Configurar Git Local (se necessário)
 
@@ -26,14 +25,21 @@ git config --global user.email "seu.email@exemplo.com"
 git status
 ```
 
-### 3. Conectar com GitHub
+### 2. Autenticação
 
+#### Método 1: Token de Acesso Pessoal (Recomendado)
 ```bash
-# Adicionar remote origin (substitua pelo seu repositório)
-git remote add origin https://github.com/SEU-USUARIO/ncrisis.git
+# Configurar token
+export GITHUB_PERSONAL_ACCESS_TOKEN="seu_token_aqui"
 
-# Verificar remote
-git remote -v
+# Clonar repositório
+git clone https://$GITHUB_PERSONAL_ACCESS_TOKEN@github.com/resper1965/PrivacyShield.git
+```
+
+#### Método 2: SSH (se configurado)
+```bash
+# Clonar via SSH
+git clone git@github.com:resper1965/PrivacyShield.git
 ```
 
 ### 4. Enviar Código para GitHub

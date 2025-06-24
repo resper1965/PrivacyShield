@@ -1,5 +1,8 @@
 # Comandos Diretos de Instalação N.Crisis
 
+**Repositório**: https://github.com/resper1965/PrivacyShield  
+**Domínio**: monster.e-ness.com.br
+
 ## Para o servidor monster.e-ness.com.br
 
 Execute estes comandos diretamente no servidor Ubuntu 22.04+:

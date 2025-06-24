@@ -1,5 +1,8 @@
 # n.crisis - PII Detection & LGPD Compliance Platform
 
+**Repositório**: https://github.com/resper1965/PrivacyShield  
+**Domínio**: monster.e-ness.com.br
+
 ## Overview
 
 This is a Node.js/Express application built with TypeScript for detecting personally identifiable information (PII) in ZIP files. The system is branded as "n.crisis" with Montserrat typography and uses a distinctive blue dot (#00ade0) in the logo. The system processes uploaded ZIP files asynchronously using BullMQ queues, validates them using MIME type checking and ClamAV virus scanning, extracts contents securely, and detects CPF, CNPJ, Email, and Phone patterns with Brazilian validation algorithms. Data is persisted in PostgreSQL database using Prisma ORM. The server provides RESTful API endpoints for file upload, queue monitoring, and filtered reporting by data subjects.
@@ -104,6 +107,7 @@ User prefers simple, direct layouts without overcomplication. Focus on functiona
 ## Changelog
 
 Recent Updates:
+- June 24, 2025: **Repository References Update** - Atualizados todos os documentos e referências para o repositório correto https://github.com/resper1965/PrivacyShield em todos os arquivos de documentação e scripts de instalação
 - June 24, 2025: **Environment Configuration Update** - Criado arquivo .env.example atualizado com todas as variáveis necessárias do N.Crisis, incluindo configurações de PostgreSQL, Redis, OpenAI, ClamAV, SendGrid e CORS com exemplos realistas mas fictícios
 - June 24, 2025: **Processo Completo de Instalação VPS** - Criado processo robusto de instalação em VPS Linux com Docker para o domínio monster.e-ness.com.br, incluindo scripts automatizados de instalação, configuração SSL, backup, monitoramento, health check e documentação completa passo a passo. Scripts organizados no diretório /scripts/ do repositório GitHub privado com autenticação por token GITHUB_PERSONAL_ACCESS_TOKEN
 - June 24, 2025: **Deploy Production Ready** - Aplicação preparada para homologação com Docker containerization, WebSocket errors resolvidos, scripts de deploy automatizados, banco PostgreSQL inicializado, health checks implementados e documentação completa

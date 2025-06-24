@@ -1,5 +1,8 @@
 # Guia Passo a Passo - Instalação N.Crisis em VPS
 
+**Repositório**: https://github.com/resper1965/PrivacyShield  
+**Domínio**: monster.e-ness.com.br
+
 ## Pré-requisitos
 
 ### Informações Necessárias

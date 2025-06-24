@@ -1,5 +1,8 @@
 # Resumo Completo - Instalação N.Crisis VPS
 
+**Repositório**: https://github.com/resper1965/PrivacyShield  
+**Domínio**: monster.e-ness.com.br
+
 ## Visão Geral
 
 Processo completo de instalação da solução **n.crisis** em VPS Linux Ubuntu 22.04+ para o ambiente de homologação `monster.e-ness.com.br`.

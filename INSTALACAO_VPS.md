@@ -1,5 +1,8 @@
 # Guia Completo de Instalação - n.crisis em VPS Linux
 
+**Repositório**: https://github.com/resper1965/PrivacyShield  
+**Domínio**: monster.e-ness.com.br
+
 ## Requisitos do Sistema
 
 ### Especificações Mínimas da VPS
