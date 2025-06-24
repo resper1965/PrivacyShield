@@ -28,7 +28,7 @@ dig +short monster.e-ness.com.br
 
 ### 1.3 Executar instalação inicial
 ```bash
-# Download do script de instalação
+# Download do script de instalação Docker
 curl -fsSL https://raw.githubusercontent.com/resper1965/PrivacyShield/main/scripts/install-docker.sh -o install-docker.sh
 
 # Tornar executável e executar

@@ -11,9 +11,13 @@ chmod +x install-vps.sh
 ./install-vps.sh
 ```
 
-**OU em uma linha:**
+**OU usando scripts individuais:**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/resper1965/PrivacyShield/main/install-vps-complete.sh | sudo bash
+# Instalação Docker
+curl -fsSL https://raw.githubusercontent.com/resper1965/PrivacyShield/main/scripts/install-docker.sh | sudo bash
+
+# Depois instalar aplicação
+curl -fsSL https://raw.githubusercontent.com/resper1965/PrivacyShield/main/scripts/install-production.sh | sudo -u ncrisis bash
 ```
 
 ## Pré-requisitos
