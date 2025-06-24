@@ -99,6 +99,7 @@ Currently, the application is in initial setup phase with the following planned 
 
 Preferred communication style: Simple, everyday language.
 Brand identity: "n.crisis" with Montserrat font, white/black text with blue dot (#00ade0).
+User prefers simple, direct layouts without overcomplication. Focus on functionality over complex design systems.
 
 ## Changelog
 
