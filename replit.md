@@ -104,7 +104,8 @@ User prefers simple, direct layouts without overcomplication. Focus on functiona
 ## Changelog
 
 Recent Updates:
-- June 24, 2025: **Menu Update** - Alterado "Casos" para "Incidentes" no menu lateral e criado useIncidents.ts hook para integração com API de organizações e incidentes
+- June 24, 2025: **Sistema de Análise e Relatórios LGPD** - Criado sistema completo de relatórios com 4 abas (Consolidado, Titulares, Organizações, Incidentes), export CSV/PDF, tela de análise de detecções, e configurações funcionais
+- June 24, 2025: **Menu Update** - Alterado "Casos" para "Incidentes" e "Processamento" para "Análise" no menu lateral
 - June 24, 2025: **AppLayout Restructure** - Menu lateral simplificado:
   - Sidebar 240px fixa com bg #112240
   - 5 itens principais: Dashboard, Casos, Arquivos, Relatório, Configuração
