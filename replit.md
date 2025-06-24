@@ -103,6 +103,15 @@ Brand identity: "n.crisis" with Montserrat font, white/black text with blue dot 
 ## Changelog
 
 Recent Updates:
+- June 24, 2025: **Complete UI/UX Redesign** - Modern n.crisis interface:
+  - Rebuilt design system with comprehensive CSS variables and semantic tokens
+  - Created reusable UI component library (Card, Button, Input, Badge, etc.)
+  - Redesigned Layout with modern Sidebar and Header components
+  - Completely rebuilt Dashboard with modern cards, stats, and activity feed
+  - New FileUpload page with drag-and-drop functionality and progress tracking
+  - Enhanced Detections page with advanced filtering and pagination
+  - Responsive design with mobile-first approach and accessibility compliance
+  - Professional dark theme optimized for security operations
 - June 24, 2025: **Production Docker Deployment Configuration** - Complete containerization setup:
   - Multi-stage Dockerfiles for backend API and frontend with security best practices
   - Docker Compose orchestration with Traefik reverse proxy and Let's Encrypt SSL
