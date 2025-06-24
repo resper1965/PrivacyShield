@@ -196,7 +196,7 @@ export function detectPIIInText(text: string, filename: string, zipSource: strin
 /**
  * Process multiple files and detect PII from ZIP extraction
  */
-export function detectPIIInFiles(files: Array<{ content: string; filename: string }>, zipSource?: string): PIIDetection[] {
+export function detectPIIInFiles(files: Array<{ content: string; filename: string }>, zipSource: string = 'unknown'): PIIDetection[] {
   const allDetections: PIIDetection[] = [];
 
   for (const file of files) {

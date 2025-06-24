@@ -6,7 +6,7 @@ import multer from 'multer';
 import fs from 'fs-extra';
 import path from 'path';
 import { ErrorResponse, ServerConfig } from './types/index';
-import { detectPIIInFiles, PIIDetection } from './detectPII';
+import { processZipExtractionAndSave, PIIDetection } from './detectPII';
 import { virusScanner, VirusScanner } from './virusScanner';
 import { extractZipFiles, validateZipFile, type ExtractionResult } from './zipExtractor';
 
@@ -175,11 +175,8 @@ class PIIDetectorServer {
         // Extract ZIP file
         const files = await this.extractZipFile(zipPath, extractDir);
         
-        // Detect PII in extracted files
-        const detections = detectPIIInFiles(files);
-        
-        // Save detections to JSON file
-        await fs.writeJson(DETECTIONS_FILE, detections, { spaces: 2 });
+        // Process ZIP extraction and save detections to JSON file (R3 implementation)
+        const detections = await processZipExtractionAndSave(files, req.file.originalname || 'uploaded.zip');
         
         // Clean up
         await fs.remove(zipPath);
@@ -308,11 +305,8 @@ class PIIDetectorServer {
         // Extract ZIP file
         const files = await this.extractZipFile(filePath, extractDir);
         
-        // Detect PII in extracted files
-        const detections = detectPIIInFiles(files);
-        
-        // Save detections to JSON file
-        await fs.writeJson(DETECTIONS_FILE, detections, { spaces: 2 });
+        // Process ZIP extraction and save detections to JSON file (R3 implementation)
+        const detections = await processZipExtractionAndSave(files, filename);
         
         // Clean up extraction directory (keep original file)
         await fs.remove(extractDir);
@@ -339,54 +333,124 @@ class PIIDetectorServer {
       }
     });
 
-    // GET /api/report/titulares - Get filtered PII report
+    // GET /api/report/titulares - Get filtered PII report grouped by domain/CNPJ
     this.app.get('/api/report/titulares', async (req: Request, res: Response): Promise<void> => {
       try {
         const { domain, cnpj } = req.query as { domain?: string; cnpj?: string };
         
-        // Load detections
-        let detections: PIIDetection[] = [];
+        // Load all detection sessions
+        let allSessions: any[] = [];
         if (await fs.pathExists(DETECTIONS_FILE)) {
-          detections = await fs.readJson(DETECTIONS_FILE);
+          allSessions = await fs.readJson(DETECTIONS_FILE);
         }
 
-        // Filter detections
-        let filteredDetections = detections;
-        
-        if (domain && typeof domain === 'string') {
-          filteredDetections = filteredDetections.filter(d => 
-            d.documento === 'Email' && d.valor.includes(`@${domain}`)
-          );
-        }
-        
-        if (cnpj && typeof cnpj === 'string') {
-          filteredDetections = filteredDetections.filter(d => 
-            d.documento === 'CNPJ' && d.valor.replace(/\D/g, '') === cnpj.replace(/\D/g, '')
-          );
-        }
-
-        // Group by titular
-        const groupedByTitular = filteredDetections.reduce((acc, detection) => {
-          const titular = detection.titular;
-          if (!acc[titular]) {
-            acc[titular] = [];
+        // Extract all detections from sessions
+        const allDetections: PIIDetection[] = [];
+        for (const session of allSessions) {
+          if (session.detections && Array.isArray(session.detections)) {
+            allDetections.push(...session.detections);
           }
-          acc[titular].push(detection);
-          return acc;
-        }, {} as Record<string, PIIDetection[]>);
+        }
+
+        // Apply OR filter (domain OR cnpj)
+        let filteredDetections = allDetections;
+        
+        if (domain || cnpj) {
+          filteredDetections = allDetections.filter(detection => {
+            let matchesDomain = false;
+            let matchesCNPJ = false;
+            
+            // Check domain filter for emails
+            if (domain && typeof domain === 'string' && detection.documento === 'Email') {
+              const emailDomain = detection.valor.split('@')[1];
+              matchesDomain = emailDomain === domain;
+            }
+            
+            // Check CNPJ filter
+            if (cnpj && typeof cnpj === 'string' && detection.documento === 'CNPJ') {
+              const cleanCNPJ = detection.valor.replace(/\D/g, '');
+              const cleanFilterCNPJ = cnpj.replace(/\D/g, '');
+              matchesCNPJ = cleanCNPJ === cleanFilterCNPJ;
+            }
+            
+            // OR logic: return true if either filter matches (or if only one filter is provided)
+            if (domain && cnpj) {
+              return matchesDomain || matchesCNPJ;
+            } else if (domain) {
+              return matchesDomain;
+            } else if (cnpj) {
+              return matchesCNPJ;
+            }
+            
+            return false;
+          });
+        }
+
+        // Group detections by 'valor' field for emails (extract domain) and CNPJs
+        const groupedTitulares: Record<string, {
+          groupKey: string;
+          groupType: 'domain' | 'cnpj' | 'other';
+          detections: PIIDetection[];
+          uniqueTitulares: string[];
+          totalOccurrences: number;
+        }> = {};
+
+        filteredDetections.forEach(detection => {
+          let groupKey: string;
+          let groupType: 'domain' | 'cnpj' | 'other';
+
+          if (detection.documento === 'Email') {
+            // Extract domain from email
+            const emailParts = detection.valor.split('@');
+            groupKey = emailParts.length > 1 ? emailParts[1] : detection.valor;
+            groupType = 'domain';
+          } else if (detection.documento === 'CNPJ') {
+            // Use clean CNPJ as group key
+            groupKey = detection.valor.replace(/\D/g, '');
+            groupType = 'cnpj';
+          } else {
+            // For CPF and Phone, group by exact value
+            groupKey = detection.valor;
+            groupType = 'other';
+          }
+
+          if (!groupedTitulares[groupKey]) {
+            groupedTitulares[groupKey] = {
+              groupKey,
+              groupType,
+              detections: [],
+              uniqueTitulares: [],
+              totalOccurrences: 0
+            };
+          }
+
+          groupedTitulares[groupKey].detections.push(detection);
+          groupedTitulares[groupKey].totalOccurrences++;
+
+          // Track unique titulares
+          if (!groupedTitulares[groupKey].uniqueTitulares.includes(detection.titular)) {
+            groupedTitulares[groupKey].uniqueTitulares.push(detection.titular);
+          }
+        });
+
+        // Convert to array and sort by total occurrences
+        const sortedGroups = Object.values(groupedTitulares)
+          .sort((a, b) => b.totalOccurrences - a.totalOccurrences);
 
         res.status(200).json({
           filters: { domain, cnpj },
+          filterLogic: 'OR',
           totalDetections: filteredDetections.length,
-          titulares: groupedByTitular,
+          totalGroups: sortedGroups.length,
+          titulares: sortedGroups,
           timestamp: new Date().toISOString(),
         });
 
       } catch (error) {
-        console.error('Error generating report:', error);
+        console.error('Error generating titulares report:', error);
         res.status(500).json({
           error: 'Internal Server Error',
-          message: 'Failed to generate report',
+          message: 'Failed to generate titulares report',
           statusCode: 500,
           timestamp: new Date().toISOString(),
         });
