@@ -2,6 +2,8 @@
 
 Sistema completo de detecção de informações pessoais (PII) com foco na conformidade com a LGPD brasileira.
 
+Consulte a [documentacao completa](docs/README.md) para guias detalhados.
+
 ## 🎯 Funcionalidades
 
 ### Detecção de PII
