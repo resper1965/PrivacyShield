@@ -6,7 +6,8 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import { PIIDetection, detectPIIInText } from './services/processor';
-export { PIIDetection, detectPIIInText } from './services/processor';
+export type { PIIDetection } from './services/processor';
+export { detectPIIInText } from './services/processor';
 
 export interface DetectionSession {
   sessionId: string;

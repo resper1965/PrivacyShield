@@ -111,19 +111,19 @@ export function validateCPF(cpf: string): boolean {
 
   let sum = 0;
   for (let i = 0; i < 9; i++) {
-    sum += parseInt(numbers[i]) * (10 - i);
+    sum += parseInt(numbers[i] || '0') * (10 - i);
   }
   let digit1 = 11 - (sum % 11);
   if (digit1 > 9) digit1 = 0;
 
   sum = 0;
   for (let i = 0; i < 10; i++) {
-    sum += parseInt(numbers[i]) * (11 - i);
+    sum += parseInt(numbers[i] || '0') * (11 - i);
   }
   let digit2 = 11 - (sum % 11);
   if (digit2 > 9) digit2 = 0;
 
-  return parseInt(numbers[9]) === digit1 && parseInt(numbers[10]) === digit2;
+  return parseInt(numbers[9] || '0') === digit1 && parseInt(numbers[10] || '0') === digit2;
 }
 
 /**
@@ -138,13 +138,13 @@ export function validateCNPJ(cnpj: string): boolean {
 
   let sum = 0;
   for (let i = 0; i < 12; i++) {
-    sum += parseInt(numbers[i]) * weights1[i];
+    sum += parseInt(numbers[i] || '0') * (weights1[i] || 0);
   }
   let digit1 = sum % 11 < 2 ? 0 : 11 - (sum % 11);
 
   sum = 0;
   for (let i = 0; i < 13; i++) {
-    sum += parseInt(numbers[i]) * weights2[i];
+    sum += parseInt(numbers[i] || '0') * (weights2[i] || 0);
   }
   let digit2 = sum % 11 < 2 ? 0 : 11 - (sum % 11);
 

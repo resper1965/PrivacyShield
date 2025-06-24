@@ -3,7 +3,7 @@
  * Monitors configured directories for new files and processes them automatically
  */
 
-import chokidar from 'chokidar';
+import * as chokidar from 'chokidar';
 import * as cron from 'node-cron';
 import * as fs from 'fs-extra';
 import * as path from 'path';
@@ -116,7 +116,7 @@ class DirectoryMonitor {
       console.log(`⏰ Scheduled scan starting for: ${config.name}`);
       await this.performScheduledScan(directoryId);
     }, {
-      scheduled: false
+      delay: 0
     });
 
     cronJob.start();
