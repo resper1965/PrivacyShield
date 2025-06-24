@@ -7,8 +7,7 @@ import {
   Users, 
   AlertTriangle, 
   Menu, 
-  X,
-  ChevronLeft 
+  X 
 } from 'lucide-react';
 
 const AppLayout: React.FC = () => {
@@ -23,8 +22,7 @@ const AppLayout: React.FC = () => {
       '/files/my-uploads': 'Meus Uploads',
       '/detections': 'Detecções',
       '/reports/titulares': 'Relatório de Titulares',
-      '/incidents/create': 'Cadastrar Caso',
-      '/incidents': 'Casos de Incidentes'
+      '/incidents/create': 'Cadastrar Caso'
     };
     return routes[pathname] || 'n.crisis';
   };
