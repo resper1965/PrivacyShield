@@ -29,7 +29,16 @@ Certifique-se que `monster.e-ness.com.br` aponta para o IP da VPS:
 dig +short monster.e-ness.com.br
 ```
 
-### 1.3 Executar instalação inicial
+### 1.3 Configurar autenticação GitHub
+```bash
+# Definir token de acesso
+export GITHUB_PERSONAL_ACCESS_TOKEN="seu_token_github_aqui"
+
+# Verificar se token foi definido
+echo "Token: ${GITHUB_PERSONAL_ACCESS_TOKEN:0:10}..."
+```
+
+### 1.4 Executar instalação inicial
 ```bash
 # Download do script de instalação Docker
 curl -fsSL https://raw.githubusercontent.com/resper1965/PrivacyShield/main/scripts/install-docker.sh -o install-docker.sh

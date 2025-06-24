@@ -9,8 +9,13 @@ Execute estes comandos diretamente no servidor Ubuntu 22.04+:
 
 ### Opção 1: Instalação Completa (Recomendado)
 ```bash
+# IMPORTANTE: Definir token primeiro
+export GITHUB_PERSONAL_ACCESS_TOKEN="seu_token_aqui"
+
 # Download e execução do script completo
-curl -fsSL https://raw.githubusercontent.com/resper1965/PrivacyShield/main/install-vps-complete.sh -o install-vps.sh
+curl -H "Authorization: token $GITHUB_PERSONAL_ACCESS_TOKEN" \
+     https://raw.githubusercontent.com/resper1965/PrivacyShield/main/install-vps-complete.sh \
+     -o install-vps.sh
 chmod +x install-vps.sh
 ./install-vps.sh
 ```
@@ -19,7 +24,13 @@ chmod +x install-vps.sh
 
 #### 1. Instalar Docker
 ```bash
-curl -fsSL https://raw.githubusercontent.com/resper1965/PrivacyShield/main/scripts/install-docker.sh -o install-docker.sh
+# Definir token
+export GITHUB_PERSONAL_ACCESS_TOKEN="seu_token_aqui"
+
+# Download do script Docker
+curl -H "Authorization: token $GITHUB_PERSONAL_ACCESS_TOKEN" \
+     https://raw.githubusercontent.com/resper1965/PrivacyShield/main/scripts/install-docker.sh \
+     -o install-docker.sh
 chmod +x install-docker.sh
 sudo ./install-docker.sh
 ```

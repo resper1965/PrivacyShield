@@ -5,19 +5,29 @@
 Para instalar o N.Crisis completo em uma VPS Ubuntu 22.04+:
 
 ```bash
+# IMPORTANTE: Definir token primeiro
+export GITHUB_PERSONAL_ACCESS_TOKEN="seu_token_aqui"
+
 # Método 1: Download e execução do script completo
-curl -fsSL https://raw.githubusercontent.com/resper1965/PrivacyShield/main/install-vps-complete.sh -o install-vps.sh
+curl -H "Authorization: token $GITHUB_PERSONAL_ACCESS_TOKEN" \
+     https://raw.githubusercontent.com/resper1965/PrivacyShield/main/install-vps-complete.sh \
+     -o install-vps.sh
 chmod +x install-vps.sh
 ./install-vps.sh
 ```
 
 **OU usando scripts individuais:**
 ```bash
+# Definir token
+export GITHUB_PERSONAL_ACCESS_TOKEN="seu_token_aqui"
+
 # Instalação Docker
-curl -fsSL https://raw.githubusercontent.com/resper1965/PrivacyShield/main/scripts/install-docker.sh | sudo bash
+curl -H "Authorization: token $GITHUB_PERSONAL_ACCESS_TOKEN" \
+     https://raw.githubusercontent.com/resper1965/PrivacyShield/main/scripts/install-docker.sh | sudo bash
 
 # Depois instalar aplicação
-curl -fsSL https://raw.githubusercontent.com/resper1965/PrivacyShield/main/scripts/install-production.sh | sudo -u ncrisis bash
+curl -H "Authorization: token $GITHUB_PERSONAL_ACCESS_TOKEN" \
+     https://raw.githubusercontent.com/resper1965/PrivacyShield/main/scripts/install-production.sh | sudo -u ncrisis bash
 ```
 
 ## Pré-requisitos
