@@ -35,17 +35,17 @@ chmod +x install-docker.sh
 sudo ./install-docker.sh
 ```
 
-#### 2. Clonar Repositório Privado (como usuário ncrisis)
+#### 2. Clonar Repositório Privado
 ```bash
-sudo su - ncrisis
-cd /opt/ncrisis  # Diretório padrão da instalação
+# IMPORTANTE: O repositório é clonado DIRETAMENTE para /opt/ncrisis
+# Não precisa criar o diretório antes
 
 # OPÇÃO A: Usando Token de Acesso Pessoal (RECOMENDADO)
 export GITHUB_PERSONAL_ACCESS_TOKEN="seu_token_aqui"
-git clone https://$GITHUB_PERSONAL_ACCESS_TOKEN@github.com/resper1965/PrivacyShield.git .
+sudo -u ncrisis git clone https://$GITHUB_PERSONAL_ACCESS_TOKEN@github.com/resper1965/PrivacyShield.git /opt/ncrisis
 
 # OPÇÃO B: Usando SSH (se configurado)
-git clone git@github.com:resper1965/PrivacyShield.git .
+sudo -u ncrisis git clone git@github.com:resper1965/PrivacyShield.git /opt/ncrisis
 
 # OPÇÃO C: Usuário e token
 export GITHUB_PERSONAL_ACCESS_TOKEN="seu_token_aqui"

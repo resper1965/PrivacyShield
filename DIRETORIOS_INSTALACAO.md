@@ -3,20 +3,28 @@
 **Repositório**: https://github.com/resper1965/PrivacyShield  
 **Domínio**: monster.e-ness.com.br
 
-## Estrutura de Diretórios Padrão
+## Clonagem do Repositório
 
-### Diretório Principal
+### Comando Usado nos Scripts
+```bash
+# O repositório é clonado DIRETAMENTE para /opt/ncrisis
+sudo -u ncrisis git clone https://token@github.com/resper1965/PrivacyShield.git /opt/ncrisis
 ```
-/opt/ncrisis/          # Diretório principal da aplicação
-├── src/               # Código fonte TypeScript
-├── frontend/          # Aplicação React
-├── scripts/           # Scripts de instalação e manutenção
+
+### Estrutura Resultante
+```
+/opt/ncrisis/          # Conteúdo completo do repositório
+├── src/               # Código fonte TypeScript (do repo)
+├── frontend/          # Aplicação React (do repo)
+├── scripts/           # Scripts de instalação (do repo)
 ├── uploads/           # Arquivos enviados via upload
 ├── local_files/       # Arquivos ZIP locais
 ├── shared_folders/    # Pastas compartilhadas
 ├── logs/              # Logs da aplicação
 ├── backups/           # Backups automáticos
-└── docker-compose.production.yml
+├── package.json       # Dependências (do repo)
+├── README.md          # Documentação (do repo)
+└── docker-compose.production.yml (do repo)
 ```
 
 ### Por que `/opt/ncrisis`?

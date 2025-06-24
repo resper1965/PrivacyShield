@@ -50,26 +50,22 @@ chmod +x install-docker.sh
 
 ## Etapa 2: Configuração da Aplicação
 
-### 2.1 Trocar para usuário da aplicação
+### 2.1 Clonar o repositório privado
 ```bash
-sudo su - ncrisis
-cd /opt/ncrisis  # Diretório de instalação padrão
-```
-
-### 2.2 Clonar o repositório privado
-```bash
+# IMPORTANTE: O repositório é clonado DIRETAMENTE para /opt/ncrisis
+# O diretório será criado automaticamente pelo git clone
 # IMPORTANTE: O repositório é PRIVADO e requer autenticação
 
 # MÉTODO 1: Token de Acesso Pessoal (RECOMENDADO)
 export GITHUB_PERSONAL_ACCESS_TOKEN="seu_token_aqui"
-git clone https://$GITHUB_PERSONAL_ACCESS_TOKEN@github.com/resper1965/PrivacyShield.git .
+sudo -u ncrisis git clone https://$GITHUB_PERSONAL_ACCESS_TOKEN@github.com/resper1965/PrivacyShield.git /opt/ncrisis
 
 # MÉTODO 2: SSH (se chave estiver configurada)
-git clone git@github.com:resper1965/PrivacyShield.git .
+sudo -u ncrisis git clone git@github.com:resper1965/PrivacyShield.git /opt/ncrisis
 
-# MÉTODO 3: Usuário e token
+# MÉTODO 3: Usuário e token  
 export GITHUB_PERSONAL_ACCESS_TOKEN="seu_token_aqui"
-git clone https://usuario:$GITHUB_PERSONAL_ACCESS_TOKEN@github.com/resper1965/PrivacyShield.git .
+sudo -u ncrisis git clone https://usuario:$GITHUB_PERSONAL_ACCESS_TOKEN@github.com/resper1965/PrivacyShield.git /opt/ncrisis
 ```
 
 **Como criar Token GitHub:**
