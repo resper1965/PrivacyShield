@@ -15,10 +15,11 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick, sidebarOpen }) => {
   
   return (
     <header 
-      className="sticky top-0 z-30 flex items-center justify-between px-6 py-4 bg-background-elevated/95 backdrop-blur-sm border-b border-border"
+      className="sticky top-0 z-30 flex items-center justify-between px-6 py-4 border-b"
       style={{
-        backgroundColor: 'rgba(13, 20, 32, 0.95)',
-        borderColor: 'var(--border)'
+        backgroundColor: 'var(--background-elevated)',
+        borderColor: 'var(--border)',
+        fontFamily: 'Montserrat, sans-serif'
       }}
     >
       {/* Left section */}

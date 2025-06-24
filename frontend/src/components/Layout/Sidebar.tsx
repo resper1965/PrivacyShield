@@ -88,9 +88,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       
       {/* Sidebar */}
       <div className={`
-        fixed lg:static inset-y-0 left-0 z-50 w-72 transform transition-transform duration-300 ease-in-out
-        ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-        bg-background-elevated border-r border-border flex flex-col
+        fixed inset-y-0 left-0 z-50 w-72 transform transition-transform duration-300 ease-in-out
+        ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+        flex flex-col
       `}
       style={{
         backgroundColor: 'var(--background-elevated)',
@@ -98,44 +98,53 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       }}>
         
         {/* Logo */}
-        <div className="flex items-center gap-3 p-6 border-b border-border"
-             style={{ borderColor: 'var(--border-muted)' }}>
-          <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10 border border-primary/20">
-            <Lock className="w-5 h-5 text-primary" style={{ color: 'var(--primary)' }} />
+        <div className="flex items-center gap-3 p-6 border-b"
+             style={{ 
+               borderColor: 'var(--border-muted)',
+               backgroundColor: 'var(--background-elevated)'
+             }}>
+          <div className="flex items-center justify-center w-10 h-10 rounded-xl"
+               style={{ 
+                 backgroundColor: 'rgba(0, 173, 224, 0.1)',
+                 border: '1px solid rgba(0, 173, 224, 0.2)'
+               }}>
+            <Lock className="w-5 h-5" style={{ color: 'var(--primary)' }} />
           </div>
           <div>
-            <h1 className="text-xl font-bold" style={{ color: 'var(--foreground)' }}>
+            <h1 className="text-xl font-bold" style={{ 
+              color: 'var(--foreground)',
+              fontFamily: 'Montserrat, sans-serif'
+            }}>
               n<span style={{ color: 'var(--primary)' }}>.</span>crisis
             </h1>
-            <p className="text-xs font-medium" style={{ color: 'var(--foreground-subtle)' }}>
+            <p className="text-xs font-medium" style={{ 
+              color: 'var(--foreground-subtle)',
+              fontFamily: 'Montserrat, sans-serif'
+            }}>
               PII Detection & LGPD Compliance
             </p>
           </div>
         </div>
         
         {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+        <nav className="flex-1 p-4 space-y-1 overflow-y-auto"
+             style={{ backgroundColor: 'var(--background-elevated)' }}>
           {navigation.map((item) => (
             <NavLink
               key={item.name}
               to={item.href}
-              className={({ isActive }) => `
-                group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
-                ${isActive 
-                  ? 'bg-primary text-white shadow-sm' 
-                  : 'text-foreground-muted hover:text-foreground hover:bg-background-muted'
-                }
-              `}
+              className="group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200"
               style={({ isActive }) => ({
                 backgroundColor: isActive ? 'var(--primary)' : 'transparent',
-                color: isActive ? 'white' : 'var(--foreground-muted)'
+                color: isActive ? 'white' : 'var(--foreground-muted)',
+                fontFamily: 'Montserrat, sans-serif'
               })}
-              onClick={() => window.innerWidth < 1024 && onClose()}
+              onClick={() => onClose()}
             >
               <item.icon className="w-5 h-5 flex-shrink-0" />
               <div className="flex-1 min-w-0">
                 <div className="font-medium">{item.name}</div>
-                <div className={`text-xs opacity-75 truncate`}>
+                <div className="text-xs opacity-75 truncate">
                   {item.description}
                 </div>
               </div>
@@ -144,17 +153,26 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         </nav>
         
         {/* Footer */}
-        <div className="p-4 border-t border-border"
-             style={{ borderColor: 'var(--border-muted)' }}>
-          <div className="flex items-center gap-3 p-3 rounded-lg bg-background-muted"
+        <div className="p-4 border-t"
+             style={{ 
+               borderColor: 'var(--border-muted)',
+               backgroundColor: 'var(--background-elevated)'
+             }}>
+          <div className="flex items-center gap-3 p-3 rounded-lg"
                style={{ backgroundColor: 'var(--background-muted)' }}>
-            <div className="w-2 h-2 bg-success rounded-full animate-pulse"
+            <div className="w-2 h-2 rounded-full animate-pulse"
                  style={{ backgroundColor: 'var(--success)' }} />
             <div>
-              <div className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>
+              <div className="text-sm font-medium" style={{ 
+                color: 'var(--foreground)',
+                fontFamily: 'Montserrat, sans-serif'
+              }}>
                 Sistema Operacional
               </div>
-              <div className="text-xs" style={{ color: 'var(--foreground-subtle)' }}>
+              <div className="text-xs" style={{ 
+                color: 'var(--foreground-subtle)',
+                fontFamily: 'Montserrat, sans-serif'
+              }}>
                 Última atualização: agora
               </div>
             </div>
