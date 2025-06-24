@@ -139,7 +139,7 @@ export const TelaAnalise: React.FC = () => {
               >
                 <span style={{
                   padding: '4px 8px',
-                  backgroundColor: '#1B263B',
+                  backgroundColor: '#0D1B2A',
                   borderRadius: '4px',
                   color: '#00ade0',
                   fontSize: '12px',
