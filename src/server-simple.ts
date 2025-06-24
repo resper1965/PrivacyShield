@@ -128,18 +128,18 @@ app.post('/api/v1/archives/upload', upload.single('file'), async (req: Request, 
 
     const scanResult = await clamAVService.scanFile(filePath);
     
-    if (!scanResult.isClean) {
+    if (scanResult.isInfected) {
       await fs.remove(filePath);
       
       wsService?.sendError(sessionId, 'File contains threats', {
-        threats: scanResult.threats,
-        scanner: scanResult.scanner
+        threats: scanResult.viruses,
+        scanner: 'clamav'
       });
       
       res.status(422).json({
         error: 'Malicious File Detected',
         message: 'File contains threats and cannot be processed',
-        threats: scanResult.threats,
+        threats: scanResult.viruses,
         statusCode: 422,
         timestamp: new Date().toISOString(),
       });

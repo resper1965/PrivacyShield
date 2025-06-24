@@ -4,13 +4,8 @@
  */
 
 import { spawn } from 'child_process';
-import { createReadStream } from 'fs';
-import { promisify } from 'util';
-import { pipeline } from 'stream';
-import path from 'path';
-import fs from 'fs-extra';
-
-const pipelineAsync = promisify(pipeline);
+import * as path from 'path';
+import * as fs from 'fs-extra';
 
 export interface ScanResult {
   isInfected: boolean;
@@ -25,16 +20,12 @@ export interface ScanError extends Error {
 }
 
 export class ClamAVService {
-  private readonly host: string;
-  private readonly port: number;
   private readonly timeout: number;
   private readonly maxFileSize: number;
 
   constructor() {
-    this.host = process.env.CLAMAV_HOST || 'localhost';
-    this.port = parseInt(process.env.CLAMAV_PORT || '3310');
-    this.timeout = parseInt(process.env.CLAMAV_TIMEOUT || '30000');
-    this.maxFileSize = parseInt(process.env.MAX_SCAN_FILE_SIZE || '104857600'); // 100MB
+    this.timeout = parseInt(process.env['CLAMAV_TIMEOUT'] || '30000');
+    this.maxFileSize = parseInt(process.env['MAX_SCAN_FILE_SIZE'] || '104857600'); // 100MB
   }
 
   /**
@@ -71,7 +62,8 @@ export class ClamAVService {
         throw error; // Re-throw scan errors
       }
       
-      throw this.createScanError('SCAN_FAILED', `Scan failed: ${error.message}`, filePath);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      throw this.createScanError('SCAN_FAILED', `Scan failed: ${errorMessage}`, filePath);
     }
   }
 
@@ -137,7 +129,7 @@ export class ClamAVService {
 
     for (const line of lines) {
       const match = line.match(/FOUND:\s*(.+)$/);
-      if (match) {
+      if (match && match[1]) {
         viruses.push(match[1].trim());
       }
     }
