@@ -19,72 +19,32 @@ export function AppLayout({ children }: AppLayoutProps) {
   const title = current?.label || 'n.crisis';
 
   return (
-    <div 
-      style={{ 
-        display: 'flex', 
-        minHeight: '100vh',
-        backgroundColor: '#0D1B2A',
-        color: '#E0E1E6',
-        fontFamily: 'Montserrat, sans-serif'
-      }}
-    >
+    <div className="flex h-screen bg-[#0D1B2A] text-[#E0E1E6]">
       {/* Sidebar */}
-      <nav 
-        style={{ 
-          width: '240px',
-          backgroundColor: '#112240',
-          borderRight: '1px solid #1B263B',
-          display: 'flex',
-          flexDirection: 'column'
-        }}
-      >
+      <nav className="w-60 bg-[#112240] border-r border-[#1B263B] flex flex-col">
         {/* Logo */}
-        <div style={{ padding: '24px', borderBottom: '1px solid #1B263B' }}>
-          <h1 style={{ 
-            fontSize: '20px', 
-            fontWeight: 'bold',
-            color: '#E0E1E6',
-            margin: 0
-          }}>
-            n<span style={{ color: '#00ade0' }}>.</span>crisis
+        <div className="p-6 border-b border-[#1B263B]">
+          <h1 className="text-xl font-bold text-[#E0E1E6] m-0">
+            n<span className="text-[#00ade0]">.</span>crisis
           </h1>
-          <p style={{ 
-            fontSize: '12px',
-            color: '#A5A8B1',
-            margin: '4px 0 0 0'
-          }}>
+          <p className="text-xs text-[#A5A8B1] mt-1">
             PII Detection & LGPD
           </p>
         </div>
 
         {/* Menu */}
-        <div style={{ flex: 1, padding: '16px' }}>
+        <div className="flex-1 p-4">
           {menuItems.map((item) => (
             <NavLink
               key={item.path}
               to={item.path}
-              style={({ isActive }) => ({
-                display: 'block',
-                padding: '12px 16px',
-                margin: '4px 0',
-                borderRadius: '8px',
-                textDecoration: 'none',
-                color: isActive ? 'white' : '#E0E1E6',
-                backgroundColor: isActive ? '#00ade0' : 'transparent',
-                fontSize: '14px',
-                fontWeight: '500',
-                transition: 'all 0.2s ease'
-              })}
-              onMouseEnter={(e) => {
-                if (!e.currentTarget.style.backgroundColor.includes('rgb(0, 173, 224)')) {
-                  e.currentTarget.style.backgroundColor = 'rgba(0, 173, 224, 0.1)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!e.currentTarget.style.backgroundColor.includes('rgb(0, 173, 224)')) {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                }
-              }}
+              className={({ isActive }) =>
+                `block px-4 py-3 my-1 rounded-lg text-sm font-medium transition-all duration-200 no-underline ${
+                  isActive 
+                    ? 'bg-[#00ade0] text-white' 
+                    : 'text-[#E0E1E6] hover:bg-[rgba(0,173,224,0.1)]'
+                }`
+              }
             >
               {item.label}
             </NavLink>
@@ -92,30 +52,14 @@ export function AppLayout({ children }: AppLayoutProps) {
         </div>
 
         {/* Status */}
-        <div style={{ 
-          padding: '16px',
-          borderTop: '1px solid #1B263B'
-        }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            padding: '12px',
-            backgroundColor: '#0D1B2A',
-            borderRadius: '8px'
-          }}>
-            <div style={{
-              width: '8px',
-              height: '8px',
-              backgroundColor: '#10b981',
-              borderRadius: '50%',
-              animation: 'pulse 2s infinite'
-            }} />
+        <div className="p-4 border-t border-[#1B263B]">
+          <div className="flex items-center gap-3 p-3 bg-[#0D1B2A] rounded-lg">
+            <div className="w-2 h-2 bg-[#10b981] rounded-full animate-pulse" />
             <div>
-              <div style={{ fontSize: '14px', fontWeight: '500', color: '#E0E1E6' }}>
+              <div className="text-sm font-medium text-[#E0E1E6]">
                 Sistema Online
               </div>
-              <div style={{ fontSize: '12px', color: '#A5A8B1' }}>
+              <div className="text-xs text-[#A5A8B1]">
                 Operacional
               </div>
             </div>
@@ -124,47 +68,20 @@ export function AppLayout({ children }: AppLayoutProps) {
       </nav>
 
       {/* Main content */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <div className="flex-1 flex flex-col">
         {/* Header */}
-        <header style={{
-          height: '64px',
-          backgroundColor: '#0D1B2A',
-          borderBottom: '1px solid #1B263B',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '0 24px'
-        }}>
-          <h1 style={{ 
-            fontSize: '24px', 
-            fontWeight: '600',
-            color: '#E0E1E6',
-            margin: 0
-          }}>
+        <header className="h-16 bg-[#0D1B2A] border-b border-[#1B263B] flex items-center justify-between px-6">
+          <h1 className="text-2xl font-semibold text-[#E0E1E6] m-0">
             {title}
           </h1>
           
-          <div style={{
-            width: '32px',
-            height: '32px',
-            backgroundColor: '#112240',
-            border: '1px solid #1B263B',
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            <span style={{ fontSize: '12px', color: '#A5A8B1' }}>US</span>
+          <div className="w-8 h-8 bg-[#112240] border border-[#1B263B] rounded-full flex items-center justify-center">
+            <span className="text-xs text-[#A5A8B1]">US</span>
           </div>
         </header>
 
         {/* Content */}
-        <main style={{
-          flex: 1,
-          padding: '24px',
-          backgroundColor: '#0D1B2A',
-          overflow: 'auto'
-        }}>
+        <main className="flex-1 p-6 bg-[#0D1B2A] overflow-auto">
           {children}
         </main>
       </div>
