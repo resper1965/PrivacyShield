@@ -7,7 +7,7 @@ import { Worker, Job } from 'bullmq';
 import { redisConnection } from './redis';
 import { ArchiveJobData, FileJobData, addFileJob } from './queues';
 import { extractZipFiles } from '../zipExtractor';
-import { detectPIIInText } from '../detectPII';
+import { detectPIIInText } from '../services/processor';
 import { piiRepository } from '../repository';
 import { virusScanner } from '../virusScanner';
 import * as fs from 'fs-extra';

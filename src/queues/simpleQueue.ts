@@ -4,7 +4,7 @@
  */
 
 import { EventEmitter } from 'events';
-import { detectPIIInText } from '../detectPII';
+import { detectPIIInText } from '../services/processor';
 import { extractZipFiles } from '../zipExtractor';
 import { virusScanner } from '../virusScanner';
 import { processFilesWithAI } from '../processor';

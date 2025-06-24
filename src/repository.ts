@@ -4,7 +4,8 @@
  */
 
 import { prisma } from './database';
-import { PIIDetection, DetectionSession } from './detectPII';
+import { DetectionSession } from './detectPII';
+import { PIIDetection } from './services/processor';
 
 // Prisma types
 export type FileRecord = {
