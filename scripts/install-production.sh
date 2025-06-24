@@ -127,6 +127,14 @@ setup_environment() {
         sed -i "s|LOG_LEVEL=info|LOG_LEVEL=warn|g" .env.production
         sed -i "s|DEBUG=ncrisis:\*|DEBUG=|g" .env.production
         
+        # Configure SendGrid if API key is available
+        if [[ -n "$SENDGRID_API_KEY" ]]; then
+            sed -i "s|SENDGRID_API_KEY=SG.1234567890abcdef.*|SENDGRID_API_KEY=$SENDGRID_API_KEY|g" .env.production
+            log "INFO" "SendGrid API key configurada"
+        else
+            log "WARN" "SENDGRID_API_KEY não encontrada - emails não serão enviados"
+        fi
+        
         log "INFO" "Configuração de produção criada. Edite .env.production se necessário."
     fi
     

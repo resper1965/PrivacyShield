@@ -205,15 +205,44 @@ cleanup() {
     log "INFO" "Limpeza concluída"
 }
 
-# Send notification
+# Send notification via SendGrid
 send_notification() {
     local current_version=$(git describe --tags --always)
     local previous_version=$(git describe --tags --always HEAD~1)
+    local commit_msg=$(git log -1 --pretty=format:"%s")
     
     log "INFO" "Atualização concluída: $previous_version → $current_version"
     
-    # Here you can add email notification if configured
-    # echo "N.Crisis updated from $previous_version to $current_version" | mail -s "N.Crisis Update Complete" admin@example.com
+    # Send email notification using Node.js script
+    if [[ -f "/opt/ncrisis/src/services/emailService.js" ]] && [[ -n "$SENDGRID_API_KEY" ]]; then
+        node -e "
+        const emailService = require('/opt/ncrisis/src/services/emailService.js');
+        emailService.sendNotificationEmail(
+            '${ALERT_EMAIL:-admin@e-ness.com.br}',
+            {
+                recipientName: 'Administrador',
+                alertType: 'update',
+                message: 'N.Crisis foi atualizado com sucesso.',
+                details: {
+                    'Versão Anterior': '$previous_version',
+                    'Nova Versão': '$current_version',
+                    'Última Alteração': '$commit_msg',
+                    'Servidor': '$(hostname)',
+                    'Data/Hora': '$(date)'
+                },
+                actionUrl: 'https://monster.e-ness.com.br'
+            }
+        ).then(success => {
+            if (success) {
+                console.log('Notificação de atualização enviada com sucesso');
+            } else {
+                console.log('Falha ao enviar notificação de atualização');
+            }
+        });
+        " 2>/dev/null || log "WARN" "Falha ao enviar notificação por email"
+    else
+        log "WARN" "SendGrid não configurado - notificação por email não enviada"
+    fi
 }
 
 # Rollback function

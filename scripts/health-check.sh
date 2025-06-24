@@ -223,36 +223,63 @@ check_backups() {
     fi
 }
 
-# Send alert notification
+# Send alert notification via SendGrid
 send_alert() {
     if [[ ${#ISSUES[@]} -eq 0 ]]; then
         return
     fi
     
     local subject="N.Crisis Health Alert - $HEALTH_STATUS"
-    local body="N.Crisis Health Check Alert\n\n"
-    body+="Status: $HEALTH_STATUS\n"
-    body+="Timestamp: $(date)\n"
-    body+="Host: $(hostname)\n\n"
-    body+="Issues Detected:\n"
     
+    # Prepare details for email
+    local details_json="{"
+    local first=true
     for issue in "${ISSUES[@]}"; do
-        body+="- $issue\n"
+        if [[ $first == true ]]; then
+            first=false
+        else
+            details_json+=","
+        fi
+        details_json+="\"Issue\": \"$issue\""
     done
+    details_json+="}"
     
-    body+="\nPlease check the system immediately.\n"
-    body+="Logs: $LOG_FILE\n"
-    
-    # Send email if configured
-    if command -v mail &> /dev/null && [[ -n "$ALERT_EMAIL" ]]; then
-        echo -e "$body" | mail -s "$subject" "$ALERT_EMAIL"
+    # Send email notification using Node.js script
+    if [[ -f "/opt/ncrisis/src/services/emailService.js" ]] && [[ -n "$SENDGRID_API_KEY" ]]; then
+        node -e "
+        const emailService = require('/opt/ncrisis/src/services/emailService.js');
+        emailService.sendNotificationEmail(
+            '${ALERT_EMAIL:-admin@e-ness.com.br}',
+            {
+                recipientName: 'Administrador',
+                alertType: 'health',
+                message: 'Verificação de saúde do N.Crisis detectou problemas que requerem atenção.',
+                details: {
+                    'Status': '$HEALTH_STATUS',
+                    'Servidor': '$(hostname)',
+                    'Problemas Detectados': '${#ISSUES[@]}',
+                    'Data/Hora': '$(date)',
+                    'Log File': '$LOG_FILE'
+                },
+                actionUrl: 'https://monster.e-ness.com.br/health'
+            }
+        ).then(success => {
+            if (success) {
+                console.log('Alerta de saúde enviado com sucesso');
+            } else {
+                console.log('Falha ao enviar alerta de saúde');
+            }
+        });
+        " 2>/dev/null || log "WARN" "Falha ao enviar alerta por email"
+    else
+        log "WARN" "SendGrid não configurado - alerta por email não enviado"
     fi
     
     # Send webhook if configured
     if [[ -n "$WEBHOOK_URL" ]]; then
         curl -X POST "$WEBHOOK_URL" \
              -H "Content-Type: application/json" \
-             -d "{\"text\":\"$subject\",\"body\":\"$body\"}" 2>/dev/null || true
+             -d "{\"text\":\"$subject\",\"status\":\"$HEALTH_STATUS\",\"issues\":${#ISSUES[@]},\"host\":\"$(hostname)\"}" 2>/dev/null || true
     fi
     
     log "ALERT" "Alerta enviado: $subject"

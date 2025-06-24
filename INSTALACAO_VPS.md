@@ -97,7 +97,8 @@ nano .env.production
 
 **Configurações importantes a serem alteradas:**
 - `OPENAI_API_KEY` - Seu token real da OpenAI (formato: sk-proj-...)
-- `SMTP_USER` e `SMTP_PASS` - Credenciais reais para envio de email
+- `SENDGRID_API_KEY` - Sua chave API do SendGrid para envio de emails
+- `FROM_EMAIL` - Email remetente (deve estar verificado no SendGrid)
 - `DATABASE_URL` - Será configurado automaticamente pelos scripts
 - `JWT_SECRET` - Será gerado automaticamente pelos scripts
 

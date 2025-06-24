@@ -69,7 +69,8 @@ nano .env.production
 
 **Tokens e senhas que precisam ser configurados:**
 - `OPENAI_API_KEY=sk-proj-1234...` (obter em https://platform.openai.com/api-keys)
-- `SMTP_PASS=abcd efgh ijkl mnop` (senha de app do Gmail)
+- `SENDGRID_API_KEY=SG.1234...` (obter em https://app.sendgrid.com/settings/api_keys)
+- `FROM_EMAIL=noreply@e-ness.com.br` (deve estar verificado no SendGrid)
 - Outros valores serão gerados automaticamente pelo script de instalação
 
 ## Etapa 3: Instalação da Aplicação

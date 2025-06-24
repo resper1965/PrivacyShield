@@ -222,17 +222,43 @@ verify_backup() {
     log "INFO" "Backup verificado com sucesso"
 }
 
-# Send notification (optional)
+# Send notification via SendGrid
 send_notification() {
     log "INFO" "Enviando notificação de backup..."
     
     # Calculate total backup size
-    local total_size=$(du -sh "$BACKUP_DIR/${BACKUP_NAME}"* | awk '{sum += $1} END {print sum}')
+    local total_size=$(du -sh "$BACKUP_DIR/${BACKUP_NAME}"* | awk 'BEGIN{sum=0} {sum+=$1} END{print sum "K"}')
     
-    # You can add email notification here if configured
-    # Example: echo "Backup $BACKUP_NAME completed successfully. Size: $total_size" | mail -s "N.Crisis Backup Complete" admin@example.com
+    # Send email notification using Node.js script
+    if [[ -f "/opt/ncrisis/src/services/emailService.js" ]] && [[ -n "$SENDGRID_API_KEY" ]]; then
+        node -e "
+        const emailService = require('/opt/ncrisis/src/services/emailService.js');
+        emailService.sendNotificationEmail(
+            '${ALERT_EMAIL:-admin@e-ness.com.br}',
+            {
+                recipientName: 'Administrador',
+                alertType: 'backup',
+                message: 'Backup do N.Crisis foi concluído com sucesso.',
+                details: {
+                    'Backup': '$BACKUP_NAME',
+                    'Tamanho Total': '$total_size',
+                    'Servidor': '$(hostname)',
+                    'Data/Hora': '$(date)'
+                }
+            }
+        ).then(success => {
+            if (success) {
+                console.log('Email de notificação enviado com sucesso');
+            } else {
+                console.log('Falha ao enviar email de notificação');
+            }
+        });
+        " 2>/dev/null || log "WARN" "Falha ao enviar notificação por email"
+    else
+        log "WARN" "SendGrid não configurado - notificação por email não enviada"
+    fi
     
-    log "INFO" "Backup $BACKUP_NAME concluído. Tamanho total: $(du -sh "$BACKUP_DIR/${BACKUP_NAME}"* | awk 'BEGIN{sum=0} {sum+=$1} END{print sum "K"}')"
+    log "INFO" "Backup $BACKUP_NAME concluído. Tamanho total: $total_size"
 }
 
 # Display backup summary
