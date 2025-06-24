@@ -142,7 +142,7 @@ get_github_credentials() {
             echo "   ✓ read:org (Read org and team membership)"
             echo "4. Copie o token gerado (ghp_...)"
             echo ""
-            echo "IMPORTANTE: O token deve ter acesso ao repositório privado resper1965/PrivacyShield"
+            echo "IMPORTANTE: O token deve ter acesso ao repositório privado https://github.com/resper1965/PrivacyShield.git"
             echo ""
             read -p "Digite seu token GitHub: " -s github_token
             echo ""

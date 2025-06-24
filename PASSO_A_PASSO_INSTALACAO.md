@@ -68,7 +68,7 @@ git clone https://usuario:TOKEN@github.com/resper1965/PrivacyShield.git .
 5. Copie o token (ghp_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX)
 6. Substitua TOKEN no comando acima
 
-**IMPORTANTE**: O usuário deve ter acesso ao repositório privado resper1965/PrivacyShield
+**IMPORTANTE**: O usuário deve ter acesso ao repositório privado https://github.com/resper1965/PrivacyShield.git
 
 ### 2.3 Configurar permissões dos scripts
 ```bash

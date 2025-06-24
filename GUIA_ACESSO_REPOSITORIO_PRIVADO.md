@@ -2,7 +2,7 @@
 
 ## Visão Geral
 
-O repositório `https://github.com/resper1965/PrivacyShield` é **PRIVADO** e requer autenticação adequada para clonagem e acesso aos scripts de instalação.
+O repositório `https://github.com/resper1965/PrivacyShield.git` é **PRIVADO** e requer autenticação adequada para clonagem e acesso aos scripts de instalação.
 
 ## Métodos de Autenticação
 

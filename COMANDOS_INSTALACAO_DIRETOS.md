@@ -144,7 +144,7 @@ git clone git@github.com:resper1965/PrivacyShield.git
 - ✅ read:org (Read org and team membership)
 
 **Verificar acesso do usuário:**
-- O usuário deve ter acesso ao repositório resper1965/PrivacyShield
+- O usuário deve ter acesso ao repositório https://github.com/resper1965/PrivacyShield.git
 - Se for repositório de organização, verificar permissões da org
 
 ### Se SSL falhar:
