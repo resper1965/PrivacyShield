@@ -7,6 +7,12 @@ import { Queue, QueueOptions } from 'bullmq';
 import IORedis from 'ioredis';
 import { env } from '../config/env';
 import { logger } from '../utils/logger';
+import { 
+  addArchiveJobFallback, 
+  addFileJobFallback, 
+  getArchiveQueueStatusFallback, 
+  getFileQueueStatusFallback 
+} from './fallbackQueue';
 
 // Redis connection
 const redisConnection = new IORedis({
@@ -14,6 +20,7 @@ const redisConnection = new IORedis({
   port: env.REDIS_PORT,
   maxRetriesPerRequest: 3,
   retryDelayOnFailover: 100,
+  lazyConnect: true,
 });
 
 const queueOptions: QueueOptions = {
@@ -51,51 +58,106 @@ export interface FileJobData {
 export const archiveQueue = new Queue<ArchiveJobData>('archive-processing', queueOptions);
 export const fileQueue = new Queue<FileJobData>('file-processing', queueOptions);
 
-// Queue management functions
+let redisAvailable = false;
+
+// Check Redis availability
+async function checkRedisAvailability(): Promise<boolean> {
+  try {
+    await redisConnection.ping();
+    redisAvailable = true;
+    logger.info('Redis connection established');
+    return true;
+  } catch (error) {
+    redisAvailable = false;
+    logger.warn('Redis unavailable, using fallback queue:', error);
+    return false;
+  }
+}
+
+// Initialize Redis check
+checkRedisAvailability();
+
+// Queue management functions with fallback
 export async function addArchiveJob(data: ArchiveJobData, priority?: number): Promise<string> {
-  const job = await archiveQueue.add('process-archive', data, {
-    priority: priority || 0,
-  });
-  
-  logger.info(`Archive job added: ${job.id} - ${data.originalName}`);
-  return job.id!;
+  if (!redisAvailable) {
+    return addArchiveJobFallback(data);
+  }
+
+  try {
+    const job = await archiveQueue.add('process-archive', data, {
+      priority: priority || 0,
+    });
+    
+    logger.info(`Archive job added: ${job.id} - ${data.originalName}`);
+    return job.id!;
+  } catch (error) {
+    logger.warn('Redis archive job failed, using fallback:', error);
+    return addArchiveJobFallback(data);
+  }
 }
 
 export async function addFileJob(data: FileJobData, priority?: number): Promise<string> {
-  const job = await fileQueue.add('process-file', data, {
-    priority: priority || 0,
-  });
-  
-  logger.debug(`File job added: ${job.id} - ${data.filename}`);
-  return job.id!;
+  if (!redisAvailable) {
+    return addFileJobFallback(data);
+  }
+
+  try {
+    const job = await fileQueue.add('process-file', data, {
+      priority: priority || 0,
+    });
+    
+    logger.debug(`File job added: ${job.id} - ${data.filename}`);
+    return job.id!;
+  } catch (error) {
+    logger.warn('Redis file job failed, using fallback:', error);
+    return addFileJobFallback(data);
+  }
 }
 
 export async function getArchiveQueueStatus() {
-  const waiting = await archiveQueue.getWaiting();
-  const active = await archiveQueue.getActive();
-  const completed = await archiveQueue.getCompleted();
-  const failed = await archiveQueue.getFailed();
+  if (!redisAvailable) {
+    return getArchiveQueueStatusFallback();
+  }
 
-  return {
-    waiting: waiting.length,
-    active: active.length,
-    completed: completed.length,
-    failed: failed.length,
-  };
+  try {
+    const waiting = await archiveQueue.getWaiting();
+    const active = await archiveQueue.getActive();
+    const completed = await archiveQueue.getCompleted();
+    const failed = await archiveQueue.getFailed();
+
+    return {
+      waiting: waiting.length,
+      active: active.length,
+      completed: completed.length,
+      failed: failed.length,
+    };
+  } catch (error) {
+    logger.warn('Redis queue status failed, using fallback:', error);
+    return getArchiveQueueStatusFallback();
+  }
 }
 
 export async function getFileQueueStatus() {
-  const waiting = await fileQueue.getWaiting();
-  const active = await fileQueue.getActive();
-  const completed = await fileQueue.getCompleted();
-  const failed = await fileQueue.getFailed();
+  if (!redisAvailable) {
+    return getFileQueueStatusFallback();
+  }
 
-  return {
-    waiting: waiting.length,
-    active: active.length,
-    completed: completed.length,
-    failed: failed.length,
-  };
+  try {
+    const waiting = await fileQueue.getWaiting();
+    const active = await fileQueue.getActive();
+    const completed = await fileQueue.getCompleted();
+    const failed = await fileQueue.getFailed();
+
+    return {
+      waiting: waiting.length,
+      active: active.length,
+      completed: completed.length,
+      failed: failed.length,
+    };
+  } catch (error) {
+    logger.warn('Redis queue status failed, using fallback:', error);
+    return getFileQueueStatusFallback();
+  }
 }
 
 export async function closeQueues(): Promise<void> {

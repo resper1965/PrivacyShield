@@ -8,24 +8,27 @@ import { env } from '../config/env';
 
 const isDevelopment = env.NODE_ENV === 'development';
 
-export const logger = pino({
+const loggerConfig: any = {
   level: env.LOG_LEVEL,
-  transport: isDevelopment
-    ? {
-        target: 'pino-pretty',
-        options: {
-          colorize: true,
-          translateTime: 'SYS:standard',
-          ignore: 'pid,hostname',
-        },
-      }
-    : undefined,
   formatters: {
-    level: (label) => {
+    level: (label: any) => {
       return { level: label.toUpperCase() };
     },
   },
   timestamp: pino.stdTimeFunctions.isoTime,
-});
+};
+
+if (isDevelopment) {
+  loggerConfig.transport = {
+    target: 'pino-pretty',
+    options: {
+      colorize: true,
+      translateTime: 'SYS:standard',
+      ignore: 'pid,hostname',
+    },
+  };
+}
+
+export const logger = pino(loggerConfig);
 
 export default logger;
