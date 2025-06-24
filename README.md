@@ -71,6 +71,8 @@ cp .env.example .env
 npm run db:push
 
 # Inicie o desenvolvimento
+# O servidor principal fica em `src/server-simple.ts`. O comando abaixo utiliza
+# `ts-node` para executar esse arquivo diretamente.
 npm run dev
 ```
 
@@ -85,6 +87,9 @@ docker-compose up --build -d
 # Verificar status
 docker-compose ps
 ```
+
+O container executa `node build/src/server-simple.js`, que corresponde ao
+servidor principal compilado a partir de `src/server-simple.ts`.
 
 ## 📁 Estrutura de Pastas
 
