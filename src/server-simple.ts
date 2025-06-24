@@ -10,6 +10,7 @@ import compression from 'compression';
 import { PrismaClient } from '@prisma/client';
 import multer from 'multer';
 import * as fs from 'fs-extra';
+import * as path from 'path';
 
 
 // Import services
@@ -293,30 +294,50 @@ app.get('/api/v1/reports/detections', async (req: Request, res: Response): Promi
   }
 });
 
-// Root endpoint
-app.get('/', (_req: Request, res: Response): void => {
-  res.status(200).json({
-    name: 'PIIDetector API',
-    version: '2.0.0',
-    description: 'PII detection with simplified processing',
-    endpoints: {
-      health: '/health',
-      upload: '/api/v1/archives/upload',
-      detections: '/api/v1/reports/detections',
-    },
-    timestamp: new Date().toISOString(),
+// Serve static files from frontend build
+const frontendPath = path.join(__dirname, '../dist');
+if (fs.existsSync(frontendPath)) {
+  app.use(express.static(frontendPath));
+  
+  // API routes take precedence, then serve React app for all other routes
+  app.get('*', (req: Request, res: Response): void => {
+    if (req.path.startsWith('/api') || req.path.startsWith('/health') || req.path.startsWith('/socket.io')) {
+      res.status(404).json({ 
+        error: 'API endpoint not found',
+        path: req.path,
+        timestamp: new Date().toISOString()
+      });
+      return;
+    }
+    res.sendFile(path.join(frontendPath, 'index.html'));
   });
-});
+} else {
+  // Fallback when frontend build doesn't exist
+  app.get('/', (_req: Request, res: Response): void => {
+    res.status(200).json({
+      name: 'PIIDetector API',
+      version: '2.0.0',
+      description: 'PII detection with simplified processing',
+      note: 'Frontend not built - run "npm run build" in frontend directory',
+      endpoints: {
+        health: '/health',
+        upload: '/api/v1/archives/upload',
+        detections: '/api/v1/reports/detections',
+      },
+      timestamp: new Date().toISOString(),
+    });
+  });
 
-// 404 handler
-app.all('*', (_req: Request, res: Response): void => {
-  res.status(404).json({
-    error: 'Not Found',
-    message: 'Route not found',
-    statusCode: 404,
-    timestamp: new Date().toISOString(),
+  // 404 handler for when frontend is not available
+  app.all('*', (_req: Request, res: Response): void => {
+    res.status(404).json({
+      error: 'Not Found',
+      message: 'Route not found',
+      statusCode: 404,
+      timestamp: new Date().toISOString(),
+    });
   });
-});
+}
 
 // Error handler
 app.use((error: Error, _req: Request, res: Response, _next: NextFunction): void => {
