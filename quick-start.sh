@@ -51,7 +51,12 @@ chown -R ncrisis:ncrisis uploads logs tmp local_files shared_folders
 # 7. Configurar firewall
 ufw allow 5000/tcp 2>/dev/null || true
 
-# 8. Iniciar aplicação
+# 8. Criar e configurar arquivo de log
+LOG_FILE="/tmp/ncrisis-quick.log"
+touch "$LOG_FILE"
+chown ncrisis:ncrisis "$LOG_FILE"
+
+# 9. Iniciar aplicação
 echo "Iniciando N.Crisis na porta 5000..."
 
 sudo -u ncrisis bash -c "
@@ -60,11 +65,11 @@ export NODE_ENV=production
 export PORT=5000
 export HOST=0.0.0.0
 export DATABASE_URL=postgresql://ncrisis:ncrisis123@localhost:5432/ncrisis
-nohup ts-node src/server-simple.ts > /var/log/ncrisis-quick.log 2>&1 &
+nohup ts-node src/server-simple.ts > $LOG_FILE 2>&1 &
 echo \$! > /tmp/ncrisis.pid
 "
 
-# 9. Aguardar e verificar
+# 10. Aguardar e verificar
 sleep 5
 
 if pgrep -f "ts-node.*server-simple" > /dev/null; then
@@ -81,8 +86,8 @@ if pgrep -f "ts-node.*server-simple" > /dev/null; then
     fi
 else
     echo "❌ Falha ao iniciar. Logs:"
-    tail -10 /var/log/ncrisis-quick.log
+    tail -10 "$LOG_FILE" 2>/dev/null || echo "Log file não encontrado"
 fi
 
-echo "Logs: tail -f /var/log/ncrisis-quick.log"
+echo "Logs: tail -f $LOG_FILE"
 echo "Status: curl http://localhost:5000/health"
