@@ -9,7 +9,7 @@ const menuItems = [
   { path: '/dashboard', label: 'Dashboard' },
   { path: '/incidentes', label: 'Incidentes' },
   { path: '/arquivos', label: 'Arquivos' },
-  { path: '/processamento', label: 'Processamento' },
+  { path: '/analise', label: 'Análise' },
   { path: '/relatorio', label: 'Relatório' },
   { path: '/configuracao', label: 'Configuração' },
 ];
