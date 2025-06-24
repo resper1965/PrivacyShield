@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
-import { NavLink, useLocation, Outlet } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { Menu, X, User } from 'lucide-react';
 
-const AppLayout: React.FC = () => {
+interface AppLayoutProps {
+  children: React.ReactNode;
+}
+
+const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
 
@@ -14,7 +18,8 @@ const AppLayout: React.FC = () => {
       '/files/my-uploads': 'Meus Uploads',
       '/detections': 'Detecções',
       '/reports/titulares': 'Relatório Titulares',
-      '/incidents/create': 'Cadastrar Caso'
+      '/incidents/create': 'Cadastrar Caso',
+      '/incidents/new': 'Cadastrar Caso'
     };
     return routes[pathname] || 'n.crisis';
   };
@@ -164,7 +169,7 @@ const AppLayout: React.FC = () => {
           className="flex-1 overflow-auto"
           style={{ backgroundColor: 'var(--color-bg)' }}
         >
-          <Outlet />
+          {children}
         </main>
       </div>
     </div>
