@@ -6,7 +6,7 @@
 import * as fs from 'fs-extra';
 import { spawn } from 'child_process';
 import { logger } from '../utils/logger';
-import { env } from '../config/env';
+
 
 export interface ScanResult {
   isClean: boolean;
@@ -67,7 +67,7 @@ export class ClamAVService {
         for (const line of lines) {
           if (line.includes('FOUND')) {
             const match = line.match(/:\s*(.+)\s+FOUND/);
-            if (match) {
+            if (match && match[1]) {
               threats.push(match[1]);
             }
           }

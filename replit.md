@@ -7,18 +7,18 @@ This is a Node.js/Express application built with TypeScript for detecting person
 ## System Architecture
 
 ### Backend Architecture
-- **Framework**: Express.js with TypeScript and modular class-based structure
-- **Runtime**: Node.js 20 with ts-node development execution
-- **Language**: TypeScript with strict type checking and comprehensive validation
-- **Entry Point**: `src/main.ts` with graceful shutdown handling
-- **Application**: `src/app.ts` with structured middleware and route management
+- **Framework**: Express.js with TypeScript and comprehensive PII detection
+- **Runtime**: Node.js 20 with WebSocket support for real-time progress tracking
+- **Language**: TypeScript with Brazilian PII pattern validation algorithms
+- **Entry Point**: `src/server-simple.ts` with integrated processing pipeline
+- **Processing**: Secure ZIP extraction with ClamAV scanning and context analysis
 
-### Modular Structure
-- **Services**: Separated business logic (`zipService`, `processor`, `queue`)
-- **Routes**: RESTful API endpoints (`archives`, `reports`, `patterns`)
-- **Workers**: Background processing (`archiveWorker`, `fileWorker`)
-- **Utils**: Shared utilities (`logger`, configuration validation)
-- **Database**: Prisma ORM with PostgreSQL and enhanced schema
+### Core Features
+- **PII Detection**: 7 Brazilian data types with validation (CPF, CNPJ, RG, CEP, Email, Telefone, Nome Completo)
+- **Security**: Zip-bomb protection, virus scanning, path traversal prevention
+- **Real-time**: WebSocket progress updates during upload and processing
+- **Reporting**: LGPD compliance reports with domain/CNPJ filtering and CSV export
+- **Database**: PostgreSQL with Prisma ORM, context and position tracking
 
 ### Security Layer
 - **Helmet**: Security headers and CSP configuration
@@ -102,16 +102,18 @@ Preferred communication style: Simple, everyday language.
 ## Changelog
 
 Recent Updates:
-- June 24, 2025: **Major Architecture Restructuring** - Implemented modular architecture with separated concerns:
-  - Created `src/app.ts` with modern Express application class
-  - Added `src/main.ts` as new entry point with graceful shutdown
-  - Modularized services: `zipService.ts`, `processor.ts`, `queue.ts` with Redis fallback
-  - Created structured routes: `archives.ts`, `reports.ts`, `patterns.ts`
-  - Added workers: `archiveWorker.ts`, `fileWorker.ts` for background processing
-  - Enhanced environment configuration with comprehensive validation
-  - Updated Prisma schema with AI validation fields and pattern management
-  - Implemented fallback queue system for Redis unavailability
-  - Added structured logging with Pino and development prettifier
+- June 24, 2025: **Complete Functional Requirements Implementation** - Delivered comprehensive PII detection system:
+  - Enhanced PII patterns: Nome Completo, CPF, CNPJ, RG, CEP, Email, Telefone with Brazilian validation
+  - Context extraction (±60 chars) and position tracking for each detection
+  - Risk level calculation (low/medium/high/critical) based on data type and file context
+  - ZIP extraction to `/tmp/extracts/<uuid>` with zip-bomb protection and compression ratio limits
+  - ClamAV virus scanning with fallback mechanisms for security validation
+  - WebSocket progress tracking for real-time upload status and processing updates
+  - LGPD compliance reporting with domain/CNPJ filtering and OR logic
+  - CSV export with UTF-8 BOM for proper encoding in Excel/LibreOffice
+  - Database seeding with default patterns and DEFAULT_ADMIN user
+  - Comprehensive Jest test suite for CPF/CNPJ validation, zip-bomb protection, and reports
+  - npm scripts: dev, worker, seed for development workflow
 
 Previous Features:
 - June 23, 2025: Initial TypeScript project scaffold and complete PII detection system
