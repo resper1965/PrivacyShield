@@ -38,7 +38,7 @@ sudo ./install-docker.sh
 #### 2. Clonar Repositório Privado (como usuário ncrisis)
 ```bash
 sudo su - ncrisis
-cd /opt/ncrisis
+cd /opt/ncrisis  # Diretório padrão da instalação
 
 # OPÇÃO A: Usando Token de Acesso Pessoal (RECOMENDADO)
 export GITHUB_PERSONAL_ACCESS_TOKEN="seu_token_aqui"

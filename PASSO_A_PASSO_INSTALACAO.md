@@ -53,7 +53,7 @@ chmod +x install-docker.sh
 ### 2.1 Trocar para usuário da aplicação
 ```bash
 sudo su - ncrisis
-cd /opt/ncrisis
+cd /opt/ncrisis  # Diretório de instalação padrão
 ```
 
 ### 2.2 Clonar o repositório privado
