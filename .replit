@@ -14,33 +14,7 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "PIIDetector Server"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Frontend Dev Server"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
 args = "N.Crisis Production"
-
-[[workflows.workflow]]
-name = "PIIDetector Server"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npx ts-node src/server-simple.ts"
-waitForPort = 8000
-
-[[workflows.workflow]]
-name = "Frontend Dev Server"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd frontend && npm run dev"
-waitForPort = 5173
 
 [[workflows.workflow]]
 name = "N.Crisis Production"
