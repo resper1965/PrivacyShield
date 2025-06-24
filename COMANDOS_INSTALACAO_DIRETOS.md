@@ -9,15 +9,17 @@ Execute estes comandos diretamente no servidor Ubuntu 22.04+:
 
 ### Opção 1: Instalação Completa (Recomendado)
 ```bash
-# IMPORTANTE: Definir token primeiro
+# PASSO 1: Definir token GitHub (OBRIGATÓRIO)
 export GITHUB_PERSONAL_ACCESS_TOKEN="seu_token_aqui"
 
-# Download e execução do script completo
+# PASSO 2: Download do script com autenticação
 curl -H "Authorization: token $GITHUB_PERSONAL_ACCESS_TOKEN" \
      https://raw.githubusercontent.com/resper1965/PrivacyShield/main/install-vps-complete.sh \
      -o install-vps.sh
+
+# PASSO 3: Executar (o token já está no ambiente)
 chmod +x install-vps.sh
-./install-vps.sh
+sudo ./install-vps.sh  # O token será usado automaticamente
 ```
 
 ### Opção 2: Instalação por Etapas

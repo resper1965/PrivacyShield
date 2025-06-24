@@ -86,6 +86,32 @@ check_root() {
     fi
 }
 
+# Check GitHub token
+check_github_token() {
+    if [[ -z "${GITHUB_PERSONAL_ACCESS_TOKEN:-}" ]]; then
+        echo ""
+        echo "ERRO: GITHUB_PERSONAL_ACCESS_TOKEN não está definido!"
+        echo ""
+        echo "O repositório https://github.com/resper1965/PrivacyShield é PRIVADO"
+        echo "e requer um token de acesso pessoal para clonagem."
+        echo ""
+        echo "Como obter o token:"
+        echo "1. Acesse: https://github.com/settings/tokens"
+        echo "2. Clique em 'Generate new token (classic)'"
+        echo "3. Marque as permissões:"
+        echo "   ✓ repo (Full control of private repositories)"
+        echo "4. Copie o token gerado"
+        echo ""
+        echo "Como usar:"
+        echo "   export GITHUB_PERSONAL_ACCESS_TOKEN=\"seu_token_aqui\""
+        echo "   ./install-vps-complete.sh"
+        echo ""
+        error_exit "Token GitHub obrigatório para continuar"
+    fi
+    
+    log "INFO" "Token GitHub detectado: ${GITHUB_PERSONAL_ACCESS_TOKEN:0:10}..."
+}
+
 # Check system requirements
 check_system() {
     log "INFO" "Verificando sistema..."

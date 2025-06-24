@@ -40,12 +40,17 @@ curl https://$GITHUB_PERSONAL_ACCESS_TOKEN@raw.githubusercontent.com/resper1965/
 
 ### Instalação Completa
 ```bash
+# OBRIGATÓRIO: Token para repositório privado
 export GITHUB_PERSONAL_ACCESS_TOKEN="seu_token_aqui"
+
+# Download com autenticação
 curl -H "Authorization: token $GITHUB_PERSONAL_ACCESS_TOKEN" \
      https://raw.githubusercontent.com/resper1965/PrivacyShield/main/install-vps-complete.sh \
      -o install-vps.sh
+
+# Executar (o script usa automaticamente o token do ambiente)
 chmod +x install-vps.sh
-./install-vps.sh
+sudo ./install-vps.sh
 ```
 
 ### Scripts Individuais
