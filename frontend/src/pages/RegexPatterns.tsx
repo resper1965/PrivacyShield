@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Toggle, TestTube, CheckCircle, XCircle } from 'lucide-react';
+import { Plus, Edit, Trash2, ToggleLeft, ToggleRight, TestTube, CheckCircle, XCircle } from 'lucide-react';
 
 interface Pattern {
   id: number;
@@ -344,7 +344,7 @@ export const RegexPatterns: React.FC = () => {
                       className={`p-1 rounded ${pattern.isActive ? 'text-green-500' : 'text-gray-400'}`}
                       title={pattern.isActive ? 'Desativar' : 'Ativar'}
                     >
-                      <Toggle size={16} />
+                      {pattern.isActive ? <ToggleRight size={16} /> : <ToggleLeft size={16} />}
                     </button>
                     <span className="text-small" style={{ color: 'var(--color-text-primary)' }}>
                       {pattern.isActive ? 'Ativo' : 'Inativo'}
