@@ -7,6 +7,7 @@ import { EventEmitter } from 'events';
 import { detectPIIInText } from '../detectPII';
 import { extractZipFiles } from '../zipExtractor';
 import { virusScanner } from '../virusScanner';
+import { processFilesWithAI } from '../processor';
 import * as fs from 'fs-extra';
 
 // Job data interfaces
@@ -194,31 +195,77 @@ archiveQueue.setProcessor(async (job) => {
   }
 });
 
-// File processor
+// File processor with OpenAI integration
 fileQueue.setProcessor(async (job) => {
   const { fileContent, filename, zipSource } = job.data;
   
-  console.log(`📄 Processing file: ${filename} from ${zipSource}`);
+  console.log(`📄 Processing file with AI: ${filename} from ${zipSource}`);
   
   try {
-    // Detect PII in file content
-    const detections = detectPIIInText(fileContent, filename, zipSource);
+    // Step 1: Enhanced PII detection with GPT-4o risk assessment
+    const processingResult = await processFilesWithAI(
+      [{ content: fileContent, filename }],
+      zipSource
+    );
     
-    console.log(`✅ File processed: ${filename} - ${detections.length} PII detections found`);
+    const fileResult = processingResult.results[0];
+    const enhancedDetections = fileResult?.detections || [];
+    
+    console.log(`✅ File processed: ${filename} - ${enhancedDetections.length} PII detections found`);
+    console.log(`🎯 Risk Assessment: ${fileResult?.fileRiskScore.overallRiskLevel} (Score: ${fileResult?.fileRiskScore.riskScore})`);
+    
+    // Log AI processing stats
+    if (fileResult && fileResult.processingStats && fileResult.processingStats.aiProcessingTime > 0) {
+      console.log(`🤖 AI Processing: ${fileResult.processingStats.aiProcessingTime}ms`);
+    }
     
     return {
       filename,
-      detectionsCount: detections.length,
-      detections: detections.map(d => ({
+      detectionsCount: enhancedDetections.length,
+      riskLevel: fileResult?.fileRiskScore.overallRiskLevel || 'low',
+      riskScore: fileResult?.fileRiskScore.riskScore || 0,
+      detections: enhancedDetections.map(d => ({
         tipo: d.documento,
         valor: d.valor,
         titular: d.titular,
+        riskLevel: d.riskLevel,
+        sensitivityScore: d.sensitivityScore,
+        aiConfidence: d.aiConfidence,
+        recommendations: d.recommendations.slice(0, 3), // Top 3 recommendations
+        reasoning: d.reasoning
       })),
+      aiStats: fileResult?.processingStats || null
     };
     
   } catch (error) {
     console.error(`❌ File processing failed: ${filename}`, error);
-    throw error;
+    
+    // Fallback to basic regex detection if AI fails
+    console.log(`🔄 Falling back to basic detection for: ${filename}`);
+    try {
+      const basicDetections = detectPIIInText(fileContent, filename, zipSource);
+      return {
+        filename,
+        detectionsCount: basicDetections.length,
+        riskLevel: 'medium',
+        riskScore: 50,
+        detections: basicDetections.map(d => ({
+          tipo: d.documento,
+          valor: d.valor,
+          titular: d.titular,
+          riskLevel: 'medium',
+          sensitivityScore: 5,
+          aiConfidence: 0.5,
+          recommendations: ['Basic detection - manual review recommended'],
+          reasoning: 'Fallback detection due to AI processing error'
+        })),
+        aiStats: null,
+        fallbackUsed: true
+      };
+    } catch (fallbackError) {
+      console.error(`❌ Fallback processing also failed: ${filename}`, fallbackError);
+      throw error;
+    }
   }
 });
 
