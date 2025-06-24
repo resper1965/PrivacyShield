@@ -341,11 +341,57 @@ setup_application() {
     log "INFO" "Configurando aplicação..."
     
     if [[ -n "$GITHUB_AUTH" ]]; then
-        # Clone repository
-        log "INFO" "Clonando repositório..."
-        sudo -u ncrisis git clone "$GITHUB_AUTH" "$APP_DIR" || error_exit "Falha ao clonar repositório"
+        # Check if directory exists and has content
+        if [[ -d "$APP_DIR" ]] && [[ "$(ls -A "$APP_DIR" 2>/dev/null)" ]]; then
+            log "WARN" "Diretório $APP_DIR já existe e não está vazio"
+            echo ""
+            echo "Opções disponíveis:"
+            echo "1. Remover diretório existente e clonar novamente"
+            echo "2. Atualizar repositório existente (git pull)"
+            echo "3. Cancelar instalação"
+            echo ""
+            read -p "Escolha uma opção (1-3): " -n 1 -r
+            echo ""
+            
+            case $REPLY in
+                1)
+                    log "INFO" "Removendo diretório existente..."
+                    rm -rf "$APP_DIR"
+                    log "INFO" "Clonando repositório..."
+                    sudo -u ncrisis git clone "$GITHUB_AUTH" "$APP_DIR" || error_exit "Falha ao clonar repositório"
+                    ;;
+                2)
+                    log "INFO" "Atualizando repositório existente..."
+                    cd "$APP_DIR"
+                    if [[ -d ".git" ]]; then
+                        sudo -u ncrisis git pull origin main || {
+                            log "WARN" "Falha no git pull, tentando reset..."
+                            sudo -u ncrisis git fetch origin main
+                            sudo -u ncrisis git reset --hard origin/main
+                        }
+                        log "INFO" "Repositório atualizado"
+                    else
+                        log "ERROR" "Diretório não é um repositório git válido"
+                        error_exit "Use opção 1 para remover e clonar novamente"
+                    fi
+                    ;;
+                3)
+                    log "INFO" "Instalação cancelada pelo usuário"
+                    exit 0
+                    ;;
+                *)
+                    log "ERROR" "Opção inválida"
+                    error_exit "Instalação cancelada"
+                    ;;
+            esac
+        else
+            # Directory doesn't exist or is empty, safe to clone
+            log "INFO" "Clonando repositório..."
+            sudo -u ncrisis git clone "$GITHUB_AUTH" "$APP_DIR" || error_exit "Falha ao clonar repositório"
+        fi
+        
         chown -R ncrisis:ncrisis "$APP_DIR"
-        log "INFO" "Repositório clonado"
+        log "INFO" "Repositório configurado"
     else
         # Create minimal structure for Docker-only installation
         log "INFO" "Criando estrutura mínima..."

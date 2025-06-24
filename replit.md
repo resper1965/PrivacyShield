@@ -108,6 +108,7 @@ Installation directory: `/opt/ncrisis` - standardized across all scripts and doc
 ## Changelog
 
 Recent Updates:
+- June 24, 2025: **VPS Installation Fix** - Corrigido erro de diretório existente no install-vps-complete.sh, adicionado verificação e opções para resolver conflitos de diretório /opt/ncrisis
 - June 24, 2025: **Download URLs Update** - Atualizados todos os comandos de download para usar URLs corretas do GitHub raw.githubusercontent.com com autenticação via GITHUB_PERSONAL_ACCESS_TOKEN, criado guia específico de download
 - June 24, 2025: **Repository References Update** - Atualizados todos os documentos e referências para o repositório correto https://github.com/resper1965/PrivacyShield em todos os arquivos de documentação e scripts de instalação
 - June 24, 2025: **Environment Configuration Update** - Criado arquivo .env.example atualizado com todas as variáveis necessárias do N.Crisis, incluindo configurações de PostgreSQL, Redis, OpenAI, ClamAV, SendGrid e CORS com exemplos realistas mas fictícios
