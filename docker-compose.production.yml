@@ -1,0 +1,203 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: ncrisis_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${PGUSER:-ncrisis_user}
+      POSTGRES_PASSWORD: ${PGPASSWORD:-ncrisis_pass}
+      POSTGRES_DB: ${PGDATABASE:-ncrisis_db}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "5432:5432"
+    networks:
+      - ncrisis_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PGUSER:-ncrisis_user} -d ${PGDATABASE:-ncrisis_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Redis Cache/Queue
+  redis:
+    image: redis:7-alpine
+    container_name: ncrisis_redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --replica-read-only no --maxmemory 512mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - ncrisis_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ClamAV Antivirus
+  clamav:
+    image: clamav/clamav:stable
+    container_name: ncrisis_clamav
+    restart: unless-stopped
+    volumes:
+      - clamav_data:/var/lib/clamav
+    ports:
+      - "3310:3310"
+    networks:
+      - ncrisis_network
+    environment:
+      - CLAMAV_NO_FRESHCLAMD=false
+      - CLAMAV_NO_CLAMD=false
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/clamdcheck.sh"]
+      interval: 60s
+      timeout: 120s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Main Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: ncrisis_app
+    restart: unless-stopped
+    env_file:
+      - .env.production
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${PGUSER:-ncrisis_user}:${PGPASSWORD:-ncrisis_pass}@postgres:5432/${PGDATABASE:-ncrisis_db}
+      - REDIS_URL=redis://redis:6379
+      - CLAMAV_HOST=clamav
+      - CLAMAV_PORT=3310
+    volumes:
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
+      - ./tmp:/app/tmp
+      - ./local_files:/app/local_files
+      - ./shared_folders:/app/shared_folders
+    ports:
+      - "8000:8000"
+    networks:
+      - ncrisis_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      clamav:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  # Frontend (React)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: production
+    container_name: ncrisis_frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./frontend/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    networks:
+      - ncrisis_network
+    depends_on:
+      - app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Background Worker
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: ncrisis_worker
+    restart: unless-stopped
+    env_file:
+      - .env.production
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${PGUSER:-ncrisis_user}:${PGPASSWORD:-ncrisis_pass}@postgres:5432/${PGDATABASE:-ncrisis_db}
+      - REDIS_URL=redis://redis:6379
+      - CLAMAV_HOST=clamav
+      - CLAMAV_PORT=3310
+    command: npm run worker
+    volumes:
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
+      - ./tmp:/app/tmp
+      - ./local_files:/app/local_files
+      - ./shared_folders:/app/shared_folders
+    networks:
+      - ncrisis_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      clamav:
+        condition: service_healthy
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  clamav_data:
+    driver: local
+
+networks:
+  ncrisis_network:
+    driver: bridge
+    name: ncrisis_network
