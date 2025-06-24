@@ -85,3 +85,44 @@ model Source {
 
   @@map("sources")
 }
+
+model Organization {
+  id        String    @id @default(uuid())
+  name      String
+  incidents Incident[]
+
+  @@map("organizations")
+}
+
+model User {
+  id        String    @id @default(uuid())
+  name      String
+  email     String    @unique
+  incidents Incident[] @relation("Assignee")
+
+  @@map("users")
+}
+
+model Incident {
+  id                String   @id @default(uuid())
+  organization      Organization @relation(fields: [organizationId], references: [id])
+  organizationId    String
+  date              DateTime
+  type              String
+  description       String
+  attachments       String[] @default([])
+  assignee          User?    @relation("Assignee", fields: [assigneeId], references: [id])
+  assigneeId        String?
+  semanticContext   String?
+  lgpdArticles      String[] @default([])
+  dataCategories    String[] @default([])
+  numSubjects       Int?
+  riskLevel         String?
+  immediateMeasures String?
+  actionPlan        String?
+  isDraft           Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("incidents")
+}
