@@ -70,7 +70,7 @@ export class PatternRepository {
     }
 
     // Check if name already exists
-    const existingPattern = await prisma.pattern.findUnique({
+    const existingPattern = await prisma.pattern.findFirst({
       where: { name: data.name },
     });
 
@@ -112,7 +112,7 @@ export class PatternRepository {
 
     // Check if new name already exists (if name is being changed)
     if (data.name && data.name !== existingPattern.name) {
-      const nameExists = await prisma.pattern.findUnique({
+      const nameExists = await prisma.pattern.findFirst({
         where: { name: data.name },
       });
 

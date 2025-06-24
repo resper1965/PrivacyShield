@@ -55,7 +55,7 @@ model Detection {
 
 model Pattern {
   id          Int      @id @default(autoincrement())
-  name        String
+  name        String   @unique
   pattern     String
   type        String
   description String?
