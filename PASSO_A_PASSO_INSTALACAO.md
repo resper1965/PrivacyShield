@@ -58,6 +58,20 @@ git clone git@github.com:resper1965/PrivacyShield.git .
 chmod +x scripts/*.sh
 ```
 
+### 2.4 Configurar variáveis de ambiente (opcional)
+```bash
+# Copiar template de configuração
+cp .env.example .env.production
+
+# Editar configurações se necessário
+nano .env.production
+```
+
+**Tokens e senhas que precisam ser configurados:**
+- `OPENAI_API_KEY=sk-proj-1234...` (obter em https://platform.openai.com/api-keys)
+- `SMTP_PASS=abcd efgh ijkl mnop` (senha de app do Gmail)
+- Outros valores serão gerados automaticamente pelo script de instalação
+
 ## Etapa 3: Instalação da Aplicação
 
 ### 3.1 Executar instalação da aplicação

@@ -95,6 +95,12 @@ cp .env.example .env.production
 nano .env.production
 ```
 
+**Configurações importantes a serem alteradas:**
+- `OPENAI_API_KEY` - Seu token real da OpenAI (formato: sk-proj-...)
+- `SMTP_USER` e `SMTP_PASS` - Credenciais reais para envio de email
+- `DATABASE_URL` - Será configurado automaticamente pelos scripts
+- `JWT_SECRET` - Será gerado automaticamente pelos scripts
+
 ### 6. Execução da Instalação
 
 ```bash
