@@ -20,33 +20,24 @@ const menuItems: MenuItem[] = [
     icon: <LayoutDashboard size={20} />
   },
   {
-    label: 'Arquivos',
-    icon: <FileText size={20} />,
-    children: [
-      { label: 'Enviar', path: '/files/upload', icon: <Upload size={16} /> },
-      { label: 'Meus uploads', path: '/files/my-uploads', icon: <FileText size={16} /> }
-    ]
-  },
-  {
-    label: 'Jobs',
-    icon: <Activity size={20} />,
-    children: [
-      { label: 'Fila em tempo real', path: '/jobs/queue', icon: <Activity size={16} /> },
-      { label: 'Histórico', path: '/jobs/history', icon: <ScrollText size={16} /> }
-    ]
-  },
-  {
-    label: 'Detecções',
-    path: '/detections',
+    label: 'Casos',
+    path: '/casos',
     icon: <AlertTriangle size={20} />
   },
   {
-    label: 'Incidentes',
-    icon: <AlertTriangle size={20} />,
-    children: [
-      { label: 'Cadastrar Incidente', path: '/incidents/create', icon: <AlertTriangle size={16} /> },
-      { label: 'Lista de Incidentes', path: '/incidents', icon: <ScrollText size={16} /> }
-    ]
+    label: 'Arquivos',
+    path: '/arquivos',
+    icon: <FileText size={20} />
+  },
+  {
+    label: 'Relatório',
+    path: '/relatorio',
+    icon: <BarChart3 size={20} />
+  },
+  {
+    label: 'Configuração',
+    path: '/configuracao',
+    icon: <Settings size={20} />
   },
   {
     label: 'Relatórios',
