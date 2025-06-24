@@ -121,31 +121,21 @@ const TelaCadastroCaso: React.FC = () => {
         </div>
       )}
 
-      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '24px' }}>
+      <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '16px 24px' }}>
         <form 
           onSubmit={handleSubmit(onSubmit)}
           style={{
             backgroundColor: '#112240',
             border: '1px solid #1B263B',
             borderRadius: '8px',
-            padding: '24px'
+            padding: '32px'
           }}
         >
-          <h2 style={{ 
-            color: '#E0E1E6', 
-            fontSize: '28px', 
-            fontWeight: '600',
-            marginBottom: '32px',
-            textAlign: 'center',
-            margin: '0 0 32px 0'
-          }}>
-            Cadastro de Incidente
-          </h2>
 
           {/* Grid para Empresa e Data */}
           <div style={{ 
             display: 'grid', 
-            gridTemplateColumns: '1fr 1fr', 
+            gridTemplateColumns: '1fr 1fr 1fr', 
             gap: '24px', 
             marginBottom: '24px' 
           }}>
@@ -217,6 +207,9 @@ const TelaCadastroCaso: React.FC = () => {
                 </p>
               )}
             </div>
+
+            {/* Espaço vazio para manter o grid */}
+            <div></div>
           </div>
 
           {/* Tipo */}
