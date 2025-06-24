@@ -17,6 +17,7 @@
     "@types/helmet": "^0.0.48",
     "@types/multer": "^1.4.13",
     "@types/node": "^24.0.3",
+    "@types/unzipper": "^0.10.11",
     "@types/yauzl": "^2.10.3",
     "@typescript-eslint/eslint-plugin": "^8.35.0",
     "@typescript-eslint/parser": "^8.35.0",
@@ -37,6 +38,7 @@
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.8.3",
+    "unzipper": "^0.12.3",
     "yauzl": "^3.2.0"
   }
 }

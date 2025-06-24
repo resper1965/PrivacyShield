@@ -5,10 +5,10 @@ import compression from 'compression';
 import multer from 'multer';
 import fs from 'fs-extra';
 import path from 'path';
-import * as yauzl from 'yauzl';
 import { ErrorResponse, ServerConfig } from './types/index';
 import { detectPIIInFiles, PIIDetection } from './detectPII';
 import { virusScanner, VirusScanner } from './virusScanner';
+import { extractZipFiles, validateZipFile, type ExtractionResult } from './zipExtractor';
 
 // Create required directories
 const UPLOAD_DIR = path.join(process.cwd(), 'uploads');
@@ -443,62 +443,25 @@ class PIIDetectorServer {
   }
 
   /**
-   * Extract ZIP file and return file contents
+   * Extract ZIP file and return file contents using secure extraction
    */
   private async extractZipFile(zipPath: string, _extractDir: string): Promise<Array<{ content: string; filename: string }>> {
-    return new Promise((resolve, reject) => {
-      const files: Array<{ content: string; filename: string }> = [];
+    try {
+      // Validate ZIP file before extraction
+      await validateZipFile(zipPath);
       
-      yauzl.open(zipPath, { lazyEntries: true }, (err, zipfile) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-
-        zipfile.readEntry();
-        
-        zipfile.on('entry', (entry) => {
-          if (/\/$/.test(entry.fileName)) {
-            // Directory entry
-            zipfile.readEntry();
-          } else {
-            // File entry
-            zipfile.openReadStream(entry, (err, readStream) => {
-              if (err) {
-                reject(err);
-                return;
-              }
-
-              const chunks: Buffer[] = [];
-              readStream.on('data', (chunk) => {
-                chunks.push(chunk);
-              });
-
-              readStream.on('end', () => {
-                const content = Buffer.concat(chunks).toString('utf-8');
-                files.push({
-                  content,
-                  filename: entry.fileName
-                });
-                zipfile.readEntry();
-              });
-
-              readStream.on('error', (err) => {
-                reject(err);
-              });
-            });
-          }
-        });
-
-        zipfile.on('end', () => {
-          resolve(files);
-        });
-
-        zipfile.on('error', (err) => {
-          reject(err);
-        });
-      });
-    });
+      // Extract using secure method with traversal protection and compression limits
+      const result: ExtractionResult = await extractZipFiles(zipPath);
+      
+      // Convert to expected format
+      return result.files.map(file => ({
+        content: file.content,
+        filename: file.filename
+      }));
+      
+    } catch (error) {
+      throw new Error(`Secure ZIP extraction failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
   }
 
   /**
