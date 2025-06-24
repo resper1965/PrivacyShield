@@ -5,6 +5,7 @@ import { SimpleLayout } from './components/SimpleLayout';
 import { SimpleDashboard } from './pages/SimpleDashboard';
 import TelaCadastroCaso from './pages/TelaCadastroCaso';
 import TelaArquivos from './pages/TelaArquivos';
+import TelaRelatorios from './pages/TelaRelatorios';
 import { WebSocketProvider } from './hooks/useWebSocket';
 
 // Create a client
@@ -30,7 +31,7 @@ function App() {
               <Route path="/incidents" element={<TelaCadastroCaso />} />
               <Route path="/arquivos" element={<TelaArquivos />} />
               <Route path="/processamento" element={<div style={{color: '#E0E1E6'}}><h1>Processamento - Em desenvolvimento</h1></div>} />
-              <Route path="/relatorio" element={<div style={{color: '#E0E1E6'}}><h1>Relatório - Em desenvolvimento</h1></div>} />
+              <Route path="/relatorio" element={<TelaRelatorios />} />
               <Route path="/configuracao" element={<div style={{color: '#E0E1E6'}}><h1>Configuração - Em desenvolvimento</h1></div>} />
             </Routes>
           </SimpleLayout>
