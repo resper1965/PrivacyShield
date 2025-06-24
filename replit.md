@@ -108,6 +108,7 @@ Installation directory: `/opt/ncrisis` - standardized across all scripts and doc
 ## Changelog
 
 Recent Updates:
+- June 24, 2025: **VPS Docker Build Fix** - Corrigido problema de build do Docker no frontend, criado script quick-start.sh para bypass de Docker e inicialização direta da aplicação na porta 5000
 - June 24, 2025: **VPS Installation Complete** - Script install-vps-complete.sh executado pelo usuário, criado guia de próximos passos para verificação e configuração final do sistema no servidor monster.e-ness.com.br
 - June 24, 2025: **VPS Installation Fix** - Corrigido erro de diretório existente no install-vps-complete.sh, adicionado verificação e opções para resolver conflitos de diretório /opt/ncrisis
 - June 24, 2025: **Download URLs Update** - Atualizados todos os comandos de download para usar URLs corretas do GitHub raw.githubusercontent.com com autenticação via GITHUB_PERSONAL_ACCESS_TOKEN, criado guia específico de download
