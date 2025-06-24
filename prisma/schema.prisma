@@ -1,6 +1,9 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,53 +14,72 @@ datasource db {
 }
 
 model File {
-  id          Int      @id @default(autoincrement())
-  filename    String
+  id           Int         @id @default(autoincrement())
+  filename     String
   originalName String?
-  zipSource   String?
-  mimeType    String?
-  size        Int?
-  uploadedAt  DateTime @default(now())
-  processedAt DateTime?
-  sessionId   String?
-  totalFiles  Int?
-  
-  // Relationships
-  detections  Detection[]
-  
+  zipSource    String?
+  mimeType     String?
+  size         Int?
+  uploadedAt   DateTime    @default(now())
+  processedAt  DateTime?
+  sessionId    String?
+  totalFiles   Int?
+  sourceId     Int?
+  source       Source?     @relation(fields: [sourceId], references: [id])
+  detections   Detection[]
+
   @@map("files")
 }
 
 model Detection {
-  id        Int      @id @default(autoincrement())
-  titular   String
-  documento String   // 'CPF' | 'CNPJ' | 'Email' | 'Telefone'
-  valor     String
-  arquivo   String
-  timestamp DateTime @default(now())
-  
-  // Foreign key
-  fileId    Int
-  file      File     @relation(fields: [fileId], references: [id], onDelete: Cascade)
-  
+  id               Int      @id @default(autoincrement())
+  titular          String
+  documento        String
+  valor            String
+  arquivo          String
+  timestamp        DateTime @default(now())
+  fileId           Int
+  file             File     @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  riskLevel        String   @default("medium")
+  sensitivityScore Int      @default(5)
+  aiConfidence     Float    @default(0.5)
+  reasoning        String?
+  contextualRisk   String?
+  isFalsePositive  Boolean  @default(false)
+  recommendations  String[] @default([])
+
   @@map("detections")
-  @@index([documento])
-  @@index([valor])
-  @@index([fileId])
 }
 
 model Pattern {
   id          Int      @id @default(autoincrement())
-  name        String   @unique
+  name        String
   pattern     String
-  type        String   // 'CPF' | 'CNPJ' | 'Email' | 'Telefone' | 'Custom'
+  type        String
   description String?
   isActive    Boolean  @default(true)
   isDefault   Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
+
   @@map("patterns")
-  @@index([type])
-  @@index([isActive])
+}
+
+model Source {
+  id                 Int      @id @default(autoincrement())
+  type               String // 'upload', 'watched_directory', 'manual'
+  name               String
+  path               String?
+  isActive           Boolean  @default(true)
+  cronPattern        String?
+  filePatterns       String[] @default([])
+  processSubdirs     Boolean  @default(true)
+  lastScan           DateTime?
+  totalFilesProcessed Int     @default(0)
+  totalDetections    Int      @default(0)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  files              File[]
+
+  @@map("sources")
 }
