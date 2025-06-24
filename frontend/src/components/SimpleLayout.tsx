@@ -7,7 +7,7 @@ interface SimpleLayoutProps {
 
 const menuItems = [
   { path: '/dashboard', label: 'Dashboard' },
-  { path: '/casos', label: 'Casos' },
+  { path: '/incidentes', label: 'Incidentes' },
   { path: '/arquivos', label: 'Arquivos' },
   { path: '/relatorio', label: 'Relatório' },
   { path: '/configuracao', label: 'Configuração' },

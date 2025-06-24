@@ -13,7 +13,7 @@ function App() {
           <Routes>
             <Route path="/" element={<SimpleDashboard />} />
             <Route path="/dashboard" element={<SimpleDashboard />} />
-            <Route path="/casos" element={<TelaCadastroCaso />} />
+            <Route path="/incidentes" element={<TelaCadastroCaso />} />
             <Route path="/arquivos" element={<div style={{color: '#E0E1E6'}}><h1>Arquivos - Em desenvolvimento</h1></div>} />
             <Route path="/relatorio" element={<div style={{color: '#E0E1E6'}}><h1>Relatório - Em desenvolvimento</h1></div>} />
             <Route path="/configuracao" element={<div style={{color: '#E0E1E6'}}><h1>Configuração - Em desenvolvimento</h1></div>} />
