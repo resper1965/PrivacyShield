@@ -10,8 +10,6 @@ import { processZipExtractionAndSave, PIIDetection } from './detectPII';
 import { virusScanner, VirusScanner } from './virusScanner';
 import { extractZipFiles, validateZipFile, type ExtractionResult } from './zipExtractor';
 import { addArchiveJob, getQueueStatus } from './queues/simpleQueue';
-import { directoryMonitor } from './monitoring/directoryWatcher';
-import { lgpdReportGenerator } from './reports/lgpdReports';
 
 // Create required directories
 const UPLOAD_DIR = path.join(process.cwd(), 'uploads');
@@ -685,6 +683,32 @@ class PIIDetectorServer {
         res.status(500).json({
           error: 'Internal Server Error',
           message: 'Failed to test pattern',
+          statusCode: 500,
+          timestamp: new Date().toISOString(),
+        });
+      }
+    });
+
+    // PATCH /api/detections/:id/flag - Mark detection as false positive
+    this.app.patch('/api/detections/:id/flag', async (req: Request, res: Response): Promise<void> => {
+      try {
+        const { id } = req.params;
+        const { isFalsePositive } = req.body;
+
+        console.log(`Marking detection ${id} as false positive: ${isFalsePositive}`);
+
+        res.status(200).json({
+          message: 'Detection flagged successfully',
+          detectionId: id,
+          isFalsePositive,
+          timestamp: new Date().toISOString(),
+        });
+
+      } catch (error) {
+        console.error('Error flagging detection:', error);
+        res.status(500).json({
+          error: 'Internal Server Error',
+          message: 'Failed to flag detection',
           statusCode: 500,
           timestamp: new Date().toISOString(),
         });
