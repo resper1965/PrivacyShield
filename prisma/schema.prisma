@@ -1,0 +1,47 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model File {
+  id          Int      @id @default(autoincrement())
+  filename    String
+  originalName String?
+  zipSource   String?
+  mimeType    String?
+  size        Int?
+  uploadedAt  DateTime @default(now())
+  processedAt DateTime?
+  sessionId   String?
+  totalFiles  Int?
+  
+  // Relationships
+  detections  Detection[]
+  
+  @@map("files")
+}
+
+model Detection {
+  id        Int      @id @default(autoincrement())
+  titular   String
+  documento String   // 'CPF' | 'CNPJ' | 'Email' | 'Telefone'
+  valor     String
+  arquivo   String
+  timestamp DateTime @default(now())
+  
+  // Foreign key
+  fileId    Int
+  file      File     @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  
+  @@map("detections")
+  @@index([documento])
+  @@index([valor])
+  @@index([fileId])
+}
