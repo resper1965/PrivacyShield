@@ -27,13 +27,15 @@ sudo su - ncrisis
 cd /opt/ncrisis
 
 # OPÇÃO A: Usando Token de Acesso Pessoal (RECOMENDADO)
-git clone https://TOKEN@github.com/resper1965/PrivacyShield.git .
+export GITHUB_PERSONAL_ACCESS_TOKEN="seu_token_aqui"
+git clone https://$GITHUB_PERSONAL_ACCESS_TOKEN@github.com/resper1965/PrivacyShield.git .
 
 # OPÇÃO B: Usando SSH (se configurado)
 git clone git@github.com:resper1965/PrivacyShield.git .
 
 # OPÇÃO C: Usuário e token
-git clone https://usuario:TOKEN@github.com/resper1965/PrivacyShield.git .
+export GITHUB_PERSONAL_ACCESS_TOKEN="seu_token_aqui"
+git clone https://usuario:$GITHUB_PERSONAL_ACCESS_TOKEN@github.com/resper1965/PrivacyShield.git .
 ```
 
 **Como obter Token GitHub:**
@@ -125,7 +127,7 @@ curl -I https://raw.githubusercontent.com/resper1965/PrivacyShield/main/scripts/
 # Token deve ter: repo + read:org
 
 # 2. Testar acesso ao repositório
-git ls-remote https://TOKEN@github.com/resper1965/PrivacyShield.git
+git ls-remote https://$GITHUB_PERSONAL_ACCESS_TOKEN@github.com/resper1965/PrivacyShield.git
 
 # 3. Verificar se usuário tem acesso ao repositório
 # Usuário deve estar na organização ou ter acesso explícito

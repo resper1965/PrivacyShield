@@ -81,13 +81,15 @@ cd /opt/ncrisis
 
 ```bash
 # MÉTODO 1: Token de Acesso Pessoal (RECOMENDADO)
-git clone https://TOKEN@github.com/resper1965/PrivacyShield.git .
+export GITHUB_PERSONAL_ACCESS_TOKEN="seu_token_aqui"
+git clone https://$GITHUB_PERSONAL_ACCESS_TOKEN@github.com/resper1965/PrivacyShield.git .
 
 # MÉTODO 2: Autenticação SSH (se configurada)
 git clone git@github.com:resper1965/PrivacyShield.git .
 
 # MÉTODO 3: Usuário e token
-git clone https://usuario:TOKEN@github.com/resper1965/PrivacyShield.git .
+export GITHUB_PERSONAL_ACCESS_TOKEN="seu_token_aqui"
+git clone https://usuario:$GITHUB_PERSONAL_ACCESS_TOKEN@github.com/resper1965/PrivacyShield.git .
 ```
 
 **Configuração do Token GitHub:**
@@ -104,7 +106,7 @@ git clone https://usuario:TOKEN@github.com/resper1965/PrivacyShield.git .
 **Verificação de acesso:**
 ```bash
 # Testar se o token funciona
-git ls-remote https://TOKEN@github.com/resper1965/PrivacyShield.git
+git ls-remote https://$GITHUB_PERSONAL_ACCESS_TOKEN@github.com/resper1965/PrivacyShield.git
 ```
 
 ### 5. Configuração de Ambiente

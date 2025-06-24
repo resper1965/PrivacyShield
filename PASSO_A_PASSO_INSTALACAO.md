@@ -49,13 +49,15 @@ cd /opt/ncrisis
 # IMPORTANTE: O repositório é PRIVADO e requer autenticação
 
 # MÉTODO 1: Token de Acesso Pessoal (RECOMENDADO)
-git clone https://TOKEN@github.com/resper1965/PrivacyShield.git .
+export GITHUB_PERSONAL_ACCESS_TOKEN="seu_token_aqui"
+git clone https://$GITHUB_PERSONAL_ACCESS_TOKEN@github.com/resper1965/PrivacyShield.git .
 
 # MÉTODO 2: SSH (se chave estiver configurada)
 git clone git@github.com:resper1965/PrivacyShield.git .
 
 # MÉTODO 3: Usuário e token
-git clone https://usuario:TOKEN@github.com/resper1965/PrivacyShield.git .
+export GITHUB_PERSONAL_ACCESS_TOKEN="seu_token_aqui"
+git clone https://usuario:$GITHUB_PERSONAL_ACCESS_TOKEN@github.com/resper1965/PrivacyShield.git .
 ```
 
 **Como criar Token GitHub:**

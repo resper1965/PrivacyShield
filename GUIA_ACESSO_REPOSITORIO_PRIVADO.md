@@ -29,10 +29,10 @@ github_pat_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 #### Uso do Token
 ```bash
 # Clonar repositório
-git clone https://TOKEN@github.com/resper1965/PrivacyShield.git
+git clone https://$GITHUB_PERSONAL_ACCESS_TOKEN@github.com/resper1965/PrivacyShield.git
 
 # Testar acesso
-git ls-remote https://TOKEN@github.com/resper1965/PrivacyShield.git
+git ls-remote https://$GITHUB_PERSONAL_ACCESS_TOKEN@github.com/resper1965/PrivacyShield.git
 
 # Download de scripts individuais
 curl -H "Authorization: token TOKEN" https://raw.githubusercontent.com/resper1965/PrivacyShield/main/scripts/install-docker.sh
@@ -165,8 +165,8 @@ cat ~/.ssh/config
 ### Variáveis de Ambiente
 ```bash
 # Definir token para scripts
-export GITHUB_TOKEN="seu_token_aqui"
-export GITHUB_AUTH="https://$GITHUB_TOKEN@github.com/resper1965/PrivacyShield.git"
+export GITHUB_PERSONAL_ACCESS_TOKEN="seu_token_aqui"
+export GITHUB_AUTH="https://$GITHUB_PERSONAL_ACCESS_TOKEN@github.com/resper1965/PrivacyShield.git"
 
 # Usar em scripts
 git clone $GITHUB_AUTH /opt/ncrisis
@@ -175,12 +175,12 @@ git clone $GITHUB_AUTH /opt/ncrisis
 ### Download de Scripts Individuais
 ```bash
 # Com autenticação
-curl -H "Authorization: token $GITHUB_TOKEN" \
+curl -H "Authorization: token $GITHUB_PERSONAL_ACCESS_TOKEN" \
      https://raw.githubusercontent.com/resper1965/PrivacyShield/main/scripts/install-docker.sh \
      -o install-docker.sh
 
 # Ou usando token na URL (menos seguro)
-curl https://TOKEN@raw.githubusercontent.com/resper1965/PrivacyShield/main/scripts/install-docker.sh \
+curl https://$GITHUB_PERSONAL_ACCESS_TOKEN@raw.githubusercontent.com/resper1965/PrivacyShield/main/scripts/install-docker.sh \
      -o install-docker.sh
 ```
 
@@ -196,15 +196,15 @@ curl https://TOKEN@raw.githubusercontent.com/resper1965/PrivacyShield/main/scrip
 ### Exemplo Seguro
 ```bash
 # .bashrc ou .profile
-export GITHUB_TOKEN="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+export GITHUB_PERSONAL_ACCESS_TOKEN="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 
 # Script
-if [[ -z "$GITHUB_TOKEN" ]]; then
-    echo "GITHUB_TOKEN não definido"
+if [[ -z "$GITHUB_PERSONAL_ACCESS_TOKEN" ]]; then
+    echo "GITHUB_PERSONAL_ACCESS_TOKEN não definido"
     exit 1
 fi
 
-git clone "https://$GITHUB_TOKEN@github.com/resper1965/PrivacyShield.git"
+git clone "https://$GITHUB_PERSONAL_ACCESS_TOKEN@github.com/resper1965/PrivacyShield.git"
 ```
 
 ### Logs e Auditoria
@@ -221,13 +221,13 @@ curl -H "Authorization: token TOKEN" https://api.github.com/user/emails
 ### Comandos de Diagnóstico
 ```bash
 # Informações do usuário autenticado
-curl -H "Authorization: token TOKEN" https://api.github.com/user
+curl -H "Authorization: token $GITHUB_PERSONAL_ACCESS_TOKEN" https://api.github.com/user
 
 # Rate limits
-curl -H "Authorization: token TOKEN" https://api.github.com/rate_limit
+curl -H "Authorization: token $GITHUB_PERSONAL_ACCESS_TOKEN" https://api.github.com/rate_limit
 
 # Organizações do usuário
-curl -H "Authorization: token TOKEN" https://api.github.com/user/orgs
+curl -H "Authorization: token $GITHUB_PERSONAL_ACCESS_TOKEN" https://api.github.com/user/orgs
 ```
 
 ### Contatos para Acesso

@@ -148,13 +148,16 @@ get_github_credentials() {
             echo ""
             
             if [[ -n "$github_token" ]]; then
+                # Set environment variable for consistency
+                export GITHUB_PERSONAL_ACCESS_TOKEN="$github_token"
+                
                 # Validate token format
                 if [[ "$github_token" =~ ^ghp_[a-zA-Z0-9]{36}$ ]] || [[ "$github_token" =~ ^github_pat_[a-zA-Z0-9_]{82}$ ]]; then
-                    GITHUB_AUTH="https://$github_token@github.com/resper1965/PrivacyShield.git"
+                    GITHUB_AUTH="https://$GITHUB_PERSONAL_ACCESS_TOKEN@github.com/resper1965/PrivacyShield.git"
                     log "INFO" "Token aceito - formato válido"
                 else
                     log "WARN" "Formato de token não reconhecido, tentando mesmo assim..."
-                    GITHUB_AUTH="https://$github_token@github.com/resper1965/PrivacyShield.git"
+                    GITHUB_AUTH="https://$GITHUB_PERSONAL_ACCESS_TOKEN@github.com/resper1965/PrivacyShield.git"
                 fi
             else
                 error_exit "Token não pode estar vazio"
@@ -171,7 +174,8 @@ get_github_credentials() {
             echo ""
             
             if [[ -n "$github_user" && -n "$github_pass" ]]; then
-                GITHUB_AUTH="https://$github_user:$github_pass@github.com/resper1965/PrivacyShield.git"
+                export GITHUB_PERSONAL_ACCESS_TOKEN="$github_pass"
+                GITHUB_AUTH="https://$github_user:$GITHUB_PERSONAL_ACCESS_TOKEN@github.com/resper1965/PrivacyShield.git"
             else
                 error_exit "Usuário e token/senha não podem estar vazios"
             fi
