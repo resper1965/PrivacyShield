@@ -45,3 +45,19 @@ model Detection {
   @@index([valor])
   @@index([fileId])
 }
+
+model Pattern {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  pattern     String
+  type        String   // 'CPF' | 'CNPJ' | 'Email' | 'Telefone' | 'Custom'
+  description String?
+  isActive    Boolean  @default(true)
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("patterns")
+  @@index([type])
+  @@index([isActive])
+}
