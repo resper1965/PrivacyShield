@@ -19,7 +19,6 @@ const redisConnection = new IORedis({
   host: env.REDIS_HOST,
   port: env.REDIS_PORT,
   maxRetriesPerRequest: 3,
-  retryDelayOnFailover: 100,
   lazyConnect: true,
 });
 

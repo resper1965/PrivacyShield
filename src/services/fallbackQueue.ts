@@ -22,7 +22,7 @@ class FallbackQueue<T = any> {
   private completedJobs: string[] = [];
   private failedJobs: string[] = [];
 
-  add(name: string, data: T): string {
+  add(_name: string, data: T): string {
     const id = `job_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const job: QueueJob<T> = {
       id,

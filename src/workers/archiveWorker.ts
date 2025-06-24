@@ -112,7 +112,6 @@ export const archiveWorker = new Worker<ArchiveJobData>(
     connection: {
       host: env.REDIS_HOST,
       port: env.REDIS_PORT,
-      lazyConnect: true,
     },
     concurrency: 1, // Process one archive at a time
   }

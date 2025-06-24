@@ -19,14 +19,19 @@ const loggerConfig: any = {
 };
 
 if (isDevelopment) {
-  loggerConfig.transport = {
-    target: 'pino-pretty',
-    options: {
-      colorize: true,
-      translateTime: 'SYS:standard',
-      ignore: 'pid,hostname',
-    },
-  };
+  try {
+    loggerConfig.transport = {
+      target: 'pino-pretty',
+      options: {
+        colorize: true,
+        translateTime: 'SYS:standard',
+        ignore: 'pid,hostname',
+      },
+    };
+  } catch (error) {
+    // Fallback to basic console output if pino-pretty is not available
+    console.warn('pino-pretty not available, using basic logging');
+  }
 }
 
 export const logger = pino(loggerConfig);

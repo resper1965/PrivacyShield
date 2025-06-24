@@ -261,7 +261,6 @@ export const fileWorker = new Worker<FileJobData>(
     connection: {
       host: env.REDIS_HOST,
       port: env.REDIS_PORT,
-      lazyConnect: true,
     },
     concurrency: 3, // Process multiple files in parallel
   }

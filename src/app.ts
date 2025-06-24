@@ -21,9 +21,7 @@ import archivesRouter from './routes/archives';
 import reportsRouter from './routes/reports';
 import patternsRouter from './routes/patterns';
 
-// Workers
-import './workers/archiveWorker';
-import './workers/fileWorker';
+// Workers are conditionally loaded based on Redis availability
 
 interface ErrorResponse {
   error: string;

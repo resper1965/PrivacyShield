@@ -7,10 +7,18 @@ This is a Node.js/Express application built with TypeScript for detecting person
 ## System Architecture
 
 ### Backend Architecture
-- **Framework**: Express.js 5.x with TypeScript
-- **Runtime**: Node.js 20 (as specified in .replit configuration)
-- **Language**: TypeScript with strict type checking enabled
-- **Module System**: ESNext modules with Node.js resolution
+- **Framework**: Express.js with TypeScript and modular class-based structure
+- **Runtime**: Node.js 20 with ts-node development execution
+- **Language**: TypeScript with strict type checking and comprehensive validation
+- **Entry Point**: `src/main.ts` with graceful shutdown handling
+- **Application**: `src/app.ts` with structured middleware and route management
+
+### Modular Structure
+- **Services**: Separated business logic (`zipService`, `processor`, `queue`)
+- **Routes**: RESTful API endpoints (`archives`, `reports`, `patterns`)
+- **Workers**: Background processing (`archiveWorker`, `fileWorker`)
+- **Utils**: Shared utilities (`logger`, configuration validation)
+- **Database**: Prisma ORM with PostgreSQL and enhanced schema
 
 ### Security Layer
 - **Helmet**: Security headers and CSP configuration
@@ -93,16 +101,24 @@ Preferred communication style: Simple, everyday language.
 
 ## Changelog
 
-Changelog:
-- June 23, 2025: Initial setup with TypeScript project scaffold
-- June 23, 2025: Implemented complete PII detection system with ZIP processing
-- June 23, 2025: Added ClamAV virus scanning with MIME validation and 422 error responses
-- June 23, 2025: Added local directory file processing with listing and validation capabilities
-- June 24, 2025: Implemented R2 - Secure ZIP extraction with unzipper, traversal protection, and 100x compression ratio limits
-- June 24, 2025: Implemented R3 - Enhanced PII detection with Brazilian validation algorithms, session-based storage in detections.json with append mode
-- June 24, 2025: Implemented R4 - Titulares report with domain/CNPJ grouping and OR filter logic
-- June 24, 2025: Implemented R5 - PostgreSQL migration with Prisma ORM, File and Detection tables with database persistence
-- June 24, 2025: Implemented R6 - BullMQ queue system with archiveQueue (ZIP) and fileQueue (individual files), asynchronous processing with Redis connection
+Recent Updates:
+- June 24, 2025: **Major Architecture Restructuring** - Implemented modular architecture with separated concerns:
+  - Created `src/app.ts` with modern Express application class
+  - Added `src/main.ts` as new entry point with graceful shutdown
+  - Modularized services: `zipService.ts`, `processor.ts`, `queue.ts` with Redis fallback
+  - Created structured routes: `archives.ts`, `reports.ts`, `patterns.ts`
+  - Added workers: `archiveWorker.ts`, `fileWorker.ts` for background processing
+  - Enhanced environment configuration with comprehensive validation
+  - Updated Prisma schema with AI validation fields and pattern management
+  - Implemented fallback queue system for Redis unavailability
+  - Added structured logging with Pino and development prettifier
+
+Previous Features:
+- June 23, 2025: Initial TypeScript project scaffold and complete PII detection system
+- June 23, 2025: ClamAV virus scanning with MIME validation and secure ZIP processing
+- June 24, 2025: Enhanced PII detection with Brazilian validation algorithms
+- June 24, 2025: PostgreSQL migration with Prisma ORM and database persistence
+- June 24, 2025: BullMQ queue system with Redis backend and asynchronous processing
 
 ## Notes for Development
 
