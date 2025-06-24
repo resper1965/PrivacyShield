@@ -121,25 +121,6 @@ const TelaCadastroCaso: React.FC = () => {
         </div>
       )}
 
-      {/* Header */}
-      <div style={{ marginBottom: '24px' }}>
-        <h1 style={{ 
-          color: '#E0E1E6', 
-          fontSize: '28px', 
-          fontWeight: '600',
-          margin: '0 0 8px 0'
-        }}>
-          Novo Incidente
-        </h1>
-        <p style={{ 
-          color: '#A5A8B1', 
-          fontSize: '16px',
-          margin: 0
-        }}>
-          Registre um novo incidente de segurança da informação
-        </p>
-      </div>
-
       <div style={{ 
         backgroundColor: '#112240',
         border: '1px solid #1B263B',
