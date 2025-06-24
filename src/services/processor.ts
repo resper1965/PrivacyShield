@@ -26,13 +26,13 @@ export interface PIIDetection {
  * Enhanced Brazilian PII patterns with comprehensive validation
  */
 const PII_PATTERNS = {
-  'Nome Completo': /\b[A-ZÁÀÂÃÉÊÍÓÔÕÚÇ][a-záàâãéêíóôõúç]+(?:\s+[A-ZÁÀÂÃÉÊÍÓÔÕÚÇ][a-záàâãéêíóôõúç]+){1,}\b/g,
-  CPF: /\d{3}\.?\d{3}\.?\d{3}[-.]?\d{2}/g,
-  CNPJ: /\d{2}\.?\d{3}\.?\d{3}\/?\d{4}[-.]?\d{2}/g,
-  RG: /\d{1,2}\.?\d{3}\.?\d{3}[-.]?[0-9xX]/g,
-  CEP: /\d{5}[-.]?\d{3}/g,
-  Email: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g,
-  Telefone: /(?:\+55\s?)?(?:\(?\d{2}\)?\s?)?9?\d{4}[-\s]?\d{4}/g
+  CPF: /\b\d{3}\.?\d{3}\.?\d{3}[-.]?\d{2}\b/g,
+  CNPJ: /\b\d{2}\.?\d{3}\.?\d{3}\/?\d{4}[-.]?\d{2}\b/g,
+  RG: /\bRG:?\s*\d{1,2}\.?\d{3}\.?\d{3}[-.]?[0-9xX]\b/gi,
+  CEP: /\bCEP:?\s*\d{5}[-.]?\d{3}\b/gi,
+  Email: /\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}\b/g,
+  Telefone: /\b(?:\+55\s?)?(?:\(?\d{2}\)?\s?)?9?\d{4}[-\s]?\d{4}\b/g,
+  'Nome Completo': /\b[A-ZÁÀÂÃÉÊÍÓÔÕÚÇ][a-záàâãéêíóôõúç]+(?:\s+(?:da|de|do|dos|das)?\s*[A-ZÁÀÂÃÉÊÍÓÔÕÚÇ][a-záàâãéêíóôõúç]+){1,}\b/g
 };
 
 /**

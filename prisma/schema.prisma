@@ -34,13 +34,15 @@ model File {
 model Detection {
   id               Int      @id @default(autoincrement())
   titular          String
-  documento        String
+  documento        String   // 'Nome Completo', 'CPF', 'CNPJ', 'RG', 'CEP', 'Email', 'Telefone'
   valor            String
   arquivo          String
   timestamp        DateTime @default(now())
   fileId           Int
   file             File     @relation(fields: [fileId], references: [id], onDelete: Cascade)
-  riskLevel        String   @default("medium")
+  context          String   @default("") // ±60 characters around detection
+  position         Int      @default(0) // Character position in file
+  riskLevel        String   @default("medium") // 'low', 'medium', 'high', 'critical'
   sensitivityScore Int      @default(5)
   aiConfidence     Float    @default(0.5)
   reasoning        String?

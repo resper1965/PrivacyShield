@@ -88,16 +88,6 @@ async function seedDefaultPatterns(): Promise<void> {
 async function seedDefaultAdmin(): Promise<void> {
   logger.info('Seeding default admin user...');
 
-  // For this implementation, we'll create a simple admin record
-  // In a real application, you would use proper user authentication
-  const adminData = {
-    username: 'DEFAULT_ADMIN',
-    email: 'admin@piidetector.local',
-    role: 'ADMIN',
-    createdAt: new Date(),
-    isActive: true
-  };
-
   // Since we don't have a User model in our current schema,
   // we'll create a source record as a placeholder for admin functionality
   const existing = await prisma.source.findFirst({

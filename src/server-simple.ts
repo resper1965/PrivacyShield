@@ -254,7 +254,7 @@ app.post('/api/v1/archives/upload', upload.single('file'), async (req: Request, 
       await fs.remove(req.file.path);
     }
 
-    wsService?.sendError(sessionId, 'Processing failed', { error: error.message });
+    wsService?.sendError(sessionId, 'Processing failed', { error: error instanceof Error ? error.message : String(error) });
 
     res.status(500).json({
       error: 'Internal Server Error',
