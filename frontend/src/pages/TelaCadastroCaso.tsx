@@ -123,7 +123,7 @@ const TelaCadastroCaso: React.FC = () => {
         </div>
       )}
 
-      <div style={{ maxWidth: '448px', margin: '0 auto', padding: '24px' }}>
+      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '24px' }}>
         <form 
           onSubmit={handleSubmit(onSubmit)}
           style={{
@@ -135,97 +135,105 @@ const TelaCadastroCaso: React.FC = () => {
         >
           <h2 style={{ 
             color: '#E0E1E6', 
-            fontSize: '24px', 
+            fontSize: '28px', 
             fontWeight: '600',
-            marginBottom: '24px',
+            marginBottom: '32px',
             textAlign: 'center',
-            margin: '0 0 24px 0'
+            margin: '0 0 32px 0'
           }}>
             Cadastro de Incidente
           </h2>
 
-          {/* Empresa */}
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ 
-              display: 'block',
-              color: '#E0E1E6',
-              fontSize: '14px',
-              fontWeight: '500',
-              marginBottom: '8px'
-            }}>
-              Empresa *
-            </label>
-            <select
-              {...register('organizationId')}
-              style={{
-                width: '100%',
-                padding: '12px',
-                backgroundColor: '#0D1B2A',
-                border: `1px solid ${errors.organizationId ? '#ef4444' : '#1B263B'}`,
-                borderRadius: '6px',
+          {/* Grid para Empresa e Data */}
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: '1fr 1fr', 
+            gap: '24px', 
+            marginBottom: '24px' 
+          }}>
+            {/* Empresa */}
+            <div>
+              <label style={{ 
+                display: 'block',
                 color: '#E0E1E6',
-                fontSize: '14px',
-                outline: 'none'
-              }}
-              onFocus={(e) => e.target.style.borderColor = '#00ade0'}
-              onBlur={(e) => e.target.style.borderColor = errors.organizationId ? '#ef4444' : '#1B263B'}
-            >
-              <option value="">Selecione uma empresa</option>
-              {organizations?.map((org) => (
-                <option key={org.id} value={org.id}>
-                  {org.name}
-                </option>
-              ))}
-            </select>
-            {errors.organizationId && (
-              <p style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px', margin: '4px 0 0 0' }}>
-                {errors.organizationId.message}
-              </p>
-            )}
-          </div>
+                fontSize: '16px',
+                fontWeight: '500',
+                marginBottom: '10px'
+              }}>
+                Empresa *
+              </label>
+              <select
+                {...register('organizationId')}
+                style={{
+                  width: '100%',
+                  padding: '14px',
+                  backgroundColor: '#0D1B2A',
+                  border: `1px solid ${errors.organizationId ? '#ef4444' : '#1B263B'}`,
+                  borderRadius: '8px',
+                  color: '#E0E1E6',
+                  fontSize: '16px',
+                  outline: 'none'
+                }}
+                onFocus={(e) => e.target.style.borderColor = '#00ade0'}
+                onBlur={(e) => e.target.style.borderColor = errors.organizationId ? '#ef4444' : '#1B263B'}
+              >
+                <option value="">Selecione uma empresa</option>
+                {organizations?.map((org) => (
+                  <option key={org.id} value={org.id}>
+                    {org.name}
+                  </option>
+                ))}
+              </select>
+              {errors.organizationId && (
+                <p style={{ color: '#ef4444', fontSize: '13px', marginTop: '6px', margin: '6px 0 0 0' }}>
+                  {errors.organizationId.message}
+                </p>
+              )}
+            </div>
 
-          {/* Data */}
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ 
-              display: 'block',
-              color: '#E0E1E6',
-              fontSize: '14px',
-              fontWeight: '500',
-              marginBottom: '8px'
-            }}>
-              Data do Incidente *
-            </label>
-            <input
-              type="datetime-local"
-              {...register('date')}
-              style={{
-                width: '100%',
-                padding: '12px',
-                backgroundColor: '#0D1B2A',
-                border: `1px solid ${errors.date ? '#ef4444' : '#1B263B'}`,
-                borderRadius: '6px',
+            {/* Data */}
+            <div>
+              <label style={{ 
+                display: 'block',
                 color: '#E0E1E6',
-                fontSize: '14px',
-                outline: 'none'
-              }}
-              onFocus={(e) => e.target.style.borderColor = '#00ade0'}
-              onBlur={(e) => e.target.style.borderColor = errors.date ? '#ef4444' : '#1B263B'}
-            />
-            {errors.date && (
-              <p style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px', margin: '4px 0 0 0' }}>
-                {errors.date.message}
-              </p>
-            )}
+                fontSize: '16px',
+                fontWeight: '500',
+                marginBottom: '10px'
+              }}>
+                Data do Incidente *
+              </label>
+              <input
+                type="datetime-local"
+                {...register('date')}
+                style={{
+                  width: '100%',
+                  padding: '14px',
+                  backgroundColor: '#0D1B2A',
+                  border: `1px solid ${errors.date ? '#ef4444' : '#1B263B'}`,
+                  borderRadius: '8px',
+                  color: '#E0E1E6',
+                  fontSize: '16px',
+                  outline: 'none'
+                }}
+                onFocus={(e) => e.target.style.borderColor = '#00ade0'}
+                onBlur={(e) => e.target.style.borderColor = errors.date ? '#ef4444' : '#1B263B'}
+              />
+              {errors.date && (
+                <p style={{ color: '#ef4444', fontSize: '13px', marginTop: '6px', margin: '6px 0 0 0' }}>
+                  {errors.date.message}
+                </p>
+              )}
+            </div>
           </div>
 
           {/* Tipo */}
-          <div style={{ marginBottom: '20px' }}>
+          <div style={{ marginBottom: '24px' }}>
             <label style={{ 
               display: 'block',
               color: '#E0E1E6',
-              fontSize: '14px',
+              fontSize: '16px',
               fontWeight: '500',
-              marginBottom: '8px'
+              marginBottom: '10px'
             }}>
               Tipo de Incidente *
             </label>
@@ -233,12 +241,12 @@ const TelaCadastroCaso: React.FC = () => {
               {...register('type')}
               style={{
                 width: '100%',
-                padding: '12px',
+                padding: '14px',
                 backgroundColor: '#0D1B2A',
                 border: `1px solid ${errors.type ? '#ef4444' : '#1B263B'}`,
-                borderRadius: '6px',
+                borderRadius: '8px',
                 color: '#E0E1E6',
-                fontSize: '14px',
+                fontSize: '16px',
                 outline: 'none'
               }}
               onFocus={(e) => e.target.style.borderColor = '#00ade0'}
@@ -251,20 +259,20 @@ const TelaCadastroCaso: React.FC = () => {
               <option value="Vazamento de dados">Vazamento de dados</option>
             </select>
             {errors.type && (
-              <p style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px', margin: '4px 0 0 0' }}>
+              <p style={{ color: '#ef4444', fontSize: '13px', marginTop: '6px', margin: '6px 0 0 0' }}>
                 {errors.type.message}
               </p>
             )}
           </div>
 
           {/* Descrição */}
-          <div style={{ marginBottom: '24px', position: 'relative' }}>
+          <div style={{ marginBottom: '32px', position: 'relative' }}>
             <label style={{ 
               display: 'block',
               color: '#E0E1E6',
-              fontSize: '14px',
+              fontSize: '16px',
               fontWeight: '500',
-              marginBottom: '8px'
+              marginBottom: '10px'
             }}>
               Descrição *
             </label>
@@ -273,16 +281,17 @@ const TelaCadastroCaso: React.FC = () => {
               placeholder="Descreva o incidente em detalhes (mínimo 50 caracteres)"
               style={{
                 width: '100%',
-                minHeight: '120px',
-                padding: '12px',
+                minHeight: '160px',
+                padding: '16px',
                 backgroundColor: '#0D1B2A',
                 border: `1px solid ${errors.description ? '#ef4444' : '#1B263B'}`,
-                borderRadius: '6px',
+                borderRadius: '8px',
                 color: '#E0E1E6',
-                fontSize: '14px',
+                fontSize: '16px',
                 resize: 'vertical',
                 outline: 'none',
-                paddingBottom: '32px'
+                paddingBottom: '40px',
+                lineHeight: '1.5'
               }}
               onFocus={(e) => e.target.style.borderColor = '#00ade0'}
               onBlur={(e) => e.target.style.borderColor = errors.description ? '#ef4444' : '#1B263B'}
@@ -291,19 +300,19 @@ const TelaCadastroCaso: React.FC = () => {
             {/* Contador de caracteres */}
             <div style={{
               position: 'absolute',
-              bottom: '32px',
-              right: '12px',
+              bottom: '40px',
+              right: '16px',
               color: '#A5A8B1',
-              fontSize: '12px',
+              fontSize: '13px',
               backgroundColor: '#112240',
-              padding: '2px 6px',
-              borderRadius: '4px'
+              padding: '4px 8px',
+              borderRadius: '6px'
             }}>
               {description?.length || 0}
             </div>
             
             {errors.description && (
-              <p style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px', margin: '4px 0 0 0' }}>
+              <p style={{ color: '#ef4444', fontSize: '13px', marginTop: '6px', margin: '6px 0 0 0' }}>
                 {errors.description.message}
               </p>
             )}
@@ -343,8 +352,8 @@ const TelaCadastroCaso: React.FC = () => {
           {/* Footer com botões */}
           <div style={{
             display: 'flex',
-            gap: '12px',
-            paddingTop: '16px',
+            gap: '16px',
+            paddingTop: '24px',
             borderTop: '1px solid #1B263B'
           }}>
             <button
@@ -353,12 +362,12 @@ const TelaCadastroCaso: React.FC = () => {
               disabled={isDraft}
               style={{
                 flex: 1,
-                padding: '12px 16px',
+                padding: '16px 24px',
                 backgroundColor: 'transparent',
                 border: '1px solid #1B263B',
-                borderRadius: '6px',
+                borderRadius: '8px',
                 color: '#E0E1E6',
-                fontSize: '14px',
+                fontSize: '16px',
                 fontWeight: '500',
                 cursor: isDraft ? 'not-allowed' : 'pointer',
                 opacity: isDraft ? 0.6 : 1
@@ -378,12 +387,12 @@ const TelaCadastroCaso: React.FC = () => {
               disabled={!isValid || createIncidentMutation.isPending}
               style={{
                 flex: 1,
-                padding: '12px 16px',
+                padding: '16px 24px',
                 backgroundColor: isValid && !createIncidentMutation.isPending ? '#00ade0' : '#374151',
                 border: 'none',
-                borderRadius: '6px',
+                borderRadius: '8px',
                 color: 'white',
-                fontSize: '14px',
+                fontSize: '16px',
                 fontWeight: '500',
                 cursor: isValid && !createIncidentMutation.isPending ? 'pointer' : 'not-allowed',
                 opacity: isValid && !createIncidentMutation.isPending ? 1 : 0.6
