@@ -3,7 +3,8 @@
  * Combines regex detection with GPT-4o risk assessment
  */
 
-import { PIIDetection, DetectionSession, detectPIIInText } from './detectPII';
+import { detectPIIInText, PIIDetection } from './services/processor';
+import { DetectionSession } from './detectPII';
 import { batchValidateWithOpenAI, calculateFileRiskScore, AIValidationResult } from './ai/openaiValidator';
 
 export interface EnhancedPIIDetection extends PIIDetection {
