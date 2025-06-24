@@ -114,53 +114,125 @@ check_system() {
     log "INFO" "Sistema compatível: $PRETTY_NAME"
 }
 
-# Get GitHub credentials
+# Get GitHub credentials for private repository
 get_github_credentials() {
     echo ""
-    echo "=== Configuração do GitHub ==="
+    echo "=== Configuração do GitHub (Repositório Privado) ==="
     echo ""
-    echo "O repositório N.Crisis é privado. Escolha o método:"
-    echo "1. Token de Acesso Pessoal (recomendado)"
-    echo "2. Usuário e senha"
-    echo "3. Continuar sem clonar (apenas Docker)"
+    echo "O repositório N.Crisis é PRIVADO e requer autenticação."
+    echo ""
+    echo "Métodos de autenticação disponíveis:"
+    echo "1. Token de Acesso Pessoal (RECOMENDADO)"
+    echo "2. Usuário e senha GitHub"
+    echo "3. Chave SSH (se já configurada)"
+    echo "4. Pular clone (instalar apenas Docker/Nginx)"
     echo ""
     
-    read -p "Escolha (1, 2 ou 3): " -n 1 -r auth_method
+    read -p "Escolha o método (1-4): " -n 1 -r auth_method
     echo ""
     
     case $auth_method in
         1)
-            echo "Para criar um token:"
-            echo "1. Vá para: https://github.com/settings/tokens"
+            echo ""
+            echo "=== Token de Acesso Pessoal ==="
+            echo "1. Acesse: https://github.com/settings/tokens"
             echo "2. Clique em 'Generate new token (classic)'"
-            echo "3. Selecione: repo, read:org"
+            echo "3. Selecione as permissões:"
+            echo "   ✓ repo (Full control of private repositories)"
+            echo "   ✓ read:org (Read org and team membership)"
+            echo "4. Copie o token gerado (ghp_...)"
             echo ""
-            read -p "Digite seu token: " -s github_token
+            echo "IMPORTANTE: O token deve ter acesso ao repositório privado resper1965/PrivacyShield"
             echo ""
+            read -p "Digite seu token GitHub: " -s github_token
+            echo ""
+            
             if [[ -n "$github_token" ]]; then
-                GITHUB_AUTH="https://$github_token@github.com/resper1965/PrivacyShield.git"
+                # Validate token format
+                if [[ "$github_token" =~ ^ghp_[a-zA-Z0-9]{36}$ ]] || [[ "$github_token" =~ ^github_pat_[a-zA-Z0-9_]{82}$ ]]; then
+                    GITHUB_AUTH="https://$github_token@github.com/resper1965/PrivacyShield.git"
+                    log "INFO" "Token aceito - formato válido"
+                else
+                    log "WARN" "Formato de token não reconhecido, tentando mesmo assim..."
+                    GITHUB_AUTH="https://$github_token@github.com/resper1965/PrivacyShield.git"
+                fi
             else
                 error_exit "Token não pode estar vazio"
             fi
             ;;
         2)
-            read -p "Usuário GitHub: " github_user
-            read -p "Senha GitHub: " -s github_pass
             echo ""
+            echo "=== Autenticação por Usuário/Senha ==="
+            echo "AVISO: GitHub não suporta mais autenticação por senha para Git."
+            echo "Use um token de acesso pessoal ao invés da senha da conta."
+            echo ""
+            read -p "Usuário GitHub: " github_user
+            read -p "Token/Senha: " -s github_pass
+            echo ""
+            
             if [[ -n "$github_user" && -n "$github_pass" ]]; then
                 GITHUB_AUTH="https://$github_user:$github_pass@github.com/resper1965/PrivacyShield.git"
             else
-                error_exit "Usuário e senha não podem estar vazios"
+                error_exit "Usuário e token/senha não podem estar vazios"
             fi
             ;;
         3)
-            log "WARN" "Continuando apenas com Docker - repositório não será clonado"
+            echo ""
+            echo "=== Autenticação SSH ===" 
+            echo "Usando chave SSH já configurada..."
+            echo "IMPORTANTE: A chave SSH deve ter acesso ao repositório privado"
+            echo ""
+            GITHUB_AUTH="git@github.com:resper1965/PrivacyShield.git"
+            
+            # Test SSH connection
+            if ! ssh -T git@github.com 2>&1 | grep -q "successfully authenticated"; then
+                log "WARN" "Conexão SSH pode não estar configurada corretamente"
+                read -p "Continuar mesmo assim? (y/N): " -n 1 -r
+                echo ""
+                if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+                    get_github_credentials  # Try again
+                    return
+                fi
+            fi
+            ;;
+        4)
+            echo ""
+            echo "=== Instalação Sem Repositório ==="
+            echo "Será instalado apenas Docker, Nginx e estrutura básica."
+            echo "Você precisará fazer o deploy manual do código posteriormente."
+            echo ""
+            log "WARN" "Repositório não será clonado - apenas infraestrutura"
             GITHUB_AUTH=""
             ;;
         *)
-            error_exit "Opção inválida"
+            echo "Opção inválida. Tente novamente."
+            get_github_credentials
             ;;
     esac
+    
+    # Verify credentials if provided
+    if [[ -n "$GITHUB_AUTH" ]]; then
+        echo ""
+        echo "Testando acesso ao repositório..."
+        if git ls-remote "$GITHUB_AUTH" &>/dev/null; then
+            log "INFO" "Acesso ao repositório verificado com sucesso"
+        else
+            log "ERROR" "Falha ao acessar repositório privado"
+            echo ""
+            echo "Possíveis problemas:"
+            echo "- Token sem permissões adequadas"
+            echo "- Token expirado"
+            echo "- Usuário sem acesso ao repositório"
+            echo ""
+            read -p "Tentar novamente? (y/N): " -n 1 -r
+            echo ""
+            if [[ $REPLY =~ ^[Yy]$ ]]; then
+                get_github_credentials
+            else
+                error_exit "Não é possível continuar sem acesso ao repositório"
+            fi
+        fi
+    fi
 }
 
 # Update system

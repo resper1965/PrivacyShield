@@ -104,7 +104,7 @@ User prefers simple, direct layouts without overcomplication. Focus on functiona
 ## Changelog
 
 Recent Updates:
-- June 24, 2025: **Processo Completo de Instalação VPS** - Criado processo robusto de instalação em VPS Linux com Docker para o domínio monster.e-ness.com.br, incluindo scripts automatizados de instalação, configuração SSL, backup, monitoramento, health check e documentação completa passo a passo. Scripts organizados no diretório /scripts/ do repositório GitHub
+- June 24, 2025: **Processo Completo de Instalação VPS** - Criado processo robusto de instalação em VPS Linux com Docker para o domínio monster.e-ness.com.br, incluindo scripts automatizados de instalação, configuração SSL, backup, monitoramento, health check e documentação completa passo a passo. Scripts organizados no diretório /scripts/ do repositório GitHub privado com autenticação por token
 - June 24, 2025: **Deploy Production Ready** - Aplicação preparada para homologação com Docker containerization, WebSocket errors resolvidos, scripts de deploy automatizados, banco PostgreSQL inicializado, health checks implementados e documentação completa
 - June 24, 2025: **Sistema de Análise de Pastas Locais** - Implementada funcionalidade completa para análise de pastas locais e compartilhadas com suporte a caminhos personalizados, seleção de pastas disponíveis, progress tracking e resultados detalhados de detecção PII
 - June 24, 2025: **Sistema de Análise e Relatórios LGPD** - Criado sistema completo de relatórios com 4 abas (Consolidado, Titulares, Organizações, Incidentes), export CSV/PDF, tela de análise de detecções, e configurações funcionais

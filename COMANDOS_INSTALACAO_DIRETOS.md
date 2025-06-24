@@ -21,12 +21,27 @@ chmod +x install-docker.sh
 sudo ./install-docker.sh
 ```
 
-#### 2. Clonar Repositório (como usuário ncrisis)
+#### 2. Clonar Repositório Privado (como usuário ncrisis)
 ```bash
 sudo su - ncrisis
 cd /opt/ncrisis
-git clone https://github.com/resper1965/PrivacyShield.git .
+
+# OPÇÃO A: Usando Token de Acesso Pessoal (RECOMENDADO)
+git clone https://TOKEN@github.com/resper1965/PrivacyShield.git .
+
+# OPÇÃO B: Usando SSH (se configurado)
+git clone git@github.com:resper1965/PrivacyShield.git .
+
+# OPÇÃO C: Usuário e token
+git clone https://usuario:TOKEN@github.com/resper1965/PrivacyShield.git .
 ```
+
+**Como obter Token GitHub:**
+1. Acesse: https://github.com/settings/tokens
+2. "Generate new token (classic)"
+3. Selecione: ✓ repo ✓ read:org
+4. Copie o token (ghp_...)
+5. Substitua TOKEN no comando acima
 
 #### 3. Instalar Aplicação
 ```bash
@@ -102,13 +117,35 @@ curl -I https://raw.githubusercontent.com/resper1965/PrivacyShield/main/scripts/
 ```
 
 ### Se autenticação GitHub falhar:
-```bash
-# Usar token de acesso pessoal
-git clone https://TOKEN@github.com/resper1965/PrivacyShield.git
 
-# Ou SSH (se configurado)
+**Repositório é PRIVADO - requer credenciais válidas**
+
+```bash
+# 1. Verificar se token tem permissões corretas
+# Token deve ter: repo + read:org
+
+# 2. Testar acesso ao repositório
+git ls-remote https://TOKEN@github.com/resper1965/PrivacyShield.git
+
+# 3. Verificar se usuário tem acesso ao repositório
+# Usuário deve estar na organização ou ter acesso explícito
+
+# 4. Gerar novo token se necessário
+# https://github.com/settings/tokens
+
+# 5. Usar SSH se preferir (após configurar chave)
+ssh-keygen -t ed25519 -C "your_email@example.com"
+cat ~/.ssh/id_ed25519.pub  # Adicionar em GitHub Settings > SSH Keys
 git clone git@github.com:resper1965/PrivacyShield.git
 ```
+
+**Permissões necessárias no token:**
+- ✅ repo (Full control of private repositories)
+- ✅ read:org (Read org and team membership)
+
+**Verificar acesso do usuário:**
+- O usuário deve ter acesso ao repositório resper1965/PrivacyShield
+- Se for repositório de organização, verificar permissões da org
 
 ### Se SSL falhar:
 ```bash

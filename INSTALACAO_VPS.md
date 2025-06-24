@@ -75,14 +75,36 @@ sudo su - ncrisis
 cd /opt/ncrisis
 ```
 
-### 4. Clone do Repositório
+### 4. Clone do Repositório Privado
+
+**IMPORTANTE**: O repositório é privado e requer autenticação válida.
 
 ```bash
-# Clone do repositório privado (necessário configurar SSH key ou token)
-git clone https://github.com/resper1965/PrivacyShield.git .
-
-# Ou usando token de acesso pessoal
+# MÉTODO 1: Token de Acesso Pessoal (RECOMENDADO)
 git clone https://TOKEN@github.com/resper1965/PrivacyShield.git .
+
+# MÉTODO 2: Autenticação SSH (se configurada)
+git clone git@github.com:resper1965/PrivacyShield.git .
+
+# MÉTODO 3: Usuário e token
+git clone https://usuario:TOKEN@github.com/resper1965/PrivacyShield.git .
+```
+
+**Configuração do Token GitHub:**
+1. Acesse: https://github.com/settings/tokens
+2. Clique em "Generate new token (classic)"
+3. Defina nome: "N.Crisis Production Access"
+4. Selecione scopes obrigatórios:
+   - ✅ **repo** - Full control of private repositories
+   - ✅ **read:org** - Read org and team membership
+5. Clique em "Generate token"
+6. **IMPORTANTE**: Copie o token imediatamente (só aparece uma vez)
+7. Formato: ghp_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+**Verificação de acesso:**
+```bash
+# Testar se o token funciona
+git ls-remote https://TOKEN@github.com/resper1965/PrivacyShield.git
 ```
 
 ### 5. Configuração de Ambiente
