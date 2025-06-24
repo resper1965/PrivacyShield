@@ -10,7 +10,8 @@ import { processZipExtractionAndSave, PIIDetection } from './detectPII';
 import { virusScanner, VirusScanner } from './virusScanner';
 import { extractZipFiles, validateZipFile, type ExtractionResult } from './zipExtractor';
 import { addArchiveJob, getQueueStatus } from './queues/simpleQueue';
-// Pattern endpoints will be implemented separately
+import { directoryMonitor } from './monitoring/directoryWatcher';
+import { lgpdReportGenerator } from './reports/lgpdReports';
 
 // Create required directories
 const UPLOAD_DIR = path.join(process.cwd(), 'uploads');
