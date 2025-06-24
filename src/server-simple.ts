@@ -15,10 +15,22 @@ import * as fs from 'fs-extra';
 // Import services
 import { env } from './config/env';
 import { detectPIIInText } from './services/processor';
-import { extractZipFiles } from './services/zipService';
+import { zipExtractor } from './utils/zipExtract';
+import { clamAVService } from './services/clamav';
+import { initializeWebSocketService, getWebSocketService } from './services/websocket';
+import { Server } from 'http';
+import { Server as SocketIOServer } from 'socket.io';
 
 const app: Application = express();
+const server = new Server(app);
+const io = new SocketIOServer(server, {
+  cors: { origin: env.CORS_ORIGINS },
+  path: '/socket.io'
+});
 const prisma = new PrismaClient();
+
+// Initialize WebSocket service
+initializeWebSocketService(io);
 
 // Ensure directories exist
 fs.ensureDirSync(env.UPLOAD_DIR);
@@ -79,8 +91,11 @@ app.get('/api/queue/status', (_req: Request, res: Response): void => {
   });
 });
 
-// Upload endpoint (simplified processing)
+// Upload endpoint with WebSocket progress and ClamAV scanning
 app.post('/api/v1/archives/upload', upload.single('file'), async (req: Request, res: Response): Promise<void> => {
+  const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  const wsService = getWebSocketService();
+  
   try {
     if (!req.file) {
       res.status(400).json({
@@ -93,79 +108,153 @@ app.post('/api/v1/archives/upload', upload.single('file'), async (req: Request, 
     }
 
     const { originalname, path: filePath, mimetype, size } = req.file;
-    const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    // Send initial progress
+    wsService?.sendProgress({
+      sessionId,
+      stage: 'upload',
+      progress: 10,
+      message: 'File uploaded, starting virus scan',
+      details: { totalBytes: size }
+    });
 
-    try {
-      // Extract ZIP file
-      const extractionResult = await extractZipFiles(filePath);
-      
-      // Process files and detect PII
-      let totalDetections = 0;
-      for (const extractedFile of extractionResult.files) {
-        const detections = detectPIIInText(extractedFile.content, extractedFile.filename, originalname);
-        totalDetections += detections.length;
-        
-        // Save to database if there are detections
-        if (detections.length > 0) {
-          // Create file record
-          const fileRecord = await prisma.file.create({
-            data: {
-              filename: extractedFile.filename,
-              originalName: originalname,
-              zipSource: originalname,
-              mimeType: mimetype,
-              size,
-              sessionId,
-              totalFiles: extractionResult.totalFiles,
-            },
-          });
+    // Virus scan (optional)
+    wsService?.sendProgress({
+      sessionId,
+      stage: 'virus_scan',
+      progress: 20,
+      message: 'Scanning for viruses',
+    });
 
-          // Create detection records
-          await prisma.detection.createMany({
-            data: detections.map(detection => ({
-              titular: detection.titular,
-              documento: detection.documento,
-              valor: detection.valor,
-              arquivo: detection.arquivo,
-              fileId: fileRecord.id,
-            }))
-          });
-        }
-      }
-
-      // Clean up uploaded file
+    const scanResult = await clamAVService.scanFile(filePath);
+    
+    if (!scanResult.isClean) {
       await fs.remove(filePath);
-
-      res.status(200).json({
-        message: 'ZIP file processed successfully',
-        sessionId,
-        results: {
-          totalFiles: extractionResult.totalFiles,
-          totalDetections,
-        },
-        timestamp: new Date().toISOString(),
+      
+      wsService?.sendError(sessionId, 'File contains threats', {
+        threats: scanResult.threats,
+        scanner: scanResult.scanner
       });
-
-    } catch (processingError) {
-      // Clean up on error
-      if (await fs.pathExists(filePath)) {
-        await fs.remove(filePath);
-      }
       
       res.status(422).json({
-        error: 'Processing Failed',
-        message: 'Failed to process ZIP file',
+        error: 'Malicious File Detected',
+        message: 'File contains threats and cannot be processed',
+        threats: scanResult.threats,
         statusCode: 422,
         timestamp: new Date().toISOString(),
       });
+      return;
     }
+
+    // ZIP extraction
+    wsService?.sendProgress({
+      sessionId,
+      stage: 'extraction',
+      progress: 40,
+      message: 'Extracting ZIP file',
+    });
+
+    const extractionSession = await zipExtractor.extractToSession(filePath);
+    
+    wsService?.sendProgress({
+      sessionId,
+      stage: 'processing',
+      progress: 60,
+      message: 'Processing files for PII detection',
+      details: {
+        totalFiles: extractionSession.totalFiles,
+        totalBytes: extractionSession.totalSize
+      }
+    });
+
+    // Process files and detect PII
+    let totalDetections = 0;
+    let filesProcessed = 0;
+    
+    for (const extractedFile of extractionSession.files) {
+      const detections = detectPIIInText(extractedFile.content, extractedFile.path, originalname);
+      totalDetections += detections.length;
+      filesProcessed++;
+      
+      // Update progress
+      const progress = 60 + (filesProcessed / extractionSession.totalFiles) * 30;
+      wsService?.sendProgress({
+        sessionId,
+        stage: 'processing',
+        progress: Math.round(progress),
+        message: `Processing file ${filesProcessed}/${extractionSession.totalFiles}`,
+        details: {
+          filesProcessed,
+          totalFiles: extractionSession.totalFiles,
+          currentFile: extractedFile.path,
+          detectionsFound: totalDetections
+        }
+      });
+      
+      // Save to database if there are detections
+      if (detections.length > 0) {
+        // Create file record
+        const fileRecord = await prisma.file.create({
+          data: {
+            filename: extractedFile.path,
+            originalName: originalname,
+            zipSource: originalname,
+            mimeType: mimetype,
+            size,
+            sessionId,
+            totalFiles: extractionSession.totalFiles,
+          },
+        });
+
+        // Create detection records
+        await prisma.detection.createMany({
+          data: detections.map(detection => ({
+            titular: detection.titular,
+            documento: detection.documento,
+            valor: detection.valor,
+            arquivo: detection.arquivo,
+            fileId: fileRecord.id,
+            riskLevel: detection.riskLevel,
+            context: detection.context,
+            position: detection.position,
+          }))
+        });
+      }
+    }
+
+    // Clean up
+    await fs.remove(filePath);
+    await zipExtractor.cleanupSession(extractionSession.sessionId);
+
+    const results = {
+      totalFiles: extractionSession.totalFiles,
+      totalDetections,
+      sessionId,
+      scanResult: {
+        isClean: scanResult.isClean,
+        scanner: scanResult.scanner,
+        scanTime: scanResult.scanTime
+      }
+    };
+
+    wsService?.sendComplete(sessionId, results);
+
+    res.status(200).json({
+      message: 'ZIP file processed successfully',
+      sessionId,
+      results,
+      timestamp: new Date().toISOString(),
+    });
 
   } catch (error) {
     console.error('Upload error:', error);
     
+    // Clean up on error
     if (req.file?.path && await fs.pathExists(req.file.path)) {
       await fs.remove(req.file.path);
     }
+
+    wsService?.sendError(sessionId, 'Processing failed', { error: error.message });
 
     res.status(500).json({
       error: 'Internal Server Error',
@@ -246,10 +335,11 @@ async function startServer(): Promise<void> {
     await prisma.$connect();
     console.log('Database connected successfully');
 
-    app.listen(env.PORT, env.HOST, () => {
+    server.listen(env.PORT, env.HOST, () => {
       console.log(`🚀 PIIDetector server running on http://${env.HOST}:${env.PORT}`);
       console.log(`📊 Environment: ${env.NODE_ENV}`);
       console.log(`⚡ Health check: http://${env.HOST}:${env.PORT}/health`);
+      console.log(`🔌 WebSocket: http://${env.HOST}:${env.PORT}/socket.io`);
     });
 
   } catch (error) {

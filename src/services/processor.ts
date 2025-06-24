@@ -7,12 +7,14 @@ import { logger } from '../utils/logger';
 
 export interface PIIDetection {
   titular: string;
-  documento: 'CPF' | 'CNPJ' | 'Email' | 'Telefone';
+  documento: 'Nome Completo' | 'CPF' | 'CNPJ' | 'RG' | 'CEP' | 'Email' | 'Telefone';
   valor: string;
   arquivo: string;
   timestamp: string;
   zipSource: string;
-  riskLevel?: 'low' | 'medium' | 'high' | 'critical';
+  context: string; // ±60 characters around detection
+  position: number; // Character position in file
+  riskLevel: 'low' | 'medium' | 'high' | 'critical';
   sensitivityScore?: number;
   aiConfidence?: number;
   reasoning?: string;
@@ -21,11 +23,14 @@ export interface PIIDetection {
 }
 
 /**
- * Enhanced Brazilian PII patterns with validation
+ * Enhanced Brazilian PII patterns with comprehensive validation
  */
 const PII_PATTERNS = {
+  'Nome Completo': /\b[A-ZÁÀÂÃÉÊÍÓÔÕÚÇ][a-záàâãéêíóôõúç]+(?:\s+[A-ZÁÀÂÃÉÊÍÓÔÕÚÇ][a-záàâãéêíóôõúç]+){1,}\b/g,
   CPF: /\d{3}\.?\d{3}\.?\d{3}[-.]?\d{2}/g,
   CNPJ: /\d{2}\.?\d{3}\.?\d{3}\/?\d{4}[-.]?\d{2}/g,
+  RG: /\d{1,2}\.?\d{3}\.?\d{3}[-.]?[0-9xX]/g,
+  CEP: /\d{5}[-.]?\d{3}/g,
   Email: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g,
   Telefone: /(?:\+55\s?)?(?:\(?\d{2}\)?\s?)?9?\d{4}[-\s]?\d{4}/g
 };
@@ -86,6 +91,83 @@ function isValidBrazilianPhone(phone: string): boolean {
 }
 
 /**
+ * Validates Brazilian RG
+ */
+function isValidRG(rg: string): boolean {
+  const cleanRG = rg.replace(/[^\dxX]/g, '');
+  return cleanRG.length >= 7 && cleanRG.length <= 9;
+}
+
+/**
+ * Validates Brazilian CEP
+ */
+function isValidCEP(cep: string): boolean {
+  const cleanCEP = cep.replace(/[^\d]/g, '');
+  return cleanCEP.length === 8 && !/^0{8}$/.test(cleanCEP);
+}
+
+/**
+ * Validates Brazilian full name
+ */
+function isValidFullName(name: string): boolean {
+  const parts = name.trim().split(/\s+/);
+  return parts.length >= 2 && parts.every(part => part.length >= 2);
+}
+
+/**
+ * Extract context around detection (±60 characters)
+ */
+function extractContext(text: string, position: number, length: number): string {
+  const contextLength = 60;
+  const start = Math.max(0, position - contextLength);
+  const end = Math.min(text.length, position + length + contextLength);
+  return text.substring(start, end);
+}
+
+/**
+ * Calculate risk level based on data type and context
+ */
+function calculateRiskLevel(type: string, context: string, filename: string): 'low' | 'medium' | 'high' | 'critical' {
+  let baseRisk: 'low' | 'medium' | 'high' | 'critical';
+  
+  switch (type) {
+    case 'CPF':
+    case 'RG':
+      baseRisk = 'high';
+      break;
+    case 'CNPJ':
+      baseRisk = 'medium';
+      break;
+    case 'Nome Completo':
+    case 'Email':
+    case 'Telefone':
+      baseRisk = 'medium';
+      break;
+    case 'CEP':
+      baseRisk = 'low';
+      break;
+    default:
+      baseRisk = 'medium';
+  }
+
+  // Increase risk for sensitive contexts
+  const sensitiveKeywords = ['confidencial', 'secret', 'private', 'backup', 'export', 'database', 'sql'];
+  const contextLower = context.toLowerCase();
+  const filenameLower = filename.toLowerCase();
+  
+  const hasSensitiveContext = sensitiveKeywords.some(keyword => 
+    contextLower.includes(keyword) || filenameLower.includes(keyword)
+  );
+  
+  if (hasSensitiveContext) {
+    if (baseRisk === 'medium') return 'high';
+    if (baseRisk === 'high') return 'critical';
+  }
+  
+  return baseRisk;
+}
+
+/**
  * Extracts titular (data subject) from context
  */
 function extractTitular(text: string, detection: string): string {
@@ -105,40 +187,57 @@ export function detectPIIInText(text: string, filename: string, zipSource: strin
   const timestamp = new Date().toISOString();
 
   Object.entries(PII_PATTERNS).forEach(([type, pattern]) => {
-    const matches = text.match(pattern) || [];
+    let match;
+    pattern.lastIndex = 0; // Reset regex state
     
-    matches.forEach(match => {
+    while ((match = pattern.exec(text)) !== null) {
+      const matchValue = match[0];
+      const position = match.index;
       let isValid = true;
       
       // Validate based on type
       switch (type) {
         case 'CPF':
-          isValid = isValidCPF(match);
+          isValid = isValidCPF(matchValue);
           break;
         case 'CNPJ':
-          isValid = isValidCNPJ(match);
+          isValid = isValidCNPJ(matchValue);
+          break;
+        case 'RG':
+          isValid = isValidRG(matchValue);
+          break;
+        case 'CEP':
+          isValid = isValidCEP(matchValue);
           break;
         case 'Telefone':
-          isValid = isValidBrazilianPhone(match);
+          isValid = isValidBrazilianPhone(matchValue);
           break;
         case 'Email':
-          isValid = match.includes('@') && match.includes('.');
+          isValid = matchValue.includes('@') && matchValue.includes('.');
+          break;
+        case 'Nome Completo':
+          isValid = isValidFullName(matchValue);
           break;
       }
 
       if (isValid) {
-        const titular = extractTitular(text, match);
+        const titular = type === 'Nome Completo' ? matchValue : extractTitular(text, matchValue);
+        const context = extractContext(text, position, matchValue.length);
+        const riskLevel = calculateRiskLevel(type, context, filename);
         
         detections.push({
           titular,
-          documento: type as 'CPF' | 'CNPJ' | 'Email' | 'Telefone',
-          valor: match,
+          documento: type as any,
+          valor: matchValue,
           arquivo: filename,
           timestamp,
-          zipSource
+          zipSource,
+          context,
+          position,
+          riskLevel
         });
       }
-    });
+    }
   });
 
   logger.info(`Detected ${detections.length} PII items in ${filename}`);

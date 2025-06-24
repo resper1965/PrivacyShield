@@ -1,7 +1,6 @@
 /**
- * Reports Routes
- * GET /api/v1/reports/lgpd/consolidado - Consolidated LGPD report
- * GET /api/v1/reports/titulares - Data subjects report
+ * Enhanced Reports Routes
+ * LGPD compliance reporting with filtering and CSV export
  */
 
 import { Router, Request, Response } from 'express';
@@ -13,8 +12,182 @@ const router = Router();
 const prisma = new PrismaClient();
 
 /**
+ * GET /api/v1/reports/lgpd/titulares
+ * Advanced filtering by domain and CNPJ with CSV export
+ */
+router.get('/lgpd/titulares', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { 
+      domain, 
+      cnpj, 
+      documento, 
+      riskLevel, 
+      startDate, 
+      endDate, 
+      format = 'json',
+      limit = 100,
+      offset = 0
+    } = req.query;
+
+    // Build where clause with OR logic for domain and CNPJ
+    const whereClause: any = {
+      timestamp: {
+        gte: startDate ? new Date(startDate as string) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+        lte: endDate ? new Date(endDate as string) : new Date(),
+      },
+    };
+
+    // OR logic for domain and CNPJ filtering
+    const orConditions: any[] = [];
+    
+    if (domain) {
+      orConditions.push({
+        OR: [
+          { valor: { contains: domain as string } },
+          { arquivo: { contains: domain as string } },
+          { contextualRisk: { contains: domain as string } }
+        ]
+      });
+    }
+    
+    if (cnpj) {
+      const cleanCNPJ = (cnpj as string).replace(/[^\d]/g, '');
+      orConditions.push({
+        OR: [
+          { valor: { contains: cleanCNPJ } },
+          { documento: 'CNPJ', valor: { contains: cnpj as string } }
+        ]
+      });
+    }
+
+    if (orConditions.length > 0) {
+      whereClause.OR = orConditions.flat();
+    }
+
+    // Additional filters
+    if (documento) whereClause.documento = documento;
+    if (riskLevel) whereClause.riskLevel = riskLevel;
+
+    const detections = await prisma.detection.findMany({
+      where: whereClause,
+      include: {
+        file: {
+          select: {
+            filename: true,
+            originalName: true,
+            zipSource: true,
+            uploadedAt: true
+          }
+        }
+      },
+      orderBy: [
+        { riskLevel: 'desc' },
+        { timestamp: 'desc' }
+      ],
+      take: format === 'csv' ? undefined : Number(limit),
+      skip: format === 'csv' ? undefined : Number(offset)
+    });
+
+    // Group by titular for response
+    const groupedData = detections.reduce((acc, detection) => {
+      const titular = detection.titular;
+      
+      if (!acc[titular]) {
+        acc[titular] = {
+          titular,
+          documento: detection.documento,
+          valor: detection.valor.substring(0, 10) + '***', // Mask sensitive data
+          arquivos: [],
+          detections: 0,
+          riskLevels: new Set<string>(),
+          timestamps: []
+        };
+      }
+      
+      acc[titular].arquivos.push({
+        nome: detection.arquivo,
+        zipSource: detection.file?.zipSource,
+        uploadedAt: detection.file?.uploadedAt,
+        riskLevel: detection.riskLevel,
+        context: detection.context
+      });
+      
+      acc[titular].detections++;
+      acc[titular].riskLevels.add(detection.riskLevel);
+      acc[titular].timestamps.push(detection.timestamp);
+      
+      return acc;
+    }, {} as Record<string, any>);
+
+    const results = Object.values(groupedData).map((group: any) => ({
+      ...group,
+      riskLevels: Array.from(group.riskLevels),
+      highestRisk: Array.from(group.riskLevels).includes('critical') ? 'critical' :
+                   Array.from(group.riskLevels).includes('high') ? 'high' :
+                   Array.from(group.riskLevels).includes('medium') ? 'medium' : 'low',
+      lastDetection: Math.max(...group.timestamps.map((t: Date) => new Date(t).getTime()))
+    }));
+
+    if (format === 'csv') {
+      // Stream CSV with BOM for proper encoding
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('Content-Disposition', 'attachment; filename=lgpd-titulares.csv');
+      
+      // Write BOM for UTF-8
+      res.write('\uFEFF');
+      
+      const csvData = results.flatMap(titular => 
+        titular.arquivos.map((arquivo: any) => ({
+          titular: titular.titular,
+          documento: titular.documento,
+          valor_mascarado: titular.valor,
+          arquivo: arquivo.nome,
+          zip_source: arquivo.zipSource,
+          nivel_risco: arquivo.riskLevel,
+          contexto: arquivo.context,
+          upload_date: arquivo.uploadedAt,
+          total_deteccoes: titular.detections,
+          maior_risco: titular.highestRisk
+        }))
+      );
+
+      const csvStream = fastCsv.format({ headers: true });
+      csvStream.pipe(res);
+      
+      for (const row of csvData) {
+        csvStream.write(row);
+      }
+      csvStream.end();
+      
+    } else {
+      res.status(200).json({
+        message: 'LGPD titulares report generated successfully',
+        filters: { domain, cnpj, documento, riskLevel },
+        summary: {
+          totalTitulares: results.length,
+          totalDetections: detections.length,
+          criticalCount: results.filter(r => r.highestRisk === 'critical').length,
+          highCount: results.filter(r => r.highestRisk === 'high').length
+        },
+        titulares: results,
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+  } catch (error) {
+    logger.error('Error generating LGPD titulares report:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to generate LGPD titulares report',
+      statusCode: 500,
+      timestamp: new Date().toISOString(),
+    });
+  }
+});
+
+/**
  * GET /api/v1/reports/lgpd/consolidado
- * Generate consolidated LGPD compliance report
+ * Consolidated LGPD compliance report
  */
 router.get('/lgpd/consolidado', async (req: Request, res: Response): Promise<void> => {
   try {
@@ -36,7 +209,7 @@ router.get('/lgpd/consolidado', async (req: Request, res: Response): Promise<voi
       },
     });
 
-    // Calculate metrics
+    // Calculate comprehensive metrics
     const totalDetections = detections.length;
     const riskDistribution = detections.reduce((acc, detection) => {
       acc[detection.riskLevel] = (acc[detection.riskLevel] || 0) + 1;
@@ -49,9 +222,14 @@ router.get('/lgpd/consolidado', async (req: Request, res: Response): Promise<voi
     }, {} as Record<string, number>);
 
     const uniqueTitulares = new Set(detections.map(d => d.titular)).size;
+    const uniqueFiles = new Set(detections.map(d => d.arquivo)).size;
     const highRiskDetections = detections.filter(d => d.riskLevel === 'high' || d.riskLevel === 'critical').length;
     
-    const complianceScore = Math.max(0, 100 - (highRiskDetections * 5) - (riskDistribution.critical || 0) * 15);
+    // LGPD compliance score calculation
+    const criticalPenalty = (riskDistribution.critical || 0) * 20;
+    const highPenalty = (riskDistribution.high || 0) * 10;
+    const mediumPenalty = (riskDistribution.medium || 0) * 5;
+    const complianceScore = Math.max(0, 100 - criticalPenalty - highPenalty - mediumPenalty);
 
     const report = {
       period: {
@@ -61,42 +239,53 @@ router.get('/lgpd/consolidado', async (req: Request, res: Response): Promise<voi
       summary: {
         totalDetections,
         uniqueDataSubjects: uniqueTitulares,
+        uniqueFiles,
         complianceScore: Math.round(complianceScore),
         highRiskCount: highRiskDetections,
+        avgDetectionsPerFile: Math.round((totalDetections / uniqueFiles) * 100) / 100
       },
       riskDistribution,
       typeDistribution,
       topRisks: detections
         .filter(d => d.riskLevel === 'critical' || d.riskLevel === 'high')
-        .slice(0, 10)
+        .slice(0, 20)
         .map(d => ({
           titular: d.titular,
           documento: d.documento,
           valor: d.valor.substring(0, 10) + '***',
+          arquivo: d.arquivo,
           riskLevel: d.riskLevel,
-          reasoning: d.reasoning,
+          context: d.context?.substring(0, 100) + '...',
+          reasoning: d.reasoning
         })),
       recommendations: [
-        'Implement data masking for high-risk PII',
-        'Review consent mechanisms for data collection',
-        'Enhance access controls for sensitive data',
-        'Establish regular compliance audits',
+        'Implement data masking for high-risk PII in production systems',
+        'Review and update consent mechanisms for personal data collection',
+        'Enhance access controls and audit trails for sensitive data',
+        'Establish regular automated compliance scans',
+        'Consider data minimization strategies for collected information',
+        'Implement data retention policies aligned with LGPD requirements'
       ],
       generatedAt: new Date().toISOString(),
     };
 
     if (format === 'csv') {
-      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
       res.setHeader('Content-Disposition', 'attachment; filename=lgpd-consolidado.csv');
+      
+      res.write('\uFEFF'); // BOM
       
       const csvData = detections.map(d => ({
         data_titular: d.titular,
         tipo_documento: d.documento,
+        valor_mascarado: d.valor.substring(0, 10) + '***',
         nivel_risco: d.riskLevel,
         pontuacao_sensibilidade: d.sensitivityScore,
         confianca_ia: d.aiConfidence,
         arquivo: d.arquivo,
+        contexto: d.context,
         timestamp: d.timestamp.toISOString(),
+        zip_source: d.file?.zipSource
       }));
 
       fastCsv.writeToStream(res, csvData, { headers: true });
@@ -113,181 +302,6 @@ router.get('/lgpd/consolidado', async (req: Request, res: Response): Promise<voi
     res.status(500).json({
       error: 'Internal Server Error',
       message: 'Failed to generate LGPD consolidated report',
-      statusCode: 500,
-      timestamp: new Date().toISOString(),
-    });
-  }
-});
-
-/**
- * GET /api/v1/reports/titulares
- * Generate data subjects (titulares) report with grouping and filtering
- */
-router.get('/titulares', async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { 
-      documento, 
-      riskLevel, 
-      startDate, 
-      endDate, 
-      groupBy = 'titular',
-      format = 'json' 
-    } = req.query;
-
-    const start = startDate ? new Date(startDate as string) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-    const end = endDate ? new Date(endDate as string) : new Date();
-
-    // Build where clause
-    const whereClause: any = {
-      timestamp: {
-        gte: start,
-        lte: end,
-      },
-    };
-
-    if (documento) {
-      whereClause.documento = documento;
-    }
-
-    if (riskLevel) {
-      whereClause.riskLevel = riskLevel;
-    }
-
-    const detections = await prisma.detection.findMany({
-      where: whereClause,
-      include: {
-        file: true,
-      },
-      orderBy: {
-        timestamp: 'desc',
-      },
-    });
-
-    // Group detections by specified field
-    const grouped = detections.reduce((acc, detection) => {
-      let key: string;
-      
-      switch (groupBy) {
-        case 'documento':
-          key = detection.documento;
-          break;
-        case 'riskLevel':
-          key = detection.riskLevel;
-          break;
-        case 'arquivo':
-          key = detection.arquivo;
-          break;
-        default:
-          key = detection.titular;
-      }
-
-      if (!acc[key]) {
-        acc[key] = {
-          key,
-          detections: [],
-          count: 0,
-          riskLevels: new Set(),
-          documentTypes: new Set(),
-          files: new Set(),
-          avgSensitivityScore: 0,
-          avgAiConfidence: 0,
-        };
-      }
-
-      acc[key].detections.push({
-        id: detection.id,
-        documento: detection.documento,
-        valor: detection.valor.substring(0, 10) + '***', // Mask sensitive data
-        riskLevel: detection.riskLevel,
-        sensitivityScore: detection.sensitivityScore,
-        aiConfidence: detection.aiConfidence,
-        arquivo: detection.arquivo,
-        timestamp: detection.timestamp,
-        reasoning: detection.reasoning,
-      });
-
-      acc[key].count++;
-      acc[key].riskLevels.add(detection.riskLevel);
-      acc[key].documentTypes.add(detection.documento);
-      acc[key].files.add(detection.arquivo);
-
-      return acc;
-    }, {} as Record<string, any>);
-
-    // Calculate averages and convert sets to arrays
-    const results = Object.values(grouped).map((group: any) => {
-      const totalSensitivity = group.detections.reduce((sum: number, d: any) => sum + d.sensitivityScore, 0);
-      const totalConfidence = group.detections.reduce((sum: number, d: any) => sum + d.aiConfidence, 0);
-
-      return {
-        ...group,
-        avgSensitivityScore: Math.round((totalSensitivity / group.count) * 100) / 100,
-        avgAiConfidence: Math.round((totalConfidence / group.count) * 100) / 100,
-        riskLevels: Array.from(group.riskLevels),
-        documentTypes: Array.from(group.documentTypes),
-        files: Array.from(group.files),
-        highestRisk: group.detections.reduce((max: string, d: any) => {
-          const riskOrder = { low: 1, medium: 2, high: 3, critical: 4 };
-          return riskOrder[d.riskLevel as keyof typeof riskOrder] > riskOrder[max as keyof typeof riskOrder] ? d.riskLevel : max;
-        }, 'low'),
-      };
-    });
-
-    // Sort by count descending
-    results.sort((a, b) => b.count - a.count);
-
-    const reportData = {
-      period: {
-        start: start.toISOString(),
-        end: end.toISOString(),
-      },
-      filters: {
-        documento,
-        riskLevel,
-        groupBy,
-      },
-      summary: {
-        totalGroups: results.length,
-        totalDetections: detections.length,
-        averageDetectionsPerGroup: Math.round((detections.length / results.length) * 100) / 100,
-      },
-      groups: results,
-      generatedAt: new Date().toISOString(),
-    };
-
-    if (format === 'csv') {
-      res.setHeader('Content-Type', 'text/csv');
-      res.setHeader('Content-Disposition', 'attachment; filename=titulares-report.csv');
-      
-      const csvData = results.flatMap(group => 
-        group.detections.map((d: any) => ({
-          grupo: group.key,
-          total_deteccoes: group.count,
-          maior_risco: group.highestRisk,
-          tipos_documento: group.documentTypes.join(';'),
-          documento: d.documento,
-          nivel_risco: d.riskLevel,
-          pontuacao_sensibilidade: d.sensitivityScore,
-          confianca_ia: d.aiConfidence,
-          arquivo: d.arquivo,
-          timestamp: d.timestamp,
-        }))
-      );
-
-      fastCsv.writeToStream(res, csvData, { headers: true });
-    } else {
-      res.status(200).json({
-        message: 'Data subjects report generated successfully',
-        report: reportData,
-        timestamp: new Date().toISOString(),
-      });
-    }
-
-  } catch (error) {
-    logger.error('Error generating titulares report:', error);
-    res.status(500).json({
-      error: 'Internal Server Error',
-      message: 'Failed to generate titulares report',
       statusCode: 500,
       timestamp: new Date().toISOString(),
     });
