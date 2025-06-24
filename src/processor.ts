@@ -178,7 +178,10 @@ export function convertToLegacyDetections(enhancedDetections: EnhancedPIIDetecti
     valor: detection.valor,
     arquivo: detection.arquivo,
     timestamp: detection.timestamp,
-    zipSource: detection.zipSource
+    zipSource: detection.zipSource,
+    context: detection.context,
+    position: detection.position,
+    riskLevel: detection.riskLevel
   }));
 }
 
