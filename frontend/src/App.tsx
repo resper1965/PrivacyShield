@@ -29,6 +29,7 @@ function App() {
               <Route path="/incidentes" element={<TelaCadastroCaso />} />
               <Route path="/incidents" element={<TelaCadastroCaso />} />
               <Route path="/arquivos" element={<TelaArquivos />} />
+              <Route path="/processamento" element={<div style={{color: '#E0E1E6'}}><h1>Processamento - Em desenvolvimento</h1></div>} />
               <Route path="/relatorio" element={<div style={{color: '#E0E1E6'}}><h1>Relatório - Em desenvolvimento</h1></div>} />
               <Route path="/configuracao" element={<div style={{color: '#E0E1E6'}}><h1>Configuração - Em desenvolvimento</h1></div>} />
             </Routes>
