@@ -215,7 +215,7 @@ fileQueue.setProcessor(async (job) => {
     console.log(`🎯 Risk Assessment: ${fileResult?.fileRiskScore.overallRiskLevel} (Score: ${fileResult?.fileRiskScore.riskScore})`);
     
     // Log AI processing stats
-    if (fileResult && fileResult.processingStats && fileResult.processingStats.aiProcessingTime > 0) {
+    if (fileResult?.processingStats?.aiProcessingTime && fileResult.processingStats.aiProcessingTime > 0) {
       console.log(`🤖 AI Processing: ${fileResult.processingStats.aiProcessingTime}ms`);
     }
     

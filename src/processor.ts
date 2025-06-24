@@ -4,7 +4,7 @@
  */
 
 import { PIIDetection, DetectionSession, detectPIIInText } from './detectPII';
-import { validateWithOpenAI, batchValidateWithOpenAI, calculateFileRiskScore, AIValidationResult } from './ai/openaiValidator';
+import { batchValidateWithOpenAI, calculateFileRiskScore, AIValidationResult } from './ai/openaiValidator';
 
 export interface EnhancedPIIDetection extends PIIDetection {
   riskLevel: 'low' | 'medium' | 'high' | 'critical';
@@ -43,8 +43,6 @@ export async function processFileWithAI(
   filename: string,
   zipSource: string = 'unknown'
 ): Promise<ProcessingResult> {
-  const startTime = Date.now();
-  
   // Step 1: Regex-based PII detection
   const regexStartTime = Date.now();
   const regexDetections = detectPIIInText(fileContent, filename, zipSource);
