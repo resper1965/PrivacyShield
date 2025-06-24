@@ -118,7 +118,14 @@ export const TelaConfiguracoes: React.FC = () => {
   }
 
   return (
-    <div style={{ display: 'flex', height: '100vh', color: '#E0E1E6', backgroundColor: '#0D1B2A' }}>
+    <div style={{ 
+      display: 'flex', 
+      height: '100vh', 
+      color: '#E0E1E6', 
+      backgroundColor: '#0D1B2A',
+      padding: '24px',
+      gap: '0'
+    }}>
       {/* Toast Notifications */}
       {showToast && (
         <div style={{
@@ -143,7 +150,8 @@ export const TelaConfiguracoes: React.FC = () => {
         width: '240px', 
         backgroundColor: '#112240', 
         padding: '16px',
-        borderRight: '1px solid #1B263B'
+        borderRight: '1px solid #1B263B',
+        borderRadius: '8px 0 0 8px'
       }}>
         <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
           {sections.map(s => (
@@ -156,25 +164,39 @@ export const TelaConfiguracoes: React.FC = () => {
                   borderRadius: '6px',
                   backgroundColor: active === s.key ? '#1B263B' : 'transparent',
                   border: 'none',
-                  color: '#E0E1E6',
+                  color: active === s.key ? '#E0E1E6' : '#A5A8B1',
                   fontWeight: active === s.key ? '600' : '400',
                   fontSize: '14px',
                   cursor: 'pointer',
-                  transition: 'all 0.2s ease'
+                  transition: 'all 0.2s ease',
+                  position: 'relative'
                 }}
                 onClick={() => setActive(s.key)}
                 onMouseEnter={(e) => {
                   if (active !== s.key) {
-                    e.target.style.backgroundColor = '#1B263B';
+                    e.target.style.color = '#00ade0';
+                    e.target.style.backgroundColor = 'rgba(0, 173, 224, 0.1)';
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (active !== s.key) {
+                    e.target.style.color = '#A5A8B1';
                     e.target.style.backgroundColor = 'transparent';
                   }
                 }}
               >
                 {s.label}
+                {active === s.key && (
+                  <div style={{
+                    position: 'absolute',
+                    bottom: '0',
+                    left: '16px',
+                    right: '16px',
+                    height: '2px',
+                    backgroundColor: '#00ade0',
+                    borderRadius: '1px'
+                  }} />
+                )}
               </button>
             </li>
           ))}
@@ -182,13 +204,19 @@ export const TelaConfiguracoes: React.FC = () => {
       </aside>
 
       {/* Main Content */}
-      <main style={{ flex: 1, padding: '24px', overflow: 'auto' }}>
+      <main style={{ 
+        flex: 1, 
+        padding: '24px', 
+        overflow: 'auto',
+        backgroundColor: '#112240',
+        borderRadius: '0 8px 8px 0'
+      }}>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div style={{
-            backgroundColor: '#112240',
+            backgroundColor: '#0D1B2A',
             border: '1px solid #1B263B',
             borderRadius: '12px',
-            padding: '24px',
+            padding: '32px',
             marginBottom: '24px'
           }}>
 
@@ -337,7 +365,7 @@ export const TelaConfiguracoes: React.FC = () => {
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', alignItems: 'start' }}>
                   <div>
                     <label style={{ 
                       display: 'block', 
@@ -440,7 +468,7 @@ export const TelaConfiguracoes: React.FC = () => {
                   </label>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', alignItems: 'start' }}>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                     <Controller
                       name="CPF_VALIDATION"
@@ -539,7 +567,7 @@ export const TelaConfiguracoes: React.FC = () => {
                   </label>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', alignItems: 'start' }}>
                   <div>
                     <label style={{ 
                       display: 'block', 
@@ -617,7 +645,7 @@ export const TelaConfiguracoes: React.FC = () => {
 
             {active === 'security' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', alignItems: 'start' }}>
                   <div>
                     <label style={{ 
                       display: 'block', 
