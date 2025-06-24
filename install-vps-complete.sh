@@ -110,6 +110,9 @@ check_github_token() {
     fi
     
     log "INFO" "Token GitHub detectado: ${GITHUB_PERSONAL_ACCESS_TOKEN:0:10}..."
+    
+    # Set up GITHUB_AUTH using the token
+    GITHUB_AUTH="https://$GITHUB_PERSONAL_ACCESS_TOKEN@github.com/resper1965/PrivacyShield.git"
 }
 
 # Check system requirements
@@ -355,33 +358,47 @@ setup_application() {
             
             case $REPLY in
                 1)
+                    log "INFO" "Opção 1 selecionada: Remover e clonar novamente"
                     log "INFO" "Removendo diretório existente..."
-                    rm -rf "$APP_DIR"
+                    rm -rf "$APP_DIR" || error_exit "Falha ao remover diretório"
+                    log "INFO" "Criando diretório limpo..."
+                    mkdir -p "$APP_DIR"
+                    chown ncrisis:ncrisis "$APP_DIR"
                     log "INFO" "Clonando repositório..."
-                    sudo -u ncrisis git clone "$GITHUB_AUTH" "$APP_DIR" || error_exit "Falha ao clonar repositório"
+                    if sudo -u ncrisis git clone "$GITHUB_AUTH" "$APP_DIR"; then
+                        log "INFO" "Repositório clonado com sucesso"
+                    else
+                        error_exit "Falha ao clonar repositório. Verifique o token GitHub."
+                    fi
                     ;;
                 2)
-                    log "INFO" "Atualizando repositório existente..."
-                    cd "$APP_DIR"
+                    log "INFO" "Opção 2 selecionada: Atualizar repositório existente"
+                    cd "$APP_DIR" || error_exit "Falha ao acessar diretório $APP_DIR"
                     if [[ -d ".git" ]]; then
-                        sudo -u ncrisis git pull origin main || {
-                            log "WARN" "Falha no git pull, tentando reset..."
-                            sudo -u ncrisis git fetch origin main
-                            sudo -u ncrisis git reset --hard origin/main
-                        }
-                        log "INFO" "Repositório atualizado"
+                        log "INFO" "Repositório git detectado, atualizando..."
+                        if sudo -u ncrisis git remote -v | grep -q "PrivacyShield"; then
+                            log "INFO" "Remote PrivacyShield confirmado"
+                            sudo -u ncrisis git fetch origin main || error_exit "Falha ao buscar atualizações"
+                            sudo -u ncrisis git reset --hard origin/main || error_exit "Falha ao atualizar código"
+                            log "INFO" "Repositório atualizado com sucesso"
+                        else
+                            log "ERROR" "Remote do repositório não corresponde ao PrivacyShield"
+                            error_exit "Use opção 1 para remover e clonar o repositório correto"
+                        fi
                     else
                         log "ERROR" "Diretório não é um repositório git válido"
                         error_exit "Use opção 1 para remover e clonar novamente"
                     fi
                     ;;
                 3)
+                    log "INFO" "Opção 3 selecionada: Cancelar instalação"
                     log "INFO" "Instalação cancelada pelo usuário"
                     exit 0
                     ;;
                 *)
-                    log "ERROR" "Opção inválida"
-                    error_exit "Instalação cancelada"
+                    log "ERROR" "Opção inválida: '$REPLY'"
+                    log "ERROR" "Selecione 1, 2 ou 3"
+                    error_exit "Instalação cancelada devido a opção inválida"
                     ;;
             esac
         else
@@ -650,11 +667,12 @@ main() {
     chmod 644 "$LOG_FILE"
     
     log "INFO" "Iniciando instalação N.Crisis VPS"
+    log "INFO" "Domínio: $DOMAIN"
     
     check_root
+    check_github_token
     show_welcome
     check_system
-    get_github_credentials
     update_system
     install_docker
     setup_app_user
