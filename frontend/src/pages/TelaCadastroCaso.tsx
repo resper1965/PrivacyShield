@@ -7,13 +7,21 @@ import { useListOrganizations, useCreateIncident } from '../hooks/useIncidents';
 
 // Zod schema para validação
 const incidentSchema = z.object({
-  organizationId: z.string().uuid('ID da organização deve ser um UUID válido'),
+  company: z.string().min(2, 'Nome da empresa deve ter pelo menos 2 caracteres'),
   date: z.string().refine((val) => {
     // Verifica se é uma data ISO válida
     const date = new Date(val);
     return !isNaN(date.getTime()) && val.includes('T');
   }, 'Data inválida'),
-  type: z.enum(['Malware', 'Phishing', 'DDoS', 'Vazamento de dados'], {
+  type: z.enum([
+    'Ataque Cibernético',
+    'Vazamento (Exfiltração) de Dados', 
+    'Deleção ou Destruição Indevida de Dados',
+    'Acesso Não Autorizado',
+    'Alteração Não Autorizada de Dados',
+    'Compartilhamento ou Divulgação Indevida',
+    'Interrupção de Serviços Críticos'
+  ], {
     required_error: 'Tipo de incidente é obrigatório'
   }),
   description: z.string()
@@ -26,6 +34,18 @@ const TelaCadastroCaso: React.FC = () => {
   const navigate = useNavigate();
   const [isDraft, setIsDraft] = useState(false);
   const [showToast, setShowToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [showTooltip, setShowTooltip] = useState<string | null>(null);
+
+  // Tooltips explicativos para cada tipo de incidente
+  const incidentTooltips = {
+    'Ataque Cibernético': 'Ações maliciosas voltadas a comprometer sistemas ou dados, como malware (vírus, worms, trojans), ransomware (criptografia de dados seguida de demanda de resgate), ataques de negação de serviço (DDoS), Man-in-the-Middle e exploração de vulnerabilidades zero-day',
+    'Vazamento (Exfiltração) de Dados': 'Extração ou divulgação não autorizada de informações pessoais, seja por exploração de falhas, engenharia social (phishing/spear-phishing) ou má configuração de sistemas, expondo bases de dados ou credenciais sensíveis',
+    'Deleção ou Destruição Indevida de Dados': 'Remoção acidental ou deliberada de arquivos, bancos de dados ou backups, seja por falha de hardware, erro humano ou ação de malware (por exemplo, ransomware que apaga cópias de segurança), tornando irrecuperáveis informações essenciais',
+    'Acesso Não Autorizado': 'Quando agentes internos ou externos obtêm acesso a sistemas ou repositórios de dados sem permissão — por credenciais comprometidas, falta de controles de autenticação/autorização ou exploração de vulnerabilidades ― violando o princípio do menor privilégio',
+    'Alteração Não Autorizada de Dados': 'Modificação indevida de registros ou parâmetros em sistemas (inserção de informações falsas, adulteração de transações), comprometendo a integridade dos dados pessoais',
+    'Compartilhamento ou Divulgação Indevida': 'Envio ou disponibilização de dados pessoais a terceiros sem base legal ou consentimento, incluindo publicação em local público, transferência irregular a parceiros ou envio de informações ao destinatário errado',
+    'Interrupção de Serviços Críticos': 'Ataques que causam indisponibilidade de sistemas (DDoS, sabotagem interna, falhas em infraestrutura de nuvem), comprometendo a disponibilidade dos dados pessoais tratados'
+  };
   
   // React Hook Form com Zod resolver
   const { 
@@ -40,7 +60,6 @@ const TelaCadastroCaso: React.FC = () => {
   });
 
   // Hooks para API
-  const { data: organizations, isLoading: loadingOrgs } = useListOrganizations();
   const createIncidentMutation = useCreateIncident();
 
   // Watch description para contador de caracteres
@@ -56,18 +75,19 @@ const TelaCadastroCaso: React.FC = () => {
       await createIncidentMutation.mutateAsync({
         title: `Incidente ${data.type}`,
         description: data.description,
-        organizationId: data.organizationId,
+        organizationId: 'temp-id', // Temporary since we're using company name
         severity: 'medium',
         type: data.type,
         affectedDataTypes: [],
         detectedAt: data.date,
-        reportedBy: 'Sistema'
+        reportedBy: 'Sistema',
+        company: data.company
       });
       
-      showToastMessage('success', 'Incidente criado com sucesso!');
+      showToastMessage('success', 'Incidente cadastrado com sucesso!');
       setTimeout(() => navigate('/incidents'), 1500);
     } catch (error) {
-      showToastMessage('error', 'Erro ao criar incidente. Tente novamente.');
+      showToastMessage('error', 'Erro ao cadastrar incidente. Tente novamente.');
     }
   };
 
@@ -78,29 +98,7 @@ const TelaCadastroCaso: React.FC = () => {
     setTimeout(() => setIsDraft(false), 2000);
   };
 
-  if (loadingOrgs) {
-    return (
-      <div style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center', 
-        minHeight: '400px' 
-      }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{
-            width: '48px',
-            height: '48px',
-            border: '4px solid #1B263B',
-            borderTop: '4px solid #00ade0',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite',
-            margin: '0 auto 16px'
-          }} />
-          <p style={{ color: '#E0E1E6', margin: 0 }}>Carregando organizações...</p>
-        </div>
-      </div>
-    );
-  }
+
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#0D1B2A', position: 'relative' }}>
@@ -162,31 +160,26 @@ const TelaCadastroCaso: React.FC = () => {
               }}>
                 Empresa *
               </label>
-              <select
-                {...register('organizationId')}
+              <input
+                type="text"
+                {...register('company')}
+                placeholder="Nome da empresa"
                 style={{
                   width: '100%',
                   padding: '14px',
                   backgroundColor: '#0D1B2A',
-                  border: `1px solid ${errors.organizationId ? '#ef4444' : '#1B263B'}`,
+                  border: `1px solid ${errors.company ? '#ef4444' : '#1B263B'}`,
                   borderRadius: '8px',
                   color: '#E0E1E6',
                   fontSize: '16px',
                   outline: 'none'
                 }}
                 onFocus={(e) => e.target.style.borderColor = '#00ade0'}
-                onBlur={(e) => e.target.style.borderColor = errors.organizationId ? '#ef4444' : '#1B263B'}
-              >
-                <option value="">Selecione uma empresa</option>
-                {organizations?.map((org) => (
-                  <option key={org.id} value={org.id}>
-                    {org.name}
-                  </option>
-                ))}
-              </select>
-              {errors.organizationId && (
+                onBlur={(e) => e.target.style.borderColor = errors.company ? '#ef4444' : '#1B263B'}
+              />
+              {errors.company && (
                 <p style={{ color: '#ef4444', fontSize: '13px', marginTop: '6px', margin: '6px 0 0 0' }}>
-                  {errors.organizationId.message}
+                  {errors.company.message}
                 </p>
               )}
             </div>
@@ -227,16 +220,56 @@ const TelaCadastroCaso: React.FC = () => {
           </div>
 
           {/* Tipo */}
-          <div style={{ marginBottom: '24px' }}>
-            <label style={{ 
-              display: 'block',
-              color: '#E0E1E6',
-              fontSize: '16px',
-              fontWeight: '500',
-              marginBottom: '10px'
-            }}>
-              Tipo de Incidente *
-            </label>
+          <div style={{ marginBottom: '24px', position: 'relative' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+              <label style={{ 
+                color: '#E0E1E6',
+                fontSize: '16px',
+                fontWeight: '500'
+              }}>
+                Tipo de Incidente *
+              </label>
+              <button
+                type="button"
+                style={{
+                  width: '20px',
+                  height: '20px',
+                  borderRadius: '50%',
+                  backgroundColor: '#1B263B',
+                  border: '1px solid #00ade0',
+                  color: '#00ade0',
+                  cursor: 'pointer',
+                  fontSize: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+                onMouseEnter={() => setShowTooltip('general')}
+                onMouseLeave={() => setShowTooltip(null)}
+              >
+                ?
+              </button>
+            </div>
+            
+            {showTooltip === 'general' && (
+              <div style={{
+                position: 'absolute',
+                top: '35px',
+                right: '0',
+                zIndex: 1000,
+                backgroundColor: '#1B263B',
+                border: '1px solid #00ade0',
+                borderRadius: '8px',
+                padding: '12px',
+                maxWidth: '400px',
+                color: '#E0E1E6',
+                fontSize: '14px',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
+              }}>
+                Selecione a classificação que melhor descreve o tipo de incidente de segurança ocorrido.
+              </div>
+            )}
+            
             <select
               {...register('type')}
               style={{
@@ -252,12 +285,29 @@ const TelaCadastroCaso: React.FC = () => {
               onFocus={(e) => e.target.style.borderColor = '#00ade0'}
               onBlur={(e) => e.target.style.borderColor = errors.type ? '#ef4444' : '#1B263B'}
             >
-              <option value="">Selecione o tipo</option>
-              <option value="Malware">Malware</option>
-              <option value="Phishing">Phishing</option>
-              <option value="DDoS">DDoS</option>
-              <option value="Vazamento de dados">Vazamento de dados</option>
+              <option value="">Selecione o tipo de incidente</option>
+              {Object.keys(incidentTooltips).map((type) => (
+                <option key={type} value={type}>{type}</option>
+              ))}
             </select>
+            
+            {/* Tooltip específico para o tipo selecionado */}
+            {watch('type') && incidentTooltips[watch('type') as keyof typeof incidentTooltips] && (
+              <div style={{
+                marginTop: '10px',
+                padding: '12px',
+                backgroundColor: 'rgba(0, 173, 224, 0.1)',
+                border: '1px solid #00ade0',
+                borderRadius: '6px',
+                color: '#E0E1E6',
+                fontSize: '14px',
+                lineHeight: '1.4'
+              }}>
+                <strong style={{ color: '#00ade0' }}>Definição:</strong><br />
+                {incidentTooltips[watch('type') as keyof typeof incidentTooltips]}
+              </div>
+            )}
+            
             {errors.type && (
               <p style={{ color: '#ef4444', fontSize: '13px', marginTop: '6px', margin: '6px 0 0 0' }}>
                 {errors.type.message}
@@ -398,7 +448,7 @@ const TelaCadastroCaso: React.FC = () => {
                 opacity: isValid && !createIncidentMutation.isPending ? 1 : 0.6
               }}
             >
-              {createIncidentMutation.isPending ? 'Enviando...' : 'Enviar Caso'}
+              {createIncidentMutation.isPending ? 'Cadastrando...' : 'Cadastrar Incidente'}
             </button>
           </div>
         </form>
