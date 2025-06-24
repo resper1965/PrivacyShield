@@ -26,6 +26,8 @@ export const TelaConsolidado: React.FC = () => {
   const handleExportCSV = async () => {
     try {
       const response = await fetch('/api/v1/reports/lgpd/export/consolidado');
+      if (!response.ok) throw new Error('Erro na resposta do servidor');
+      
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -37,6 +39,50 @@ export const TelaConsolidado: React.FC = () => {
       document.body.removeChild(a);
     } catch (error) {
       console.error('Erro ao exportar CSV:', error);
+      alert('Erro ao baixar o arquivo CSV');
+    }
+  };
+
+  const handleExportPDF = async () => {
+    try {
+      // Importação dinâmica para reduzir bundle size
+      const { jsPDF } = await import('jspdf');
+      
+      const doc = new jsPDF();
+      
+      // Cabeçalho
+      doc.setFontSize(20);
+      doc.text('Relatório Consolidado LGPD', 20, 30);
+      
+      doc.setFontSize(12);
+      doc.text(`Gerado em: ${new Date().toLocaleDateString('pt-BR')}`, 20, 45);
+      
+      // Dados consolidados
+      if (data) {
+        doc.setFontSize(14);
+        doc.text('Resumo Executivo', 20, 65);
+        
+        doc.setFontSize(12);
+        doc.text(`Total de Documentos: ${data.totalDocumentos}`, 20, 80);
+        doc.text(`Total de Titulares: ${data.totalTitulares}`, 20, 95);
+        doc.text(`Total de Dados Sensíveis: ${data.totalDadosSensiveis}`, 20, 110);
+        
+        // Distribuição por tipo
+        doc.setFontSize(14);
+        doc.text('Distribuição por Tipo de Dado', 20, 130);
+        
+        doc.setFontSize(12);
+        let yPos = 145;
+        data.distribuicaoPorTipo?.forEach((item) => {
+          doc.text(`${item.tipo}: ${item.quantidade}`, 20, yPos);
+          yPos += 15;
+        });
+      }
+      
+      doc.save('relatorio-consolidado.pdf');
+    } catch (error) {
+      console.error('Erro ao exportar PDF:', error);
+      alert('Erro ao gerar o arquivo PDF');
     }
   };
 
@@ -228,24 +274,45 @@ export const TelaConsolidado: React.FC = () => {
             Distribuição por Tipo de Dado
           </h3>
           
-          <button
-            onClick={handleExportCSV}
-            style={{
-              padding: '8px 16px',
-              backgroundColor: '#00ade0',
-              border: 'none',
-              borderRadius: '6px',
-              color: 'white',
-              fontSize: '14px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease'
-            }}
-            onMouseEnter={(e) => e.target.style.backgroundColor = '#0099c7'}
-            onMouseLeave={(e) => e.target.style.backgroundColor = '#00ade0'}
-          >
-            Exportar CSV
-          </button>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              onClick={handleExportCSV}
+              style={{
+                padding: '8px 16px',
+                backgroundColor: '#00ade0',
+                border: 'none',
+                borderRadius: '6px',
+                color: 'white',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => e.target.style.backgroundColor = '#0099c7'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = '#00ade0'}
+            >
+              Exportar CSV
+            </button>
+            
+            <button
+              onClick={handleExportPDF}
+              style={{
+                padding: '8px 16px',
+                backgroundColor: '#374151',
+                border: 'none',
+                borderRadius: '6px',
+                color: 'white',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => e.target.style.backgroundColor = '#4B5563'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = '#374151'}
+            >
+              Exportar PDF
+            </button>
+          </div>
         </div>
 
         {isLoading ? (

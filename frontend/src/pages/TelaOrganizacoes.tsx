@@ -39,6 +39,8 @@ export const TelaOrganizacoes: React.FC = () => {
   const handleExportCSV = async () => {
     try {
       const response = await fetch('/api/v1/reports/lgpd/export/organizacoes');
+      if (!response.ok) throw new Error('Erro na resposta do servidor');
+      
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -50,6 +52,66 @@ export const TelaOrganizacoes: React.FC = () => {
       document.body.removeChild(a);
     } catch (error) {
       console.error('Erro ao exportar CSV:', error);
+      alert('Erro ao baixar o arquivo CSV');
+    }
+  };
+
+  const handleExportPDF = async () => {
+    try {
+      const { jsPDF } = await import('jspdf');
+      
+      const doc = new jsPDF();
+      
+      // Cabeçalho
+      doc.setFontSize(20);
+      doc.text('Relatório por Organização', 20, 30);
+      
+      doc.setFontSize(12);
+      doc.text(`Gerado em: ${new Date().toLocaleDateString('pt-BR')}`, 20, 45);
+      
+      // Tabela de organizações
+      if (data?.organizacoes) {
+        doc.setFontSize(14);
+        doc.text('Dados por Organização', 20, 65);
+        
+        doc.setFontSize(10);
+        let yPos = 80;
+        
+        // Cabeçalho da tabela
+        doc.text('Organização', 20, yPos);
+        doc.text('CPF', 80, yPos);
+        doc.text('CNPJ', 100, yPos);
+        doc.text('Email', 120, yPos);
+        doc.text('Telefone', 140, yPos);
+        doc.text('RG', 160, yPos);
+        doc.text('Total', 180, yPos);
+        yPos += 10;
+        
+        // Linha separadora
+        doc.line(20, yPos - 5, 200, yPos - 5);
+        
+        // Dados
+        data.organizacoes.forEach((org) => {
+          if (yPos > 270) { // Nova página se necessário
+            doc.addPage();
+            yPos = 30;
+          }
+          
+          doc.text(org.organizacao.substring(0, 25), 20, yPos);
+          doc.text(String(org.dadosPorTipo.CPF || 0), 80, yPos);
+          doc.text(String(org.dadosPorTipo.CNPJ || 0), 100, yPos);
+          doc.text(String(org.dadosPorTipo.Email || 0), 120, yPos);
+          doc.text(String(org.dadosPorTipo.Telefone || 0), 140, yPos);
+          doc.text(String(org.dadosPorTipo.RG || 0), 160, yPos);
+          doc.text(String(org.total), 180, yPos);
+          yPos += 15;
+        });
+      }
+      
+      doc.save('relatorio-organizacoes.pdf');
+    } catch (error) {
+      console.error('Erro ao exportar PDF:', error);
+      alert('Erro ao gerar o arquivo PDF');
     }
   };
 
@@ -108,24 +170,45 @@ export const TelaOrganizacoes: React.FC = () => {
           Matriz de Dados por Organização
         </h3>
         
-        <button
-          onClick={handleExportCSV}
-          style={{
-            padding: '8px 16px',
-            backgroundColor: '#00ade0',
-            border: 'none',
-            borderRadius: '6px',
-            color: 'white',
-            fontSize: '14px',
-            fontWeight: '600',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease'
-          }}
-          onMouseEnter={(e) => e.target.style.backgroundColor = '#0099c7'}
-          onMouseLeave={(e) => e.target.style.backgroundColor = '#00ade0'}
-        >
-          Exportar CSV
-        </button>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button
+            onClick={handleExportCSV}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#00ade0',
+              border: 'none',
+              borderRadius: '6px',
+              color: 'white',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => e.target.style.backgroundColor = '#0099c7'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = '#00ade0'}
+          >
+            Exportar CSV
+          </button>
+          
+          <button
+            onClick={handleExportPDF}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#374151',
+              border: 'none',
+              borderRadius: '6px',
+              color: 'white',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => e.target.style.backgroundColor = '#4B5563'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = '#374151'}
+          >
+            Exportar PDF
+          </button>
+        </div>
       </div>
 
       {/* Tabela */}
