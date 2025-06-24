@@ -183,16 +183,6 @@ export const TelaConfiguracoes: React.FC = () => {
 
       {/* Main Content */}
       <main style={{ flex: 1, padding: '24px', overflow: 'auto' }}>
-        <h2 style={{ 
-          fontSize: '24px', 
-          marginBottom: '24px', 
-          color: '#E0E1E6',
-          fontWeight: '600',
-          margin: '0 0 24px 0'
-        }}>
-          Configurações - {sections.find(s => s.key === active)?.label}
-        </h2>
-
         <form onSubmit={handleSubmit(onSubmit)}>
           <div style={{
             backgroundColor: '#112240',
