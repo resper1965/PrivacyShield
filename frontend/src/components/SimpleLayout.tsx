@@ -29,7 +29,7 @@ export const SimpleLayout: React.FC<SimpleLayoutProps> = ({ children }) => {
         flexDirection: 'column'
       }}>
         {/* Logo */}
-        <div style={{ padding: '24px', borderBottom: '1px solid #1B263B' }}>
+        <div style={{ height: '64px', padding: '0 24px', borderBottom: '1px solid #1B263B', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
           <h1 style={{ margin: 0, fontSize: '20px', fontWeight: 'bold' }}>
             n<span style={{ color: '#00ade0' }}>.</span>crisis
           </h1>
