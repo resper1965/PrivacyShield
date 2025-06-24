@@ -12,8 +12,8 @@ COPY vite.config.ts ./
 COPY tsconfig.json ./
 COPY index.html ./
 
-# Install dependencies
-RUN npm ci
+# Install dependencies with audit fix
+RUN npm ci && npm audit fix --force
 
 # Copy source code
 COPY src/ ./src/

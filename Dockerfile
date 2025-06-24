@@ -16,8 +16,8 @@ WORKDIR /app
 COPY package*.json ./
 COPY tsconfig.json ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Install dependencies with audit fix
+RUN npm ci --only=production && npm audit fix --force
 
 # Copy source code
 COPY src/ ./src/
