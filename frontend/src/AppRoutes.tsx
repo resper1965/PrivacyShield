@@ -13,8 +13,7 @@ const AppRoutes: React.FC = () => {
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/casos" element={<TelaCadastroCaso />} />
           <Route path="/arquivos" element={<div><h1>Arquivos - Em desenvolvimento</h1></div>} />
-          <Route path="/processamento" element={<div><h1>Processamento - Em desenvolvimento</h1></div>} />
-          <Route path="/relatorios" element={<div><h1>Relatórios - Em desenvolvimento</h1></div>} />
+          <Route path="/relatorio" element={<div><h1>Relatório - Em desenvolvimento</h1></div>} />
           <Route path="/configuracao" element={<div><h1>Configuração - Em desenvolvimento</h1></div>} />
         </Routes>
       </AppLayout>
