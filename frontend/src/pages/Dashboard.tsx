@@ -113,14 +113,14 @@ export const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 fade-in">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+        <h1 className="text-h1" style={{ color: 'var(--color-text-primary)' }}>
           Dashboard
         </h1>
         <Link
           to="/files/upload"
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          className="btn btn-primary"
         >
           <Upload size={16} />
           Novo upload
@@ -131,18 +131,18 @@ export const Dashboard: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Link
           to="/files/my-uploads"
-          className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-200 dark:border-gray-700"
+          className="card-metric text-decoration-none"
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+              <p className="text-small" style={{ color: 'var(--color-text-secondary)', marginBottom: '0.5rem' }}>
                 Total de uploads
               </p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-white">
+              <p className="text-h1" style={{ color: 'var(--color-text-primary)' }}>
                 {stats.totalUploads.toLocaleString()}
               </p>
             </div>
-            <FileText className="h-12 w-12 text-blue-500" />
+            <FileText className="h-12 w-12" style={{ color: 'var(--color-primary)' }} />
           </div>
         </Link>
 

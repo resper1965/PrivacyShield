@@ -1,0 +1,113 @@
+Formulário “Cadastrar Incidente Cibernético”
+1 · Navegação
+Menu
+
+⚠ Incidentes
+
+“Cadastrar Incidente”
+
+Breadcrumb
+
+nginx
+Copiar
+Editar
+Dashboard / Incidentes / Cadastrar Incidente
+2 · Campos obrigatórios
+Campo	Tipo	Obrigatório	Observações
+Empresa	Select	Sim	Busca-as-you-type via /api/v1/orgs
+Data do Incidente	Date picker	Sim	≤ hoje
+Tipo de Incidente	Select	Sim	Ex: Malware, Phishing, DDoS, Vazam. dados
+Descrição do Incidente	Textarea	Sim	≥ 50 chars; contador de caracteres
+Evidências (anexos)	Upload	Não	Logs, screenshots (ZIP/PDF/PNG)
+Responsável pela investigação	Select	Não	Usuários internos via /api/v1/users
+
+OBS: Após investigação e coleta de dados, um fluxo separado permitirá registrar:
+
+Artigos da LGPD violados
+
+Categoria de dados afetados
+
+Número estimado de titulares
+
+Classificação de risco refinada
+
+3 · UX/UI & Comportamento
+Duas colunas (desktop)
+
+Esquerda: Empresa, Data, Tipo
+
+Direita: Descrição (expande 100% largura), Anexos, Responsável
+
+Validações inline
+
+Empresa: não vazio
+
+Data: não pode ser futura
+
+Descrição: mínimo 50 caracteres
+
+Botões fixos (sticky no rodapé do form)
+
+Salvar Rascunho (secundário)
+
+Enviar Incidente (primário, bg #00ade0) — fica disabled até as validações passarem
+
+Feedback de carregamento
+
+Spinner no botão “Enviar”
+
+Upload de anexos mostra progresso individual
+
+Acessibilidade
+
+Labels acima dos campos, contraste ≥ 4.5:1
+
+Navegação por teclado (Tab/Enter/Esc)
+
+aria-invalid e aria-describedby para erros
+
+4 · Fluxo de submissão
+mermaid
+Copiar
+Editar
+flowchart TD
+  A[Usuário preenche form] --> B{Campos válidos?}
+  B -- Não --> C[Erros inline em vermelho]
+  B -- Sim --> D[POST /api/v1/incidents]
+  D --> E{200 OK?}
+  E -- Sim --> F[Toast “Incidente criado” + redirect /incidents/:id]
+  E -- Erro --> G[Toast error “Não foi possível criar”]
+Payload:
+
+json
+Copiar
+Editar
+{
+  "organizationId":"<uuid>",
+  "date":"2025-06-23",
+  "type":"Phishing",
+  "description":"Detalhes do incidente...",
+  "attachments":["file1.zip","screenshot.png"],
+  "assigneeId":"<uuid>"
+}
+5 · Tela pós-submissão
+Detalhe do Incidente (/incidents/:id):
+
+Todos os dados enviados
+
+Área de Análise LGPD (inicialmente vazia) onde, após investigação, o analista pode registrar:
+
+Artigos violados
+
+Categorias de dados
+
+Número de titulares
+
+Risco refinado
+
+Ações:
+
+Botão “Iniciar Análise” → abre modal para preencher campos LGPD.
+
+Botão “Marcar Falso Positivo” se aplicável.
+

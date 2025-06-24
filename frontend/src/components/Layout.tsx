@@ -41,6 +41,14 @@ const menuItems: MenuItem[] = [
     icon: <AlertTriangle size={20} />
   },
   {
+    label: 'Incidentes',
+    icon: <AlertTriangle size={20} />,
+    children: [
+      { label: 'Cadastrar Incidente', path: '/incidents/create', icon: <AlertTriangle size={16} /> },
+      { label: 'Lista de Incidentes', path: '/incidents', icon: <ScrollText size={16} /> }
+    ]
+  },
+  {
     label: 'Relatórios',
     icon: <BarChart3 size={20} />,
     children: [
@@ -107,11 +115,21 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         <div key={item.label} className="mb-1">
           <button
             onClick={() => toggleExpanded(item.label)}
-            className={`w-full flex items-center justify-between px-3 py-2 text-left rounded-lg transition-colors ${
-              parentActive
-                ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200'
-                : 'text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700'
-            }`}
+            className="w-full flex items-center justify-between px-3 py-2 text-left rounded-lg transition-colors"
+            style={{
+              backgroundColor: parentActive ? 'rgba(0, 173, 224, 0.2)' : 'transparent',
+              color: parentActive ? 'var(--color-primary)' : 'var(--color-text-primary)'
+            }}
+            onMouseEnter={(e) => {
+              if (!parentActive) {
+                e.currentTarget.style.backgroundColor = 'var(--color-border)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!parentActive) {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }
+            }}
           >
             <div className="flex items-center gap-3">
               {item.icon}
@@ -134,11 +152,21 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       <Link
         key={item.label}
         to={item.path!}
-        className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
-          isActive(item.path!)
-            ? 'bg-blue-600 text-white'
-            : 'text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700'
-        }`}
+        className="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors"
+        style={{
+          backgroundColor: isActive(item.path!) ? 'var(--color-primary)' : 'transparent',
+          color: isActive(item.path!) ? 'var(--color-background)' : 'var(--color-text-primary)'
+        }}
+        onMouseEnter={(e) => {
+          if (!isActive(item.path!)) {
+            e.currentTarget.style.backgroundColor = 'var(--color-border)';
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!isActive(item.path!)) {
+            e.currentTarget.style.backgroundColor = 'transparent';
+          }
+        }}
       >
         {item.icon}
         {sidebarOpen && <span>{item.label}</span>}
@@ -147,23 +175,36 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="app-container" style={{ backgroundColor: 'var(--color-background)' }}>
       {/* Sidebar */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 ${
+        className={`fixed inset-y-0 left-0 z-50 transition-all duration-300 ${
           sidebarOpen ? 'w-64' : 'w-16'
         }`}
+        style={{ 
+          backgroundColor: 'var(--color-surface)', 
+          borderRight: '1px solid var(--color-border)' 
+        }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+        <div 
+          className="flex items-center justify-between p-4"
+          style={{ borderBottom: '1px solid var(--color-border)' }}
+        >
           {sidebarOpen && (
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-              PIIDetector
+            <h1 className="text-h3" style={{ color: 'var(--color-text-primary)', fontWeight: 700 }}>
+              <span style={{ color: 'var(--color-primary)' }}>PII</span>Detector
             </h1>
           )}
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+            className="p-2 rounded-lg transition-colors"
+            style={{ 
+              color: 'var(--color-text-secondary)',
+              ':hover': { backgroundColor: 'var(--color-border)' }
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--color-border)'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
           >
             {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
@@ -177,19 +218,31 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
       {/* Main content */}
       <div
-        className={`transition-all duration-300 ${
+        className={`main-content transition-all duration-300 ${
           sidebarOpen ? 'ml-64' : 'ml-16'
         }`}
       >
         {/* Top bar */}
-        <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
-              PIIDetector - Sistema de Detecção de Dados Pessoais
+        <header 
+          className="px-6 py-4"
+          style={{ 
+            backgroundColor: 'var(--color-surface)', 
+            borderBottom: '1px solid var(--color-border)',
+            height: '64px',
+            display: 'flex',
+            alignItems: 'center'
+          }}
+        >
+          <div className="flex items-center justify-between w-full">
+            <h2 className="text-h2" style={{ color: 'var(--color-text-primary)' }}>
+              PIIDetector
             </h2>
             <div className="flex items-center gap-4">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <span className="text-sm text-gray-600 dark:text-gray-400">
+              <div 
+                className="w-2 h-2 rounded-full"
+                style={{ backgroundColor: 'var(--color-success)' }}
+              ></div>
+              <span className="text-small" style={{ color: 'var(--color-text-secondary)' }}>
                 Sistema operacional
               </span>
             </div>
@@ -197,7 +250,13 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         </header>
 
         {/* Page content */}
-        <main className="p-6">
+        <main 
+          className="p-6"
+          style={{ 
+            backgroundColor: 'var(--color-background)',
+            minHeight: 'calc(100vh - 64px)'
+          }}
+        >
           {children}
         </main>
       </div>
