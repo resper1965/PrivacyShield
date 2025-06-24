@@ -10,6 +10,7 @@ import { processZipExtractionAndSave, PIIDetection } from './detectPII';
 import { virusScanner, VirusScanner } from './virusScanner';
 import { extractZipFiles, validateZipFile, type ExtractionResult } from './zipExtractor';
 import { addArchiveJob, getQueueStatus } from './queues/simpleQueue';
+// Pattern endpoints will be implemented separately
 
 // Create required directories
 const UPLOAD_DIR = path.join(process.cwd(), 'uploads');
@@ -471,6 +472,28 @@ class PIIDetectorServer {
         res.status(500).json({
           error: 'Internal Server Error',
           message: 'Failed to generate titulares report',
+          statusCode: 500,
+          timestamp: new Date().toISOString(),
+        });
+      }
+    });
+
+    // GET /api/patterns - Get all patterns directly from database
+    this.app.get('/api/patterns', async (_req: Request, res: Response): Promise<void> => {
+      try {
+        // Direct SQL query to get patterns
+        const patterns = await this.getPatterns();
+        res.status(200).json({
+          message: 'Patterns retrieved successfully',
+          patterns,
+          count: patterns.length,
+          timestamp: new Date().toISOString(),
+        });
+      } catch (error) {
+        console.error('Error retrieving patterns:', error);
+        res.status(500).json({
+          error: 'Internal Server Error',
+          message: 'Failed to retrieve patterns',
           statusCode: 500,
           timestamp: new Date().toISOString(),
         });
