@@ -7,11 +7,12 @@ interface AppLayoutProps {
 }
 
 const menuItems = [
-  { path: '/upload',    label: 'Upload' },
-  { path: '/uploads',   label: 'Meus Uploads' },
-  { path: '/detections',label: 'Detecções' },
-  { path: '/reports/titulares', label: 'Relatório Titulares' },
-  { path: '/incidents/new', label: 'Cadastrar Caso' },
+  { path: '/dashboard', label: 'Dashboard' },
+  { path: '/casos', label: 'Casos' },
+  { path: '/arquivos', label: 'Arquivos' },
+  { path: '/processamento', label: 'Processamento' },
+  { path: '/relatorios', label: 'Relatórios' },
+  { path: '/configuracao', label: 'Configuração' },
 ]
 
 export function AppLayout({ children }: AppLayoutProps) {

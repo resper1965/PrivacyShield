@@ -10,11 +10,12 @@ const AppRoutes: React.FC = () => {
       <AppLayout>
         <Routes>
           <Route path="/" element={<DashboardPage />} />
-          <Route path="/upload" element={<div><h1>Upload - Em desenvolvimento</h1></div>} />
-          <Route path="/uploads" element={<div><h1>Meus Uploads - Em desenvolvimento</h1></div>} />
-          <Route path="/detections" element={<div><h1>Detecções - Em desenvolvimento</h1></div>} />
-          <Route path="/reports/titulares" element={<div><h1>Relatório Titulares - Em desenvolvimento</h1></div>} />
-          <Route path="/incidents/new" element={<TelaCadastroCaso />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/casos" element={<TelaCadastroCaso />} />
+          <Route path="/arquivos" element={<div><h1>Arquivos - Em desenvolvimento</h1></div>} />
+          <Route path="/processamento" element={<div><h1>Processamento - Em desenvolvimento</h1></div>} />
+          <Route path="/relatorios" element={<div><h1>Relatórios - Em desenvolvimento</h1></div>} />
+          <Route path="/configuracao" element={<div><h1>Configuração - Em desenvolvimento</h1></div>} />
         </Routes>
       </AppLayout>
     </BrowserRouter>
