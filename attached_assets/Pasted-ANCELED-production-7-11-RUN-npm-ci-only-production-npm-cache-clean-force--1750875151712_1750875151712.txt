@@ -1,0 +1,38 @@
+ANCELED [production  7/11] RUN npm ci --only=production && npm cache clean --force                                                                                                                                          1.1s => ERROR [builder 6/9] RUN cd frontend && npm ci --only=production                                                                                                                                                              1.0s
+------
+ > [builder 6/9] RUN cd frontend && npm ci --only=production:
+0.491 npm warn config only Use `--omit=dev` to omit dev dependencies from the install.
+0.961 npm error code EUSAGE
+0.963 npm error
+0.963 npm error The `npm ci` command can only install with an existing package-lock.json or
+0.963 npm error npm-shrinkwrap.json with lockfileVersion >= 1. Run an install with npm@5 or
+0.963 npm error later to generate a package-lock.json file, then try again.
+0.963 npm error
+0.963 npm error Clean install a project
+0.963 npm error
+0.963 npm error Usage:
+0.963 npm error npm ci
+0.963 npm error
+0.963 npm error Options:
+0.963 npm error [--install-strategy <hoisted|nested|shallow|linked>] [--legacy-bundling]
+0.963 npm error [--global-style] [--omit <dev|optional|peer> [--omit <dev|optional|peer> ...]]
+0.963 npm error [--include <prod|dev|optional|peer> [--include <prod|dev|optional|peer> ...]]
+0.963 npm error [--strict-peer-deps] [--foreground-scripts] [--ignore-scripts] [--no-audit]
+0.963 npm error [--no-bin-links] [--no-fund] [--dry-run]
+0.963 npm error [-w|--workspace <workspace-name> [-w|--workspace <workspace-name> ...]]
+0.963 npm error [-ws|--workspaces] [--include-workspace-root] [--install-links]
+0.963 npm error
+0.963 npm error aliases: clean-install, ic, install-clean, isntall-clean
+0.963 npm error
+0.963 npm error Run "npm help ci" for more info
+0.965 npm error A complete log of this run can be found in: /root/.npm/_logs/2025-06-25T18_11_53_725Z-debug-0.log
+------
+Dockerfile:13
+--------------------
+  11 |     # Install dependencies
+  12 |     RUN npm ci --only=production
+  13 | >>> RUN cd frontend && npm ci --only=production
+  14 |     
+  15 |     # Copy source code
+--------------------
+failed to solve: process "/bin/sh -c cd frontend && npm ci --only=production" did not complete successfully: exit code: 1
