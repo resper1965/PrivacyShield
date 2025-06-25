@@ -106,9 +106,26 @@ User prefers simple, direct layouts without overcomplication. Focus on functiona
 Installation directory: `/opt/ncrisis` - standardized across all scripts and documentation.
 Production deployment: All documentation and scripts updated for v2.1 with AI capabilities (OpenAI, FAISS, semantic chat).
 
+## Instalação Limpa
+
+### Diretórios de Instalação
+- **Execução**: `/root` (execute os scripts daqui)
+- **N.Crisis**: `/opt/ncrisis` (aplicação principal)
+- **N8N**: `/opt/n8n` (automação opcional)
+- **Logs**: `/var/log/ncrisis-install.log`
+
+### Scripts Consolidados
+- `install-public.sh` - Repositório público, sem autenticação
+- `install-private.sh` - Repositório privado, com token GitHub + N8N opcional
+- `INSTALACAO_COMPLETA.md` - Documentação única completa
+
+### Múltiplas Instâncias
+Sistema preparado para conviver com N8N e outros serviços no mesmo servidor, cada um em seu diretório `/opt/` isolado.
+
 ## Changelog
 
 Recent Updates:
+- June 25, 2025: **Limpeza e Consolidação Completa** - Removidos 30+ arquivos desnecessários de instalação, criados 2 scripts robustos (público/privado), documentação unificada em arquivo único, suporte para múltiplas instâncias N8N, diretórios claramente definidos (/root execução, /opt/ncrisis aplicação)
 - June 25, 2025: **Instalação VPS Simplificada** - Criado install-vps-simples.sh com instalação completamente automatizada em comando único. Script de 200+ linhas instala todo o ambiente (Node.js, PostgreSQL, Redis, ClamAV, Nginx, SSL) e compila aplicação sem interação manual. Tempo: 15-20 minutos para VPS completa
 - June 25, 2025: **Token GitHub Fix** - Corrigido problema de reconhecimento do GITHUB_PERSONAL_ACCESS_TOKEN no install-ncrisis.sh. Script agora carrega variáveis de ambiente persistentes e permite execução com sudo -E. Comando direto criado: `GITHUB_PERSONAL_ACCESS_TOKEN="token" sudo -E ./install-ncrisis.sh`
 - June 25, 2025: **APT Sources Fixed** - Corrigido problema definitivo de repositórios APT duplicados no VPS Ubuntu com script fix-apt-sources.sh e integração automática no install-ncrisis.sh. Comando one-liner criado para correção imediata dos warnings "Target ... is configured multiple times"
