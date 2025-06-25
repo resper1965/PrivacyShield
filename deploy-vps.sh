@@ -174,7 +174,7 @@ server {
 
     location /api/v1/archives/upload {
         limit_req zone=upload burst=5 nodelay;
-        proxy_pass http://localhost:3000;
+        proxy_pass http://localhost:5000;
         proxy_http_version 1.1;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
@@ -187,7 +187,7 @@ server {
 
     location /api/ {
         limit_req zone=api burst=20 nodelay;
-        proxy_pass http://localhost:3000;
+        proxy_pass http://localhost:5000;
         proxy_http_version 1.1;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
@@ -196,7 +196,7 @@ server {
     }
 
     location /socket.io/ {
-        proxy_pass http://localhost:3000;
+        proxy_pass http://localhost:5000;
         proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection "upgrade";
@@ -208,7 +208,7 @@ server {
 
     # Static files cache
     location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
-        proxy_pass http://localhost:3000;
+        proxy_pass http://localhost:5000;
         expires 1y;
         add_header Cache-Control "public, immutable";
     }
@@ -231,7 +231,7 @@ After=network.target postgresql.service redis-server.service
 Type=simple
 User=$USER
 WorkingDirectory=$APP_DIR
-ExecStart=/usr/bin/node build/main.js
+ExecStart=/usr/bin/ts-node src/server-clean.ts
 Restart=always
 RestartSec=10
 Environment=NODE_ENV=production
