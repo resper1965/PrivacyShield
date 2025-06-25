@@ -147,6 +147,26 @@ mkdir -p shared_folders/documentos_empresa
 cp -r /path/to/docs/* shared_folders/documentos_empresa/
 ```
 
+## 🧪 Testes
+
+Para executar os testes unitários é necessário um PostgreSQL local. O arquivo
+[`tests/setup.ts`](tests/setup.ts) utiliza a URL
+`postgresql://test:test@localhost:5432/test_piidetector` como padrão quando a
+variável `DATABASE_URL` não está definida. Siga os passos abaixo:
+
+```bash
+# Crie usuário e banco de testes (ajuste conforme sua instalação)
+createuser -P test
+createdb -O test test_piidetector
+
+# Defina a variável de ambiente e aplique o schema Prisma
+export DATABASE_URL=postgresql://test:test@localhost:5432/test_piidetector
+npx prisma db push
+
+# Rode a suíte de testes
+npm test
+```
+
 ## 📊 APIs Principais
 
 ### Detecções
