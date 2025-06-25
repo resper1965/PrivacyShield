@@ -8,6 +8,12 @@ Sistema completo de detecção de informações pessoais (PII) com foco na confo
 **Domínio**: monster.e-ness.com.br  
 **Licença**: MIT
 
+Consulte a [documentacao completa](docs/README.md) para guias detalhados.
+
+## ⚠ Aviso de Testes
+
+Este repositório inclui arquivos como `virus_test.zip` e `infected_test.zip` utilizados apenas para testar a detecção de vírus. Eles contêm somente cadeias de texto simulando malware e **não** apresentam risco de infecção.
+
 ## 🎯 Funcionalidades
 
 ### Detecção de PII
@@ -59,6 +65,8 @@ Sistema completo de detecção de informações pessoais (PII) com foco na confo
 
 ## 🚀 Instalação
 
+Certifique-se de que o **Node.js 20 ou superior** esteja instalado antes de prosseguir.
+
 ### Desenvolvimento
 ```bash
 # Clone o repositório
@@ -80,6 +88,8 @@ npm run db:push
 # O servidor principal fica em `src/server-simple.ts`. O comando abaixo utiliza
 # `ts-node` para executar esse arquivo diretamente.
 npm run dev
+# Use sempre **`npm run dev`** para iniciar o backend. Não há arquivo
+# `src/index.ts`, portanto este é o ponto de entrada correto.
 ```
 
 ### Produção com Docker
@@ -149,6 +159,26 @@ Configure diretórios em `/shared_folders/` para análise recursiva:
 ```bash
 mkdir -p shared_folders/documentos_empresa
 cp -r /path/to/docs/* shared_folders/documentos_empresa/
+```
+
+## 🧪 Testes
+
+Para executar os testes unitários é necessário um PostgreSQL local. O arquivo
+[`tests/setup.ts`](tests/setup.ts) utiliza a URL
+`postgresql://test:test@localhost:5432/test_piidetector` como padrão quando a
+variável `DATABASE_URL` não está definida. Siga os passos abaixo:
+
+```bash
+# Crie usuário e banco de testes (ajuste conforme sua instalação)
+createuser -P test
+createdb -O test test_piidetector
+
+# Defina a variável de ambiente e aplique o schema Prisma
+export DATABASE_URL=postgresql://test:test@localhost:5432/test_piidetector
+npx prisma db push
+
+# Rode a suíte de testes
+npm test
 ```
 
 ## 📊 APIs Principais
