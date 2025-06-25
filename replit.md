@@ -125,6 +125,7 @@ Sistema preparado para conviver com N8N e outros serviços no mesmo servidor, ca
 ## Changelog
 
 Recent Updates:
+- June 25, 2025: **Dockerfile Robusto Corrigido** - Substituído Dockerfile multi-stage complexo por versão single-stage robusta que resolve npm ci sem package-lock.json, usa npm install com fallbacks, constrói frontend condicionalmente, múltiplos caminhos de start (build/ts-node/npm), porta 5000 corrigida
 - June 25, 2025: **Script Final install-simples.sh** - Criado script definitivo que resolve conflitos Node.js/npm removendo pacotes conflitantes, usando NodeSource para Node.js 20, Dockerfile com múltiplos fallbacks (build/ts-node/npm start), validação robusta e sintaxe bash limpa testada localmente
 - June 25, 2025: **Limpeza e Consolidação Completa** - Removidos 30+ arquivos desnecessários de instalação, criados 2 scripts robustos (público/privado), documentação unificada em arquivo único, suporte para múltiplas instâncias N8N, diretórios claramente definidos (/root execução, /opt/ncrisis aplicação)
 - June 25, 2025: **Instalação VPS Simplificada** - Criado install-vps-simples.sh com instalação completamente automatizada em comando único. Script de 200+ linhas instala todo o ambiente (Node.js, PostgreSQL, Redis, ClamAV, Nginx, SSL) e compila aplicação sem interação manual. Tempo: 15-20 minutos para VPS completa
