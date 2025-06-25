@@ -24,6 +24,7 @@ import { Server as SocketIOServer } from 'socket.io';
 import n8nRouter from './routes/n8n';
 import embeddingsRouter from './routes/embeddings';
 import searchRouter from './routes/search';
+import chatRouter from './routes/chat';
 import { getFaissManager } from './faissManager';
 
 const app: Application = express();
@@ -279,6 +280,9 @@ app.use('/', embeddingsRouter);
 
 // Vector Search Routes
 app.use('/', searchRouter);
+
+// Chat API Routes
+app.use('/', chatRouter);
 
 app.get('/api/v1/reports/detections', async (req: Request, res: Response): Promise<void> => {
   try {

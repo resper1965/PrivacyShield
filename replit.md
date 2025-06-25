@@ -108,6 +108,7 @@ Installation directory: `/opt/ncrisis` - standardized across all scripts and doc
 ## Changelog
 
 Recent Updates:
+- June 25, 2025: **Semantic Chat API** - Criado endpoint POST /api/v1/chat que combina busca semântica FAISS com OpenAI GPT-3.5-turbo. Gera embedding da query, busca contextos relevantes e responde baseado nos documentos encontrados
 - June 25, 2025: **FAISS Vector Search** - Implementado FaissManager singleton com IndexFlatL2, métodos init(), upsert(fileId, vector) e search(vector, k). Carrega embeddings do Prisma automaticamente e permite busca semântica
 - June 25, 2025: **OpenAI Embeddings API** - Criado endpoint POST /api/v1/embeddings que gera vetores OpenAI e persiste em modelo TextEmbedding com cache por hash de texto. Inclui endpoints GET by ID e health check
 - June 25, 2025: **N8N Workflow Integration** - Implementado serviço n8nService.ts que dispara webhooks automaticamente após processamento de arquivos. Worker ArchiveScan agora invoca triggerN8nIncident(fileId) após scan limpo e metadata persistida, com logs de auditoria e fallback resiliente
