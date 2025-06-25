@@ -1,86 +1,138 @@
 #!/bin/bash
 
-# N.Crisis VPS Deployment Script
+# N.Crisis VPS Deployment Script v2.1
 # Deploy para servidor próprio (Ubuntu 22.04 LTS)
+# Uso: ./deploy-vps.sh seu-dominio.com
 
 set -e
 
-echo "🚀 N.Crisis VPS Deployment"
-echo "=========================="
+echo "🚀 N.Crisis VPS Deployment v2.1"
+echo "==============================="
+
+# Verificar argumentos
+if [ "$#" -ne 1 ]; then
+    echo "❌ Erro: Domínio é obrigatório"
+    echo "Uso: ./deploy-vps.sh seu-dominio.com"
+    exit 1
+fi
 
 # Configurações
-DOMAIN=${1:-"seu-dominio.com"}
+DOMAIN=$1
 APP_DIR="/opt/ncrisis"
 DB_NAME="ncrisis_prod"
 DB_USER="ncrisis"
 DB_PASS=$(openssl rand -base64 32)
 REDIS_PASS=$(openssl rand -base64 32)
+LOG_FILE="/var/log/ncrisis-install.log"
 
-echo "📋 Configurações:"
-echo "   Domínio: $DOMAIN"
-echo "   Diretório: $APP_DIR"
-echo "   Banco: $DB_NAME"
+# Verificar se está rodando como root
+if [ "$EUID" -eq 0 ]; then
+    echo "❌ Não execute como root. Use um usuário com sudo."
+    exit 1
+fi
+
+# Função de log
+log() {
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" | tee -a "$LOG_FILE"
+}
+
+# Função de erro
+error_exit() {
+    log "❌ ERRO: $1"
+    exit 1
+}
+
+log "📋 Configurações:"
+log "   Domínio: $DOMAIN"
+log "   Diretório: $APP_DIR"
+log "   Banco: $DB_NAME"
+log "   Log: $LOG_FILE"
+
+# Verificar conectividade
+log "🌐 Verificando conectividade..."
+ping -c 1 google.com > /dev/null || error_exit "Sem conectividade com a internet"
 
 # 1. Atualizar sistema
-echo "🔄 Atualizando sistema..."
-sudo apt update && sudo apt upgrade -y
+log "🔄 Atualizando sistema..."
+sudo apt update && sudo apt upgrade -y >> "$LOG_FILE" 2>&1 || error_exit "Falha ao atualizar sistema"
 
 # 2. Instalar dependências
-echo "📦 Instalando dependências..."
+log "📦 Instalando dependências..."
 sudo apt install -y curl wget git nginx postgresql postgresql-contrib redis-server \
-    software-properties-common certbot python3-certbot-nginx ufw fail2ban
+    software-properties-common certbot python3-certbot-nginx ufw fail2ban \
+    htop unzip zip jq >> "$LOG_FILE" 2>&1 || error_exit "Falha ao instalar dependências"
 
 # 3. Instalar Node.js 20
-echo "⚡ Instalando Node.js 20..."
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-sudo apt install -y nodejs
+log "⚡ Instalando Node.js 20..."
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - >> "$LOG_FILE" 2>&1
+sudo apt install -y nodejs >> "$LOG_FILE" 2>&1 || error_exit "Falha ao instalar Node.js"
+
+# Verificar versão do Node.js
+NODE_VERSION=$(node --version)
+log "✅ Node.js instalado: $NODE_VERSION"
 
 # 4. Configurar PostgreSQL
-echo "🗄️  Configurando PostgreSQL..."
-sudo -u postgres psql -c "CREATE USER $DB_USER WITH PASSWORD '$DB_PASS';"
-sudo -u postgres psql -c "CREATE DATABASE $DB_NAME OWNER $DB_USER;"
-sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;"
+log "🗄️  Configurando PostgreSQL..."
+sudo systemctl start postgresql >> "$LOG_FILE" 2>&1
+sudo systemctl enable postgresql >> "$LOG_FILE" 2>&1
+
+# Criar usuário e banco
+sudo -u postgres createuser $DB_USER >> "$LOG_FILE" 2>&1 || true
+sudo -u postgres psql -c "ALTER USER $DB_USER WITH PASSWORD '$DB_PASS';" >> "$LOG_FILE" 2>&1
+sudo -u postgres createdb -O $DB_USER $DB_NAME >> "$LOG_FILE" 2>&1 || true
+
+log "✅ PostgreSQL configurado com sucesso"
 
 # 5. Configurar Redis
-echo "📊 Configurando Redis..."
-sudo sed -i "s/# requirepass foobared/requirepass $REDIS_PASS/" /etc/redis/redis.conf
-sudo systemctl restart redis-server
+log "🔴 Configurando Redis..."
+sudo systemctl start redis-server >> "$LOG_FILE" 2>&1
+sudo systemctl enable redis-server >> "$LOG_FILE" 2>&1
 
-# 6. Criar diretório da aplicação
-echo "📁 Criando estrutura de diretórios..."
-sudo mkdir -p $APP_DIR
+# Configurar senha do Redis
+echo "requirepass $REDIS_PASS" | sudo tee -a /etc/redis/redis.conf >> "$LOG_FILE" 2>&1
+sudo systemctl restart redis-server >> "$LOG_FILE" 2>&1
+
+log "✅ Redis configurado com sucesso"
+
+# 6. Clonar e configurar aplicação
+log "📦 Baixando N.Crisis..."
+cd /opt
+sudo rm -rf ncrisis || true
+sudo git clone https://github.com/resper1965/PrivacyShield.git ncrisis >> "$LOG_FILE" 2>&1 || error_exit "Falha ao clonar repositório"
 sudo chown -R $USER:$USER $APP_DIR
-
-# 7. Copiar arquivos da aplicação
-echo "📄 Copiando arquivos..."
-cp -r . $APP_DIR/
 cd $APP_DIR
 
-# 8. Instalar dependências Node.js
-echo "📦 Instalando dependências Node.js..."
-npm ci --only=production
+log "✅ Código baixado com sucesso"
 
-# 9. Build do frontend
-echo "🏗️  Construindo frontend..."
-cd frontend && npm ci && npm run build && cd ..
+# 7. Instalar dependências
+log "📦 Instalando dependências..."
+npm ci >> "$LOG_FILE" 2>&1 || error_exit "Falha ao instalar dependências"
 
-# 10. Criar arquivo .env
-echo "⚙️  Criando configuração..."
+# 8. Build da aplicação
+log "🏗️  Compilando aplicação..."
+npm run build >> "$LOG_FILE" 2>&1 || error_exit "Falha ao compilar aplicação"
+
+log "✅ Aplicação compilada com sucesso"
+
+# 9. Criar arquivo .env
+log "⚙️  Criando configuração..."
 cat > .env << EOF
 NODE_ENV=production
-PORT=3000
+PORT=5000
 HOST=0.0.0.0
 DATABASE_URL=postgresql://$DB_USER:$DB_PASS@localhost:5432/$DB_NAME
 REDIS_URL=redis://default:$REDIS_PASS@localhost:6379
-OPENAI_API_KEY=$OPENAI_API_KEY
-SENDGRID_API_KEY=$SENDGRID_API_KEY
-CORS_ORIGINS=https://$DOMAIN,http://localhost:3000
+OPENAI_API_KEY=
+SENDGRID_API_KEY=
+CORS_ORIGINS=https://$DOMAIN,http://localhost:5000
 CLAMAV_ENABLED=false
 UPLOAD_MAX_SIZE=104857600
 FAISS_INDEX_PATH=./data/faiss_index
 SESSION_SECRET=$(openssl rand -base64 32)
 JWT_SECRET=$(openssl rand -base64 32)
 EOF
+
+log "✅ Configuração criada (complete as API keys depois)"
 
 # 11. Configurar Nginx
 echo "🌐 Configurando Nginx..."
@@ -107,7 +159,7 @@ server {
     limit_req_zone \$binary_remote_addr zone=upload:10m rate=1r/s;
 
     location / {
-        proxy_pass http://localhost:3000;
+        proxy_pass http://localhost:5000;
         proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection 'upgrade';

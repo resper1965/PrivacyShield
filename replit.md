@@ -125,29 +125,28 @@ Sistema preparado para conviver com N8N e outros serviços no mesmo servidor, ca
 
 ## Deployment Options
 
-### 1. Replit Deploy (Recomendado)
-- Click no botão "Deploy" no Replit
-- Escolha "Autoscale Deployment" 
-- Domínio .replit.app gratuito
-- SSL, monitoramento e escalabilidade automáticos
-
-### 2. VPS/Servidor Próprio
+### 1. VPS/Servidor Próprio (Atual)
 ```bash
 ./deploy-vps.sh seu-dominio.com
 ```
-- Ubuntu 22.04 LTS
-- SSL automático com Let's Encrypt
-- Nginx, PostgreSQL, Redis
-- Systemd service
+- **Status**: ✅ Pronto e otimizado
+- **Features**: Ubuntu 22.04, SSL automático, Nginx, PostgreSQL, Redis, Systemd
+- **Gerenciamento**: `./manage-vps.sh` (status|start|stop|restart|logs|backup|update)
+- **Documentação**: `DEPLOY_VPS_GUIDE.md` + `QUICK_START_VPS.md`
+- **Instalação**: 10-15 minutos automatizado
 
-### 3. Docker Deployment
+### 2. Docker Deployment (Próxima Versão)
 ```bash
-# Editar .env.prod com suas chaves API
-docker-compose -f docker-compose.prod.yml --env-file .env.prod up -d
-
-# Gerenciamento
-./manage.sh start|stop|restart|logs|status|backup|ssl
+./deploy-docker.sh seu-dominio.com
 ```
+- **Status**: ✅ Configurado, será usado na v2.2
+- **Features**: Containerização completa, orquestração, backup/restore
+- **Gerenciamento**: `./manage.sh` (start|stop|restart|logs|status|backup|ssl)
+
+### 3. Replit Deploy (Desenvolvimento)
+- Click no botão "Deploy" no Replit
+- Domínio .replit.app gratuito
+- SSL, monitoramento automáticos
 
 ## Changelog
 
