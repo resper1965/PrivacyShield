@@ -1,6 +1,38 @@
 # N.Crisis - Comando de Instalação VPS Zerada
 
-## 🚀 Instalação em Uma Linha
+## 🚀 Download Direto para /opt/ncrisis
+
+Para VPS Ubuntu Linux - comando inequívoco:
+
+```bash
+# 1. Configurar token
+export GITHUB_PERSONAL_ACCESS_TOKEN="ghp_your_token_here"
+
+# 2. Download direto para /opt/ncrisis
+curl -H "Authorization: token $GITHUB_PERSONAL_ACCESS_TOKEN" \
+  -s "https://api.github.com/repos/resper1965/PrivacyShield/contents/download-ncrisis.sh" | \
+  grep '"content"' | cut -d'"' -f4 | base64 -d | sudo bash
+
+# 3. Executar instalação
+cd /opt/ncrisis && sudo ./install-ncrisis.sh
+```
+
+## 🔧 Método Alternativo Git Clone
+
+Se o comando acima falhar:
+
+```bash
+# Instalar git se necessário
+sudo apt update && sudo apt install -y git
+
+# Clone direto para /opt/ncrisis
+sudo git clone "https://$GITHUB_PERSONAL_ACCESS_TOKEN@github.com/resper1965/PrivacyShield.git" /opt/ncrisis
+
+# Executar instalação
+cd /opt/ncrisis && sudo chmod +x install-ncrisis.sh && sudo ./install-ncrisis.sh
+```
+
+## 🚀 Instalação Completa em Uma Linha
 
 Para VPS Ubuntu 22.04 completamente zerada:
 
@@ -258,12 +290,12 @@ cat /opt/ncrisis/.env
 
 ## 📝 Comandos Testados para VPS Zerada
 
-**Comando Bootstrap (Mais Confiável):**
+**Comando Download Direto (Recomendado):**
 ```bash
-export GITHUB_PERSONAL_ACCESS_TOKEN="seu_token" && export OPENAI_API_KEY="sua_chave" && bash <(curl -H "Authorization: token $GITHUB_PERSONAL_ACCESS_TOKEN" -s "https://api.github.com/repos/resper1965/PrivacyShield/contents/bootstrap-ncrisis.sh" | grep '"content"' | cut -d'"' -f4 | base64 -d)
+export GITHUB_PERSONAL_ACCESS_TOKEN="seu_token" && export OPENAI_API_KEY="sua_chave" && curl -H "Authorization: token $GITHUB_PERSONAL_ACCESS_TOKEN" -s "https://api.github.com/repos/resper1965/PrivacyShield/contents/download-ncrisis.sh" | grep '"content"' | cut -d'"' -f4 | base64 -d | sudo bash && cd /opt/ncrisis && sudo ./install-ncrisis.sh
 ```
 
-**Comando Git Clone (Alternativo):**
+**Comando Git Clone (Mais Simples):**
 ```bash
-export GITHUB_PERSONAL_ACCESS_TOKEN="seu_token" && export OPENAI_API_KEY="sua_chave" && git clone "https://$GITHUB_PERSONAL_ACCESS_TOKEN@github.com/resper1965/PrivacyShield.git" /tmp/ncrisis && chmod +x /tmp/ncrisis/install-ncrisis.sh && /tmp/ncrisis/install-ncrisis.sh
+export GITHUB_PERSONAL_ACCESS_TOKEN="seu_token" && export OPENAI_API_KEY="sua_chave" && sudo git clone "https://$GITHUB_PERSONAL_ACCESS_TOKEN@github.com/resper1965/PrivacyShield.git" /opt/ncrisis && cd /opt/ncrisis && sudo chmod +x install-ncrisis.sh && sudo ./install-ncrisis.sh
 ```
