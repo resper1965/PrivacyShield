@@ -5,7 +5,12 @@
 Execute no servidor Ubuntu 22.04 como root:
 
 ```bash
-curl -fsSL https://github.com/resper1965/PrivacyShield/raw/main/install-direto.sh | sudo bash
+curl -fsSL https://github.com/resper1965/PrivacyShield/raw/main/install-fix.sh | sudo bash
+```
+
+**Alternativa se der erro:**
+```bash
+curl -fsSL https://github.com/resper1965/PrivacyShield/raw/main/install-simples.sh | sudo bash
 ```
 
 ## O Que o Script Faz
