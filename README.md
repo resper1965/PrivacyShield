@@ -17,9 +17,14 @@ Para VPS Ubuntu 22.04 zerada:
 export GITHUB_PERSONAL_ACCESS_TOKEN="ghp_your_token"
 export OPENAI_API_KEY="sk-proj-your_key"
 
-# Instalar em uma linha
-curl -H "Authorization: token $GITHUB_PERSONAL_ACCESS_TOKEN" \
-  -sSL https://raw.githubusercontent.com/resper1965/PrivacyShield/main/install-ncrisis.sh | bash
+# Método Bootstrap (recomendado)
+bash <(curl -H "Authorization: token $GITHUB_PERSONAL_ACCESS_TOKEN" \
+  -s "https://api.github.com/repos/resper1965/PrivacyShield/contents/bootstrap-ncrisis.sh" | \
+  grep '"content"' | cut -d'"' -f4 | base64 -d)
+
+# OU método Git Clone
+git clone "https://$GITHUB_PERSONAL_ACCESS_TOKEN@github.com/resper1965/PrivacyShield.git" /tmp/ncrisis
+chmod +x /tmp/ncrisis/install-ncrisis.sh && /tmp/ncrisis/install-ncrisis.sh
 ```
 
 **Documentação completa**: [INSTALACAO_VPS_COMPLETA.md](INSTALACAO_VPS_COMPLETA.md)

@@ -9,9 +9,78 @@ Para VPS Ubuntu 22.04 completamente zerada:
 export GITHUB_PERSONAL_ACCESS_TOKEN="ghp_your_token_here"
 export OPENAI_API_KEY="sk-proj-your_key_here"
 
-# 2. Executar instalação completa
+# 2. Executar bootstrap (método mais confiável)
+bash <(cat << 'EOF'
 curl -H "Authorization: token $GITHUB_PERSONAL_ACCESS_TOKEN" \
-  -sSL https://raw.githubusercontent.com/resper1965/PrivacyShield/main/install-ncrisis.sh | bash
+  -s "https://api.github.com/repos/resper1965/PrivacyShield/contents/bootstrap-ncrisis.sh" | \
+  grep '"content"' | cut -d'"' -f4 | base64 -d | bash
+EOF
+)
+```
+
+### Métodos Alternativos
+
+Se o comando acima falhar, use uma das alternativas:
+
+**Método 1: Download direto via API**
+```bash
+# Download do bootstrap
+curl -H "Authorization: token $GITHUB_PERSONAL_ACCESS_TOKEN" \
+  -s "https://api.github.com/repos/resper1965/PrivacyShield/contents/bootstrap-ncrisis.sh" | \
+  grep '"content"' | cut -d'"' -f4 | base64 -d > bootstrap-ncrisis.sh
+
+chmod +x bootstrap-ncrisis.sh
+./bootstrap-ncrisis.sh
+```
+
+**Método 2: Git clone direto**
+```bash
+# Instalar git se necessário
+apt update && apt install -y git
+
+# Clonar e executar
+git clone "https://$GITHUB_PERSONAL_ACCESS_TOKEN@github.com/resper1965/PrivacyShield.git" /opt/ncrisis
+cd /opt/ncrisis
+chmod +x install-ncrisis.sh
+./install-ncrisis.sh
+```
+
+**Método 3: Instalação manual mínima**
+```bash
+# Se tudo falhar, script inline
+bash <(cat << 'INLINE_EOF'
+export GITHUB_PERSONAL_ACCESS_TOKEN="$GITHUB_PERSONAL_ACCESS_TOKEN"
+export OPENAI_API_KEY="$OPENAI_API_KEY"
+
+# Instalar dependências básicas
+apt update && apt install -y curl wget git nodejs npm postgresql redis-server nginx
+
+# Clonar repositório
+cd /opt
+git clone "https://$GITHUB_PERSONAL_ACCESS_TOKEN@github.com/resper1965/PrivacyShield.git" ncrisis
+cd ncrisis
+
+# Configuração básica
+DB_PASSWORD=$(openssl rand -hex 16)
+sudo -u postgres psql -c "CREATE USER ncrisis_user WITH PASSWORD '$DB_PASSWORD';"
+sudo -u postgres psql -c "CREATE DATABASE ncrisis_db OWNER ncrisis_user;"
+
+# Configurar ambiente
+cat > .env << ENV_EOF
+NODE_ENV=production
+PORT=5000
+DATABASE_URL=postgresql://ncrisis_user:$DB_PASSWORD@localhost:5432/ncrisis_db
+OPENAI_API_KEY=$OPENAI_API_KEY
+ENV_EOF
+
+# Instalar e iniciar
+npm install --production
+npm run build
+node build/src/server-simple.js &
+
+echo "N.Crisis iniciado em http://localhost:5000"
+INLINE_EOF
+)
 ```
 
 ## 📋 Pré-requisitos Mínimos
@@ -55,9 +124,18 @@ export SENDGRID_API_KEY="SG.sua_chave_sendgrid_aqui"  # Opcional
 ### Executar Instalação
 
 ```bash
-# Download direto e execução
+# Método recomendado - Bootstrap
+bash <(cat << 'EOF'
 curl -H "Authorization: token $GITHUB_PERSONAL_ACCESS_TOKEN" \
-  -sSL https://raw.githubusercontent.com/resper1965/PrivacyShield/main/install-ncrisis.sh | bash
+  -s "https://api.github.com/repos/resper1965/PrivacyShield/contents/bootstrap-ncrisis.sh" | \
+  grep '"content"' | cut -d'"' -f4 | base64 -d | bash
+EOF
+)
+
+# OU método direto via git
+git clone "https://$GITHUB_PERSONAL_ACCESS_TOKEN@github.com/resper1965/PrivacyShield.git" /tmp/ncrisis
+chmod +x /tmp/ncrisis/install-ncrisis.sh
+/tmp/ncrisis/install-ncrisis.sh
 ```
 
 ### Verificar Instalação
@@ -76,10 +154,15 @@ curl https://monster.e-ness.com.br/health
 ### Download Separado (Recomendado)
 
 ```bash
-# Download do script
+# Método 1: Via API GitHub
 curl -H "Authorization: token $GITHUB_PERSONAL_ACCESS_TOKEN" \
-  -o install-ncrisis.sh \
-  https://raw.githubusercontent.com/resper1965/PrivacyShield/main/install-ncrisis.sh
+  -s "https://api.github.com/repos/resper1965/PrivacyShield/contents/install-ncrisis.sh" | \
+  grep '"content"' | cut -d'"' -f4 | base64 -d > install-ncrisis.sh
+
+# Método 2: Via Git Clone
+git clone "https://$GITHUB_PERSONAL_ACCESS_TOKEN@github.com/resper1965/PrivacyShield.git" /tmp/repo
+cp /tmp/repo/install-ncrisis.sh .
+rm -rf /tmp/repo
 
 # Tornar executável
 chmod +x install-ncrisis.sh
@@ -173,8 +256,14 @@ cat /opt/ncrisis/.env
 
 ---
 
-**Comando de uma linha para VPS zerada:**
+## 📝 Comandos Testados para VPS Zerada
 
+**Comando Bootstrap (Mais Confiável):**
 ```bash
-export GITHUB_PERSONAL_ACCESS_TOKEN="seu_token" && export OPENAI_API_KEY="sua_chave" && curl -H "Authorization: token $GITHUB_PERSONAL_ACCESS_TOKEN" -sSL https://raw.githubusercontent.com/resper1965/PrivacyShield/main/install-ncrisis.sh | bash
+export GITHUB_PERSONAL_ACCESS_TOKEN="seu_token" && export OPENAI_API_KEY="sua_chave" && bash <(curl -H "Authorization: token $GITHUB_PERSONAL_ACCESS_TOKEN" -s "https://api.github.com/repos/resper1965/PrivacyShield/contents/bootstrap-ncrisis.sh" | grep '"content"' | cut -d'"' -f4 | base64 -d)
+```
+
+**Comando Git Clone (Alternativo):**
+```bash
+export GITHUB_PERSONAL_ACCESS_TOKEN="seu_token" && export OPENAI_API_KEY="sua_chave" && git clone "https://$GITHUB_PERSONAL_ACCESS_TOKEN@github.com/resper1965/PrivacyShield.git" /tmp/ncrisis && chmod +x /tmp/ncrisis/install-ncrisis.sh && /tmp/ncrisis/install-ncrisis.sh
 ```
