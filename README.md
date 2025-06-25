@@ -4,6 +4,10 @@ Sistema completo de detecção de informações pessoais (PII) com foco na confo
 
 Consulte a [documentacao completa](docs/README.md) para guias detalhados.
 
+## ⚠ Aviso de Testes
+
+Este repositório inclui arquivos como `virus_test.zip` e `infected_test.zip` utilizados apenas para testar a detecção de vírus. Eles contêm somente cadeias de texto simulando malware e **não** apresentam risco de infecção.
+
 ## 🎯 Funcionalidades
 
 ### Detecção de PII
