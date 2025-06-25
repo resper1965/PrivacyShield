@@ -296,7 +296,13 @@ app.use('/', chatRouter);
 
 // Serve React frontend
 const frontendPath = path.join(__dirname, '../frontend/dist');
-app.use(express.static(frontendPath));
+console.log('Frontend path:', frontendPath);
+console.log('Frontend exists:', fs.existsSync(frontendPath));
+if (fs.existsSync(frontendPath)) {
+  app.use(express.static(frontendPath));
+} else {
+  console.warn('Frontend build not found, serving basic HTML');
+}
 
 // React Router - serve index.html for all non-API routes
 app.get('*', (req: Request, res: Response): void => {
@@ -307,7 +313,50 @@ app.get('*', (req: Request, res: Response): void => {
       timestamp: new Date().toISOString(),
     });
   } else {
-    res.sendFile(path.join(frontendPath, 'index.html'));
+    const indexPath = path.join(frontendPath, 'index.html');
+    if (fs.existsSync(indexPath)) {
+      res.sendFile(indexPath);
+    } else {
+      // Fallback basic HTML
+      res.send(`
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>N.Crisis - PII Detection Platform</title>
+            <meta charset="utf-8">
+            <style>
+              body { font-family: 'Montserrat', -apple-system, sans-serif; background: #0D1B2A; color: white; padding: 40px; }
+              .container { max-width: 800px; margin: 0 auto; text-align: center; }
+              .logo { color: #00ade0; font-size: 2.5em; margin-bottom: 20px; }
+              .status { background: #1e3a8a; padding: 20px; border-radius: 10px; margin: 20px 0; }
+              .api-endpoint { background: #065f46; padding: 10px; margin: 10px 0; border-radius: 5px; }
+              .endpoint-url { font-family: monospace; background: #000; padding: 5px; border-radius: 3px; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <h1 class="logo">n.crisis</h1>
+              <p>PII Detection & LGPD Compliance Platform</p>
+              <div class="status">
+                <h3>🟢 System Status: Operational</h3>
+                <p>API server running on port 5000</p>
+                <p>Environment: ${env.NODE_ENV}</p>
+                <p>Version: 2.1.0</p>
+              </div>
+              <div class="api-endpoint">
+                <h4>Available API Endpoints:</h4>
+                <div class="endpoint-url">GET /health</div>
+                <div class="endpoint-url">GET /api/queue/status</div>
+                <div class="endpoint-url">POST /api/v1/archives/upload</div>
+                <div class="endpoint-url">GET /api/v1/reports/detections</div>
+                <div class="endpoint-url">POST /api/v1/chat</div>
+              </div>
+              <p><strong>Note:</strong> Frontend build not available. API endpoints are fully functional.</p>
+            </div>
+          </body>
+        </html>
+      `);
+    }
   }
 });
 
