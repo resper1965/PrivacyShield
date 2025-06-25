@@ -3,6 +3,7 @@
 # N.Crisis Production Installation Script
 # Ubuntu 22.04+ VPS Deployment Automation
 # Version: 2.0
+# Requires Docker >= 24.0 and Docker Compose >= 2.20
 
 set -euo pipefail
 
@@ -100,9 +101,17 @@ check_docker() {
     # Check versions
     local docker_version=$(docker --version | grep -oE '[0-9]+\.[0-9]+' | head -1)
     local compose_version=$(docker compose version --short | grep -oE '[0-9]+\.[0-9]+')
-    
+
     log "INFO" "Docker versão: $docker_version"
     log "INFO" "Docker Compose versão: $compose_version"
+
+    if ! dpkg --compare-versions "$docker_version" ge "$REQUIRED_DOCKER_VERSION"; then
+        error_exit "Docker $REQUIRED_DOCKER_VERSION ou superior é requerido (encontrado $docker_version)"
+    fi
+
+    if ! dpkg --compare-versions "$compose_version" ge "$REQUIRED_COMPOSE_VERSION"; then
+        error_exit "Docker Compose $REQUIRED_COMPOSE_VERSION ou superior é requerido (encontrado $compose_version)"
+    fi
 }
 
 # Setup environment configuration
