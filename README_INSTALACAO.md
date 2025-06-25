@@ -1,17 +1,21 @@
 # N.Crisis - Instalação Simplificada
 
-## Comando Único de Instalação
+## Comando de Instalação VPS
 
 Execute no servidor Ubuntu 22.04 como root:
 
 ```bash
-curl -fsSL https://github.com/resper1965/PrivacyShield/raw/main/install-fix.sh | sudo bash
+curl -fsSL https://github.com/resper1965/PrivacyShield/raw/main/install-vps-simples.sh | sudo bash
 ```
 
-**Alternativa se der erro:**
-```bash
-curl -fsSL https://github.com/resper1965/PrivacyShield/raw/main/install-simples.sh | sudo bash
-```
+Este script instala tudo automaticamente:
+- Node.js 20 + npm limpo
+- Docker + Docker Compose 
+- PostgreSQL + Redis
+- Nginx + SSL automático
+- N.Crisis compilado e rodando
+
+**Tempo:** 15-20 minutos para instalação completa
 
 ## O Que o Script Faz
 
