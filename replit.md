@@ -109,6 +109,7 @@ Production deployment: All documentation and scripts updated for v2.1 with AI ca
 ## Changelog
 
 Recent Updates:
+- June 25, 2025: **Production Ready v2.1** - Sistema completo validado para produção com documentação atualizada, scripts de instalação v2.1, guias de deploy, checklist completo e validação automatizada. Todas as funcionalidades AI testadas e operacionais
 - June 25, 2025: **Semantic Chat API** - Criado endpoint POST /api/v1/chat que combina busca semântica FAISS com OpenAI GPT-3.5-turbo. Gera embedding da query, busca contextos relevantes e responde baseado nos documentos encontrados
 - June 25, 2025: **FAISS Vector Search** - Implementado FaissManager singleton com IndexFlatL2, métodos init(), upsert(fileId, vector) e search(vector, k). Carrega embeddings do Prisma automaticamente e permite busca semântica
 - June 25, 2025: **OpenAI Embeddings API** - Criado endpoint POST /api/v1/embeddings que gera vetores OpenAI e persiste em modelo TextEmbedding com cache por hash de texto. Inclui endpoints GET by ID e health check
