@@ -23,6 +23,8 @@ import { Server } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 import n8nRouter from './routes/n8n';
 import embeddingsRouter from './routes/embeddings';
+import searchRouter from './routes/search';
+import { getFaissManager } from './faissManager';
 
 const app: Application = express();
 const server = new Server(app);
@@ -275,6 +277,9 @@ app.use('/', n8nRouter);
 // Embeddings API Routes
 app.use('/', embeddingsRouter);
 
+// Vector Search Routes
+app.use('/', searchRouter);
+
 app.get('/api/v1/reports/detections', async (req: Request, res: Response): Promise<void> => {
   try {
     const { limit = 50, offset = 0 } = req.query;
@@ -363,6 +368,15 @@ async function startServer(): Promise<void> {
   try {
     await prisma.$connect();
     console.log('Database connected successfully');
+    
+    // Initialize FAISS manager
+    try {
+      const faissManager = getFaissManager();
+      await faissManager.init();
+      console.log('🔍 FAISS vector search initialized');
+    } catch (error) {
+      console.warn('⚠️ FAISS initialization failed:', error);
+    }
 
     server.listen(env.PORT, env.HOST, () => {
       console.log(`🚀 PIIDetector server running on http://${env.HOST}:${env.PORT}`);
