@@ -76,6 +76,8 @@ npm run db:push
 # O servidor principal fica em `src/server-simple.ts`. O comando abaixo utiliza
 # `ts-node` para executar esse arquivo diretamente.
 npm run dev
+# Use sempre **`npm run dev`** para iniciar o backend. Não há arquivo
+# `src/index.ts`, portanto este é o ponto de entrada correto.
 ```
 
 ### Produção com Docker
