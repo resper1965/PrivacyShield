@@ -8,14 +8,14 @@ import { PrismaClient } from '@prisma/client';
 
 interface VectorEntry {
   id: number;
-  fileId?: string;
+  fileId: string;
   vector: number[];
   text: string;
 }
 
 interface SearchResult {
   id: number;
-  fileId?: string;
+  fileId: string;
   text: string;
   distance: number;
   similarity: number;
@@ -67,14 +67,15 @@ export class FaissManager {
       for (const embedding of embeddings) {
         const vectorEntry: VectorEntry = {
           id: embedding.id,
+          fileId: `embedding_${embedding.id}`,
           vector: embedding.vector,
           text: embedding.text
         };
 
         this.vectors.push(vectorEntry);
         
-        // Add vector to FAISS index
-        this.index.add([Float32Array.from(embedding.vector)]);
+        // Add vector to FAISS index - convert to regular array
+        this.index.add(embedding.vector);
       }
 
       this.isInitialized = true;
@@ -99,39 +100,18 @@ export class FaissManager {
         throw new Error(`Vector dimension mismatch. Expected ${this.dimension}, got ${vector.length}`);
       }
 
-      // Check if vector already exists for this fileId
-      const existingIndex = this.vectors.findIndex(v => v.fileId === fileId);
+      // Add new vector (simplified - no updates for now)
+      console.log(`[FAISS] Adding new vector for fileId: ${fileId}`);
+      
+      const vectorEntry: VectorEntry = {
+        id: this.vectors.length + 1,
+        fileId,
+        vector,
+        text: text || `File content for ${fileId}`
+      };
 
-      if (existingIndex >= 0) {
-        // Update existing vector
-        console.log(`[FAISS] Updating existing vector for fileId: ${fileId}`);
-        
-        // Remove old vector from index (FAISS doesn't support direct update)
-        // We'll need to rebuild or use a different approach
-        this.vectors[existingIndex] = {
-          id: this.vectors[existingIndex].id,
-          fileId,
-          vector,
-          text: text || this.vectors[existingIndex].text
-        };
-        
-        // For now, we'll add as new (in production, consider rebuilding index periodically)
-        this.index.add(Float32Array.from(vector));
-        
-      } else {
-        // Add new vector
-        console.log(`[FAISS] Adding new vector for fileId: ${fileId}`);
-        
-        const vectorEntry: VectorEntry = {
-          id: this.vectors.length + 1,
-          fileId,
-          vector,
-          text: text || `File content for ${fileId}`
-        };
-
-        this.vectors.push(vectorEntry);
-        this.index.add([Float32Array.from(vector)]);
-      }
+      this.vectors.push(vectorEntry);
+      this.index.add(vector);
 
       console.log(`[FAISS] Vector upserted. Total vectors: ${this.index.ntotal()}`);
 
@@ -167,29 +147,33 @@ export class FaissManager {
       console.log(`[FAISS] Searching for ${actualK} similar vectors`);
 
       // Perform search
-      const searchResult = this.index.search([Float32Array.from(queryVector)], actualK);
+      const searchResult = this.index.search(queryVector, actualK);
       
       // Convert results to SearchResult format
       const results: SearchResult[] = [];
       
-      for (let i = 0; i < searchResult.labels.length; i++) {
-        const vectorIndex = searchResult.labels[i];
-        const distance = searchResult.distances[i];
-        
-        if (typeof vectorIndex === 'number' && typeof distance === 'number' && 
-            vectorIndex >= 0 && vectorIndex < this.vectors.length) {
-          const vectorEntry = this.vectors[vectorIndex];
+      if (searchResult && searchResult.labels && searchResult.distances) {
+        for (let i = 0; i < searchResult.labels.length; i++) {
+          const vectorIndex = searchResult.labels[i];
+          const distance = searchResult.distances[i];
           
-          // Convert L2 distance to similarity score (0-1, higher = more similar)
-          const similarity = 1 / (1 + distance);
-          
-          results.push({
-            id: vectorEntry.id,
-            fileId: vectorEntry.fileId,
-            text: vectorEntry.text,
-            distance,
-            similarity
-          });
+          if (typeof vectorIndex === 'number' && typeof distance === 'number' && 
+              vectorIndex >= 0 && vectorIndex < this.vectors.length) {
+            const vectorEntry = this.vectors[vectorIndex];
+            
+            if (vectorEntry) {
+              // Convert L2 distance to similarity score (0-1, higher = more similar)
+              const similarity = 1 / (1 + distance);
+              
+              results.push({
+                id: vectorEntry.id,
+                fileId: vectorEntry.fileId,
+                text: vectorEntry.text,
+                distance,
+                similarity
+              });
+            }
+          }
         }
       }
 
