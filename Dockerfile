@@ -28,9 +28,9 @@ RUN if [ -d "frontend" ]; then \
 RUN mkdir -p uploads logs tmp
 
 # Create user
-RUN addgroup -g 1001 -S nodejs && adduser -S nextjs -u 1001
-RUN chown -R nextjs:nodejs /app
-USER nextjs
+RUN addgroup -g 1001 -S nodejs && adduser -S ncrisis -u 1001
+RUN chown -R ncrisis:nodejs /app
+USER ncrisis
 
 EXPOSE 5000
 
