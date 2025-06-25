@@ -1,21 +1,50 @@
 #!/bin/bash
 
-echo "Testando aplicação N.Crisis..."
+# Teste rápido do status N.Crisis
+echo "=== TESTE RÁPIDO N.CRISIS ==="
+echo "Data: $(date)"
+echo
 
-echo "1. App local:"
-curl -sf http://localhost:5000/health && echo "✓ OK" || echo "✗ FALHOU"
+# Teste aplicação local
+echo "1. Aplicação local (porta 5000):"
+if curl -sf http://localhost:5000/health 2>/dev/null; then
+    echo "✅ OK"
+else
+    echo "❌ FALHOU"
+fi
+echo
 
-echo "2. Nginx status:"
-systemctl is-active nginx && echo "✓ Nginx ativo" || echo "✗ Nginx inativo"
+# Teste proxy Nginx
+echo "2. Proxy Nginx:"
+if curl -sf http://localhost/health 2>/dev/null; then
+    echo "✅ OK"
+else
+    echo "❌ FALHOU"
+fi
+echo
 
-echo "3. Docker containers:"
-docker compose ps
+# Teste acesso externo
+echo "3. Acesso externo:"
+if curl -sf http://monster.e-ness.com.br/health 2>/dev/null; then
+    echo "✅ OK"
+else
+    echo "❌ FALHOU"
+fi
+echo
 
-echo "4. App via Nginx:"
-curl -sf http://monster.e-ness.com.br/health && echo "✓ HTTP OK" || echo "✗ HTTP falhou"
+# Status dos serviços
+echo "4. Status dos serviços:"
+if command -v docker >/dev/null 2>&1 && [ -d "/opt/ncrisis" ]; then
+    cd /opt/ncrisis
+    echo "Containers:"
+    docker compose ps 2>/dev/null | grep -v "^$" || echo "❌ Erro ao verificar containers"
+fi
 
-echo "5. App via HTTPS:"
-curl -sf https://monster.e-ness.com.br/health && echo "✓ HTTPS OK" || echo "✗ HTTPS falhou"
+if command -v systemctl >/dev/null 2>&1; then
+    echo "Nginx: $(systemctl is-active nginx 2>/dev/null || echo 'inativo')"
+fi
+echo
 
-echo "6. Logs recentes:"
-docker compose logs app --tail=5
+# Portas em uso
+echo "5. Portas:"
+ss -tlnp 2>/dev/null | grep ":5000\|:80\|:443" || echo "Nenhuma porta web encontrada"
