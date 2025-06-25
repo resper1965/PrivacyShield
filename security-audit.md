@@ -1,5 +1,7 @@
 # PIIDetector Security Audit Report
 
+> **Test Files Notice**
+> This repository includes `virus_test.zip` and `infected_test.zip` for antivirus detection tests. These archives only contain mock virus strings and are safe.
 ## Fixed Vulnerabilities
 
 ### 1. Express.js Version Update
