@@ -8,7 +8,21 @@ Sistema completo de detecção de informações pessoais (PII) com foco na confo
 **Domínio**: monster.e-ness.com.br  
 **Licença**: MIT
 
-Consulte a [documentacao completa](docs/README.md) para guias detalhados.
+## 🚀 Instalação Rápida VPS
+
+Para VPS Ubuntu 22.04 zerada:
+
+```bash
+# Configurar credenciais
+export GITHUB_PERSONAL_ACCESS_TOKEN="ghp_your_token"
+export OPENAI_API_KEY="sk-proj-your_key"
+
+# Instalar em uma linha
+curl -H "Authorization: token $GITHUB_PERSONAL_ACCESS_TOKEN" \
+  -sSL https://raw.githubusercontent.com/resper1965/PrivacyShield/main/install-ncrisis.sh | bash
+```
+
+**Documentação completa**: [INSTALACAO_VPS_COMPLETA.md](INSTALACAO_VPS_COMPLETA.md)
 
 ## ⚠ Aviso de Testes
 
