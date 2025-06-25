@@ -37,7 +37,7 @@ DB_PASSWORD=$(openssl rand -hex 16)
 
 # Tokens (definir antes de executar)
 if [[ -z "$GITHUB_PERSONAL_ACCESS_TOKEN" ]]; then
-    export GITHUB_PERSONAL_ACCESS_TOKEN="ghp_H1MWEVFG8RIqYSKtmBQAk1XqA1cjyAFmL"
+    error "GITHUB_PERSONAL_ACCESS_TOKEN deve ser definido antes da execução"
 fi
 
 if [[ -z "$OPENAI_API_KEY" ]]; then

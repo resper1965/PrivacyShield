@@ -7,11 +7,11 @@ Execute apenas um comando no servidor para instalar tudo automaticamente:
 ### Comando Único (Copie e Cole)
 
 ```bash
-curl -H "Authorization: token ghp_H1MWEVFG8RIqYSKtmBQAk1XqA1cjyAFmL" \
+curl -H "Authorization: token SUA_CHAVE_GITHUB" \
   -s "https://api.github.com/repos/resper1965/PrivacyShield/contents/install-vps-simples.sh" | \
   grep '"content"' | cut -d'"' -f4 | base64 -d | \
-  GITHUB_PERSONAL_ACCESS_TOKEN="ghp_H1MWEVFG8RIqYSKtmBQAk1XqA1cjyAFmL" \
-  OPENAI_API_KEY="sua_chave_openai" \
+  GITHUB_PERSONAL_ACCESS_TOKEN="SUA_CHAVE_GITHUB" \
+  OPENAI_API_KEY="SUA_CHAVE_OPENAI" \
   bash
 ```
 
@@ -22,13 +22,13 @@ curl -H "Authorization: token ghp_H1MWEVFG8RIqYSKtmBQAk1XqA1cjyAFmL" \
 ssh root@monster.e-ness.com.br
 
 # 2. Baixar script
-curl -H "Authorization: token ghp_H1MWEVFG8RIqYSKtmBQAk1XqA1cjyAFmL" \
+curl -H "Authorization: token SUA_CHAVE_GITHUB" \
   -o install-vps-simples.sh \
   "https://api.github.com/repos/resper1965/PrivacyShield/contents/install-vps-simples.sh"
 
 # 3. Executar com tokens
-GITHUB_PERSONAL_ACCESS_TOKEN="ghp_H1MWEVFG8RIqYSKtmBQAk1XqA1cjyAFmL" \
-OPENAI_API_KEY="sua_chave_openai" \
+GITHUB_PERSONAL_ACCESS_TOKEN="SUA_CHAVE_GITHUB" \
+OPENAI_API_KEY="SUA_CHAVE_OPENAI" \
 bash install-vps-simples.sh
 ```
 
