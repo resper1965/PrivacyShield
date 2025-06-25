@@ -126,6 +126,7 @@ Sistema preparado para conviver com N8N e outros serviços no mesmo servidor, ca
 ## Changelog
 
 Recent Updates:
+- June 25, 2025: **Port Conflict Resolution Scripts Created** - Diagnosed Redis port 6379 conflict on VPS deployment. Created quick-fix-502.sh and fix-port-conflict.sh scripts to resolve Docker port conflicts by using alternative ports (PostgreSQL 5433, Redis 6380). Replit application running successfully, VPS deployment pending port fix execution.
 - June 25, 2025: **Complete Application Stack Operational** - N.Crisis fully operational on monster.e-ness.com.br with advanced server implementation including FAISS vector search, WebSocket support, AI chat endpoints, and comprehensive API services. Frontend build system ready, all containers healthy, complete monitoring and testing scripts deployed.
 - June 25, 2025: **VPS Deployment Successful** - N.Crisis successfully deployed on monster.e-ness.com.br with complete Docker containerization, PostgreSQL database, Redis cache, and Nginx reverse proxy. Application running healthy on port 5000 with external HTTP access confirmed. SSL configuration ready for HTTPS setup.
 - June 25, 2025: **Port Conflict Resolution** - Resolved Nginx port configuration issue where proxy was attempting to connect to port 8000 instead of 5000. Fixed with clean Nginx configuration and container restart. All services now operational.
