@@ -313,63 +313,20 @@ app.get('/api/v1/reports/detections', async (req: Request, res: Response): Promi
 
 // Serve React frontend
 const frontendPath = path.join(__dirname, '../frontend/dist');
+app.use(express.static(frontendPath));
 
-if (fs.existsSync(frontendPath)) {
-  app.use(express.static(frontendPath));
-  
-  app.get('*', (req: Request, res: Response): void => {
-    if (req.path.startsWith('/api/')) {
-      res.status(404).json({
-        error: 'API endpoint not found',
-        path: req.path,
-        timestamp: new Date().toISOString(),
-      });
-    } else {
-      res.sendFile(path.join(frontendPath, 'index.html'));
-    }
-  });
-} else {
-  app.get('/', (_req: Request, res: Response): void => {
-    res.status(200).json({
-      name: 'N.Crisis API',
-      version: '2.1.0',
-      description: 'PII Detection & LGPD Compliance Platform',
-      status: 'operational',
-      note: 'React frontend building...',
-      endpoints: {
-        health: '/health',
-        upload: '/api/v1/archives/upload',
-        detections: '/api/v1/reports/detections',
-      },
+// React Router - serve index.html for all non-API routes
+app.get('*', (req: Request, res: Response): void => {
+  if (req.path.startsWith('/api/')) {
+    res.status(404).json({
+      error: 'API endpoint not found',
+      path: req.path,
       timestamp: new Date().toISOString(),
     });
-  });
-
-  app.all('*', (req: Request, res: Response): void => {
-    if (req.path.startsWith('/api/')) {
-      res.status(404).json({
-        error: 'API endpoint not found',
-        path: req.path,
-        timestamp: new Date().toISOString(),
-      });
-    } else {
-      res.redirect('/');
-    }
-  });
-}
-
-// Legacy code removed to fix variable redeclaration
-
-// Try multiple frontend paths
-if (fs.existsSync(frontendBuildPath)) {
-  app.use(express.static(frontendBuildPath));
-} else if (fs.existsSync(frontendPath)) {
-  app.use(express.static(frontendPath));
-}
-
-// Frontend routes - serve dashboard for main routes
-app.get('/', (_req: Request, res: Response): void => {
-  res.send(`<!DOCTYPE html>
+  } else {
+    res.sendFile(path.join(frontendPath, 'index.html'));
+  }
+});
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
