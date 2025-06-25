@@ -26,14 +26,20 @@ export SENDGRID_API_KEY="SG.your_sendgrid_key"  # Opcional
 ```bash
 # Download e execução em uma linha
 curl -H "Authorization: token $GITHUB_PERSONAL_ACCESS_TOKEN" \
-  -sSL https://raw.githubusercontent.com/resper1965/PrivacyShield/main/scripts/install-vps-complete.sh | bash
+  -sSL https://raw.githubusercontent.com/resper1965/PrivacyShield/main/install-ncrisis.sh | bash
 
-# OU download separado
-wget --header="Authorization: token $GITHUB_PERSONAL_ACCESS_TOKEN" \
-  https://raw.githubusercontent.com/resper1965/PrivacyShield/main/scripts/install-vps-complete.sh
+# OU download separado para controle total
+curl -H "Authorization: token $GITHUB_PERSONAL_ACCESS_TOKEN" \
+  -o install-ncrisis.sh \
+  https://raw.githubusercontent.com/resper1965/PrivacyShield/main/install-ncrisis.sh
 
-chmod +x install-vps-complete.sh
-./install-vps-complete.sh
+chmod +x install-ncrisis.sh
+./install-ncrisis.sh
+
+# Opções avançadas:
+./install-ncrisis.sh --help                    # Ver todas as opções
+./install-ncrisis.sh --update --backup         # Atualizar com backup
+./install-ncrisis.sh --force --domain=meu.com  # Reinstalar com domínio customizado
 ```
 
 ### 3. Finalizar Configuração

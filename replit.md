@@ -109,6 +109,7 @@ Production deployment: All documentation and scripts updated for v2.1 with AI ca
 ## Changelog
 
 Recent Updates:
+- June 25, 2025: **Unified Installation Script Complete** - Criado script unificado install-ncrisis.sh com 1000+ linhas, tratamento robusto de erros, suporte a múltiplas distribuições Linux (Ubuntu/CentOS/RHEL), modo atualização integrado, testes abrangentes, monitoramento automatizado, backup automático e configuração completa de produção
 - June 25, 2025: **VPS Installation Documentation Complete** - Criada documentação completa de instalação VPS v2.1 com guias detalhados, script automatizado de produção, configurações avançadas de segurança, monitoramento e troubleshooting. Inclui instalação rápida e guia completo para Ubuntu 22.04 com todas as funcionalidades AI
 - June 25, 2025: **Frontend AI Integration Complete** - Implementadas todas as funcionalidades AI no frontend: página Search com interface ChatGPT, análise IA nos arquivos com score de risco, dashboard com indicadores AI, configurações completas de IA com estatísticas em tempo real. Sistema frontend+backend totalmente integrado
 - June 25, 2025: **Production Ready v2.1** - Sistema completo validado para produção com documentação atualizada, scripts de instalação v2.1, guias de deploy, checklist completo e validação automatizada. Todas as funcionalidades AI testadas e operacionais
