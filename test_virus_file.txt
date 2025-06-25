@@ -1,2 +1,0 @@
-Test file for virus detection simulation.
-This file will trigger mock virus detection.

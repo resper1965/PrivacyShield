@@ -2,17 +2,16 @@
 node_modules/
 */node_modules/
 
-# Production builds
+# Build outputs
 build/
 dist/
-frontend/dist/
+*.tsbuildinfo
 
 # Environment variables
 .env
 .env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.production
+.env.development
 
 # Logs
 logs/
@@ -33,10 +32,9 @@ coverage/
 *.lcov
 
 # nyc test coverage
-.nyc_output
+.nyc_output/
 
 # Dependency directories
-node_modules/
 jspm_packages/
 
 # TypeScript cache
@@ -48,12 +46,6 @@ jspm_packages/
 # Optional eslint cache
 .eslintcache
 
-# Microbundle cache
-.rpt2_cache/
-.rts2_cache_cjs/
-.rts2_cache_es/
-.rts2_cache_umd/
-
 # Optional REPL history
 .node_repl_history
 
@@ -63,40 +55,51 @@ jspm_packages/
 # Yarn Integrity file
 .yarn-integrity
 
-# dotenv environment variables file
-.env
-.env.test
-
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 .parcel-cache
 
-# Next.js build output
+# next.js build output
 .next
 
-# Nuxt.js build / generate output
+# nuxt.js build output
 .nuxt
 
-# Gatsby files
-.cache/
-public
+# vuepress build output
+.vuepress/dist
 
-# Storybook build outputs
-.out
-.storybook-out
+# Serverless directories
+.serverless/
 
-# Temporary folders
+# FuseBox cache
+.fusebox/
+
+# DynamoDB Local files
+.dynamodb/
+
+# TernJS port file
+.tern-port
+
+# Application specific
+uploads/
 tmp/
-temp/
+data/
+*.sql
+detections.json
+backup-*
+*.zip
+infected_*
+virus_*
+test_*
 
-# IDE and editor files
+# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 
-# OS generated files
+# OS
 .DS_Store
 .DS_Store?
 ._*
@@ -105,30 +108,13 @@ temp/
 ehthumbs.db
 Thumbs.db
 
-# Application specific
-uploads/
-!uploads/.gitkeep
-local_files/
-!local_files/.gitkeep
-shared_folders/
-!shared_folders/.gitkeep
-
-# Database files
-*.sqlite
-*.db
-
-# Replit specific
-.replit
-replit.nix
+# SSL certificates
+*.pem
+*.key
+*.crt
 
 # Docker
 .dockerignore
 
-# Test files with sensitive data
-infected_*.zip
-virus_*.zip
-test_*.zip
-*.infected
-
-# Detection results
-detections.json
+# Prisma
+prisma/migrations/

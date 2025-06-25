@@ -1,3 +1,0 @@
-This file contains virus patterns for testing.
-File includes virus keywords that should trigger detection.
-Content: malware detected in system files.
