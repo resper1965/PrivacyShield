@@ -10,6 +10,7 @@ import { ArchiveJobData, FileJobData, addFileJob } from '../services/queue';
 import { extractZipFiles, validateZipFile } from '../services/zipService';
 import { logger } from '../utils/logger';
 import { env } from '../config/env';
+import { triggerN8nIncident } from '../services/n8nService';
 
 const prisma = new PrismaClient();
 
@@ -82,6 +83,19 @@ export const archiveWorker = new Worker<ArchiveJobData>(
         logger.warn(`Failed to cleanup ZIP file: ${zipPath}`, cleanupError);
       }
 
+      // Step 6: Trigger n8n incident workflow after successful processing
+      try {
+        const webhookResult = await triggerN8nIncident(fileRecord.id.toString());
+        if (webhookResult.success) {
+          logger.info(`N8N incident workflow triggered for file ${fileRecord.id}`);
+        } else {
+          logger.warn(`Failed to trigger N8N workflow: ${webhookResult.error}`);
+        }
+      } catch (webhookError) {
+        // Don't fail the entire job if webhook fails
+        logger.error(`N8N webhook error for file ${fileRecord.id}:`, webhookError);
+      }
+
       return {
         fileId: fileRecord.id,
         totalFiles: extractionResult.totalFiles,
@@ -91,6 +105,7 @@ export const archiveWorker = new Worker<ArchiveJobData>(
           totalCompressedSize: extractionResult.totalCompressedSize,
           overallCompressionRatio: extractionResult.overallCompressionRatio,
         },
+        n8nTriggered: true,
       };
       
     } catch (error) {

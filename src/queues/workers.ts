@@ -10,6 +10,7 @@ import { extractZipFiles } from '../zipExtractor';
 import { detectPIIInText } from '../services/processor';
 import { piiRepository } from '../repository';
 import { virusScanner } from '../virusScanner';
+import { triggerN8nIncident } from '../services/n8nService';
 import * as fs from 'fs-extra';
 
 // Worker options
@@ -75,6 +76,19 @@ export const archiveWorker = new Worker<ArchiveJobData>(
       
       console.log(`✅ Archive processed: ${originalName} - ${extractionResult.totalFiles} files queued`);
       
+      // Step 5: Trigger n8n incident workflow after successful processing
+      try {
+        const webhookResult = await triggerN8nIncident(fileRecord.id.toString());
+        if (webhookResult.success) {
+          console.log(`🔗 N8N incident workflow triggered for file ${fileRecord.id}`);
+        } else {
+          console.warn(`⚠️ Failed to trigger N8N workflow: ${webhookResult.error}`);
+        }
+      } catch (webhookError) {
+        // Don't fail the entire job if webhook fails
+        console.error(`❌ N8N webhook error for file ${fileRecord.id}:`, webhookError);
+      }
+      
       return {
         fileId: fileRecord.id,
         totalFiles: extractionResult.totalFiles,
@@ -85,6 +99,7 @@ export const archiveWorker = new Worker<ArchiveJobData>(
           totalCompressedSize: extractionResult.totalCompressedSize,
           overallCompressionRatio: extractionResult.overallCompressionRatio,
         },
+        n8nTriggered: true,
       };
       
     } catch (error) {
