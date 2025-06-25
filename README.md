@@ -19,14 +19,19 @@ N.Crisis é uma plataforma avançada de detecção de dados pessoais (PII) e con
 
 ## Instalação Rápida
 
-### Comando Único (Root)
+### Comando Único (Root) - Recomendado
 ```bash
 wget -O install.sh https://raw.githubusercontent.com/resper1965/PrivacyShield/main/scripts/install-root.sh && chmod +x install.sh && ./install.sh seudominio.com
 ```
 
-### Comando Único (Usuário)
+### Se a Aplicação Não Iniciar
 ```bash
-wget -O install.sh https://raw.githubusercontent.com/resper1965/PrivacyShield/main/scripts/install-completo.sh && chmod +x install.sh && ./install.sh seudominio.com
+wget -O fix.sh https://raw.githubusercontent.com/resper1965/PrivacyShield/main/scripts/fix-vps-deployment.sh && chmod +x fix.sh && ./fix.sh
+```
+
+### Verificar Status
+```bash
+wget -O status.sh https://raw.githubusercontent.com/resper1965/PrivacyShield/main/scripts/vps-quick-status.sh && chmod +x status.sh && ./status.sh
 ```
 
 ## Requisitos
@@ -174,8 +179,33 @@ Este projeto está licenciado sob a MIT License - veja o arquivo [LICENSE](LICEN
 ## Suporte
 
 - **Documentação**: `/docs`
+- **Troubleshooting**: [VPS_TROUBLESHOOTING.md](docs/VPS_TROUBLESHOOTING.md)
 - **Issues**: GitHub Issues
 - **Logs**: `/var/log/ncrisis-install.log`
+
+## Solução de Problemas VPS
+
+Se a aplicação não estiver funcionando após a instalação:
+
+1. **Diagnóstico Rápido**:
+   ```bash
+   cd /opt/ncrisis && ./vps-quick-status.sh
+   ```
+
+2. **Correção Automática**:
+   ```bash
+   cd /opt/ncrisis && ./fix-vps-deployment.sh
+   ```
+
+3. **Verificar Logs**:
+   ```bash
+   journalctl -u ncrisis -f
+   ```
+
+4. **Reiniciar Manualmente**:
+   ```bash
+   systemctl restart ncrisis
+   ```
 
 ## Roadmap
 

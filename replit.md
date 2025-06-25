@@ -151,6 +151,7 @@ Sistema preparado para conviver com N8N e outros serviços no mesmo servidor, ca
 ## Changelog
 
 Recent Updates:
+- June 25, 2025: **VPS Deployment Troubleshooting Tools** - Criados scripts fix-vps-deployment.sh e vps-quick-status.sh para resolver problemas na VPS monster.e-ness.com.br. Guia de troubleshooting completo adicionado com soluções para Nginx, systemd, PostgreSQL e permissões.
 - June 25, 2025: **Limpeza Profunda do Repositório** - Reorganizada estrutura completa: scripts movidos para /scripts/, documentação para /docs/, removidos arquivos temporários e duplicados. README.md principal criado, .gitignore configurado. Reduzido de 63 para ~15 arquivos na raiz.
 - June 25, 2025: **Instalação Limpa Automatizada** - Criados scripts cleanup-environment.sh e install-fresh.sh para instalação completamente limpa do N.Crisis. Processo automatizado remove ambiente atual e instala versão nova em 15-20 minutos com PostgreSQL, Redis, Nginx, SSL e systemd configurados automaticamente.
 - June 25, 2025: **Production Deployment Scripts Created** - Criados scripts automatizados para deploy em VPS (deploy-vps.sh) e Docker (deploy-docker.sh) com SSL automático, Nginx otimizado, PostgreSQL, Redis, firewall, monitoramento e gerenciamento completo. Inclui manage.sh para operações (start/stop/logs/backup/ssl).

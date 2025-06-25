@@ -1,0 +1,106 @@
+ Domínio: monster.e-ness.com.br
+👤 Usuário: ncrisis
+📋 Log: /var/log/ncrisis-install.log
+
+[22:39:34] 🚀 Iniciando instalação completa N.Crisis como root
+[22:39:34] ✅ Usuário ncrisis já existe
+[22:39:34] 🧹 ETAPA 1: Limpeza do ambiente atual
+2025/06/25 22:39:35 [emerg] 392791#392791: open() "/etc/nginx/sites-enabled/default" failed (2: No such file or directory) in /etc/nginx/nginx.conf:60
+nginx: configuration file /etc/nginx/nginx.conf test failed
+[22:39:35] ✅ Limpeza concluída
+[22:39:35] 📦 ETAPA 2: Instalação do sistema base
+[22:39:35] Atualizando Ubuntu...
+[22:39:51] Instalando Node.js 20...
+[22:39:58] ✅ Node.js instalado: v20.19.3
+[22:39:58] Instalando PostgreSQL...
+Synchronizing state of postgresql.service with SysV service script with /usr/lib/systemd/systemd-sysv-install.
+Executing: /usr/lib/systemd/systemd-sysv-install enable postgresql
+sh: 0: getcwd() failed: No such file or directory
+Created symlink /etc/systemd/system/multi-user.target.wants/postgresql.service → /usr/lib/systemd/system/postgresql.service.
+[22:40:02] Instalando Redis...
+Synchronizing state of redis-server.service with SysV service script with /usr/lib/systemd/systemd-sysv-install.
+Executing: /usr/lib/systemd/systemd-sysv-install enable redis-server
+sh: 0: getcwd() failed: No such file or directory
+[22:40:05] Instalando Nginx...
+Synchronizing state of nginx.service with SysV service script with /usr/lib/systemd/systemd-sysv-install.
+Executing: /usr/lib/systemd/systemd-sysv-install enable nginx
+sh: 0: getcwd() failed: No such file or directory
+[22:40:07] Instalando Certbot...
+[22:40:08] ✅ Sistema base instalado
+[22:40:08] 🗄️  ETAPA 3: Configurando banco de dados
+[22:40:08] ✅ Banco configurado
+[22:40:08] 📦 ETAPA 4: Instalando N.Crisis
+[22:40:09] Instalando dependências...
+[22:40:31] Criando configuração...
+[22:40:31] ✅ N.Crisis instalado
+[22:40:31] 🌐 ETAPA 5: Configurando Nginx
+2025/06/25 22:40:31 [emerg] 395096#395096: "limit_req_zone" directive is not allowed here in /etc/nginx/sites-enabled/monster.e-ness.com.br:12
+nginx: configuration file /etc/nginx/nginx.conf test failed
+[22:40:31] ✅ Nginx configurado
+[22:40:31] ⚙️  ETAPA 6: Criando serviço systemd
+Created symlink /etc/systemd/system/multi-user.target.wants/ncrisis.service → /etc/systemd/system/ncrisis.service.
+[22:40:32] ✅ Serviço criado
+[22:40:32] 🔥 ETAPA 7: Configurando firewall
+[22:40:32] ✅ Firewall configurado
+[22:40:32] 🔒 ETAPA 8: Configurando SSL
+[AVISO] Configure SSL manualmente depois
+[22:40:33] 🚀 ETAPA 9: Iniciando aplicação
+[22:40:48] 🔍 Verificação final...
+
+==================================
+✅ N.Crisis Instalação Completa
+==================================
+
+🌐 URLs:
+   Aplicação: https://monster.e-ness.com.br
+   Health: https://monster.e-ness.com.br/health
+
+📊 Status dos Serviços:
+active
+   ✅ PostgreSQL: Ativo
+active
+   ✅ Redis: Ativo
+active
+   ✅ Nginx: Ativo
+activating
+   ❌ N.Crisis: Inativo
+
+🛠️ Gerenciamento:
+   cd /opt/ncrisis
+   ./manage.sh status
+   ./manage.sh logs
+   ./manage.sh restart
+
+⚠️ IMPORTANTE: Configure suas API keys:
+   nano /opt/ncrisis/.env
+   systemctl restart ncrisis
+
+🔐 Credenciais do banco (salve em local seguro):
+   Database: ncrisis
+   User: ncrisis
+   Password: Vk7yTXpTuI4DqtcwfAiB4O2ry
+   Redis Password: mSSM36aywmQ1qPdKnT8GiJf5x
+
+👤 Usuário da aplicação: ncrisis
+📋 Log completo: /var/log/ncrisis-install.log
+
+[AVISO] Aplicação ainda inicializando... Aguarde alguns minutos
+[22:40:53] 🎉 Instalação concluída com sucesso!
+
+🚀 Para executar comandos de gerenciamento:
+   cd /opt/ncrisis && ./manage.sh status
+root@monster:/opt/ncrisis# cd /opt/ncrisis
+./manage.sh status  # Ver status
+nano .env           # Configurar API keys
+systemctl restart ncrisis  # Aplicar mudanças
+📊 Status dos Serviços:
+active
+   ✅ PostgreSQL: Ativo
+active
+   ✅ Redis: Ativo
+active
+   ✅ Nginx: Ativo
+activating
+   ❌ N.Crisis: Inativo
+
+root@monster:/opt/ncrisis# 
