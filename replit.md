@@ -104,6 +104,7 @@ Preferred communication style: Simple, everyday language.
 Brand identity: "n.crisis" with Montserrat font, white/black text with blue dot (#00ade0).
 User prefers simple, direct layouts without overcomplication. Focus on functionality over complex design systems.
 Installation directory: `/opt/ncrisis` - standardized across all scripts and documentation.
+Production deployment: All documentation and scripts updated for v2.1 with AI capabilities (OpenAI, FAISS, semantic chat).
 
 ## Changelog
 
