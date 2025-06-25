@@ -22,6 +22,7 @@ import { initializeWebSocketService, getWebSocketService } from './services/webs
 import { Server } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 import n8nRouter from './routes/n8n';
+import embeddingsRouter from './routes/embeddings';
 
 const app: Application = express();
 const server = new Server(app);
@@ -270,6 +271,9 @@ app.post('/api/v1/archives/upload', upload.single('file'), async (req: Request, 
 // Detections endpoint
 // N8N Integration Routes
 app.use('/', n8nRouter);
+
+// Embeddings API Routes
+app.use('/', embeddingsRouter);
 
 app.get('/api/v1/reports/detections', async (req: Request, res: Response): Promise<void> => {
   try {

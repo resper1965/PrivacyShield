@@ -126,3 +126,14 @@ model Incident {
 
   @@map("incidents")
 }
+
+model TextEmbedding {
+  id        Int      @id @default(autoincrement())
+  text      String   @db.Text
+  vector    Float[]
+  hash      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("text_embeddings")
+}

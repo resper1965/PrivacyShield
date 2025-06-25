@@ -3,12 +3,10 @@
   "version": "1.0.0",
   "main": ".eslintrc.js",
   "scripts": {
-
     "test": "jest",
     "dev": "ts-node src/server-simple.ts",
     "build": "tsc",
     "start": "node build/src/server-simple.js"
-
   },
   "keywords": [],
   "author": "",
@@ -88,8 +86,8 @@
     "zod": "^3.25.67"
   },
   "devDependencies": {
+    "@types/jest": "^30.0.0",
     "jest": "^30.0.2",
-    "ts-jest": "^29.4.0",
-    "@types/jest": "^30.0.0"
+    "ts-jest": "^29.4.0"
   }
 }
