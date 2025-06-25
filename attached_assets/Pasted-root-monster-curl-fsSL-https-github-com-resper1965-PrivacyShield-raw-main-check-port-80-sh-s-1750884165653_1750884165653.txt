@@ -1,0 +1,124 @@
+root@monster:~# curl -fsSL https://github.com/resper1965/PrivacyShield/raw/main/check-port-80.sh | sudo bash
+=== DIAGNÓSTICO PORTA 80 ===
+1. Verificando quem está usando a porta 80...
+tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN      351830/nginx: maste 
+tcp6       0      0 :::80                   :::*                    LISTEN      351830/nginx: maste 
+
+2. Processos que podem usar porta 80...
+root      351830  0.0  0.0  31636  1732 ?        Ss   20:09   0:00 nginx: master process /usr/sbin/nginx -g daemon on; master_process on;
+www-data  351831  0.0  0.0  33304  5188 ?        S    20:09   0:00 nginx: worker process
+www-data  351832  0.0  0.0  33304  4932 ?        S    20:09   0:00 nginx: worker process
+
+3. Serviços ativos que podem conflitar...
+  nginx.service                                                                                             loaded active running   A high performance web server and a reverse proxy server
+
+4. Verificando se Apache está instalado e ativo...
+Apache2 não encontrado
+HTTPD não encontrado
+
+5. Status do Nginx...
+Nginx instalado: nginx version: nginx/1.24.0 (Ubuntu)
+Status: active
+Configuração:
+limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
+limit_req_zone $binary_remote_addr zone=upload:10m rate=1r/s;
+
+# configuration file /etc/nginx/sites-enabled/ncrisis:
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name monster.e-ness.com.br _;
+    client_max_body_size 100M;
+    
+    # Bloquear arquivos perigosos
+    location ~ /\.(env|git|htaccess) {
+
+6. Verificando configurações de site...
+Sites habilitados no Nginx:
+total 8
+drwxr-xr-x 2 root root 4096 Jun 25 20:09 .
+drwxr-xr-x 8 root root 4096 Jun 25 19:51 ..
+lrwxrwxrwx 1 root root   34 Jun 25 20:09 ncrisis -> /etc/nginx/sites-available/ncrisis
+
+=== ncrisis ===
+2:    listen 80 default_server;
+3:    listen [::]:80 default_server;
+
+7. Testando bind na porta 80...
+❌ Porta 80 ocupada: [Errno 98] Address already in use
+Teste de bind executado
+
+8. Firewall e iptables...
+UFW status:
+Status: active
+
+To                         Action      From
+--                         ------      ----
+22/tcp                     ALLOW       Anywhere                  
+80/tcp                     ALLOW       Anywhere                  
+443/tcp                    ALLOW       Anywhere                  
+8000/tcp                   ALLOW       Anywhere                  
+5000/tcp                   ALLOW       Anywhere                  
+Nginx Full                 ALLOW       Anywhere                  
+22/tcp (v6)                ALLOW       Anywhere (v6)             
+80/tcp (v6)                ALLOW       Anywhere (v6)             
+443/tcp (v6)               ALLOW       Anywhere (v6)             
+8000/tcp (v6)              ALLOW       Anywhere (v6)             
+5000/tcp (v6)              ALLOW       Anywhere (v6)             
+Nginx Full (v6)            ALLOW       Anywhere (v6)             
+
+Regras iptables relevantes:
+Nenhuma regra específica para porta 80
+
+=== SOLUÇÕES SUGERIDAS ===
+❌ PORTA 80 OCUPADA
+
+Soluções:
+1. Parar Apache (se ativo):
+   systemctl stop apache2
+   systemctl disable apache2
+
+2. Usar porta alternativa para N.Crisis:
+   Editar /etc/nginx/sites-available/ncrisis
+   Trocar 'listen 80' por 'listen 8080'
+
+3. Forçar liberação da porta 80:
+   fuser -k 80/tcp
+   systemctl restart nginx
+root@monster:~# fuser -k 80/tcp
+   systemctl restart nginx
+80/tcp:              351830 351831 351832
+root@monster:~# curl -fsSL https://github.com/resper1965/PrivacyShield/raw/main/fix-port-conflict.sh | sudo bash
+=== RESOLVENDO CONFLITOS PORTA 80 ===
+1. Parando todos os serviços web...
+2. Matando processos na porta 80...
+3. Verificando se porta 80 está livre...
+4. Desabilitando Apache permanentemente...
+5. Reconfigurando Nginx do zero...
+6. Verificando aplicação N.Crisis...
+Status dos containers:
+NAME               IMAGE                COMMAND                  SERVICE    CREATED          STATUS                    PORTS
+ncrisis-app        ncrisis-app          "docker-entrypoint.s…"   app        53 minutes ago   Up 53 minutes (healthy)   0.0.0.0:5000->5000/tcp
+ncrisis-postgres   postgres:15-alpine   "docker-entrypoint.s…"   postgres   53 minutes ago   Up 53 minutes (healthy)   5432/tcp
+ncrisis-redis      redis:7-alpine       "docker-entrypoint.s…"   redis      53 minutes ago   Up 53 minutes (healthy)   6379/tcp
+7. Testando configuração e iniciando Nginx...
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+✅ Configuração Nginx válida
+Synchronizing state of nginx.service with SysV service script with /usr/lib/systemd/systemd-sysv-install.
+Executing: /usr/lib/systemd/systemd-sysv-install enable nginx
+8. Teste final completo...
+App local (5000): OK
+Proxy local (80): OK
+Acesso externo:   OK
+
+Status final:
+Nginx: active
+Porta 80: aberta
+Porta 5000: aberta
+
+Se ainda não funcionar:
+  tail -f /var/log/nginx/ncrisis.error.log
+  cd /opt/ncrisis && docker compose logs app -f
+=== CORREÇÃO DE CONFLITOS CONCLUÍDA ===
+root@monster:~# 
