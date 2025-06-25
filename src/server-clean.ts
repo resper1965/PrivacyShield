@@ -386,11 +386,11 @@ async function startServer(): Promise<void> {
       console.warn('FAISS initialization failed:', error);
     }
 
-    server.listen(env.PORT, env.HOST, () => {
-      console.log(`N.Crisis server running on http://${env.HOST}:${env.PORT}`);
+    server.listen(env.PORT, '0.0.0.0', () => {
+      console.log(`N.Crisis server running on http://0.0.0.0:${env.PORT}`);
       console.log(`Environment: ${env.NODE_ENV}`);
-      console.log(`Health check: http://${env.HOST}:${env.PORT}/health`);
-      console.log(`WebSocket: http://${env.HOST}:${env.PORT}/socket.io`);
+      console.log(`Health check: http://0.0.0.0:${env.PORT}/health`);
+      console.log(`WebSocket: http://0.0.0.0:${env.PORT}/socket.io`);
     });
 
   } catch (error) {

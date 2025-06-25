@@ -327,24 +327,34 @@ app.get('*', (req: Request, res: Response): void => {
     res.sendFile(path.join(frontendPath, 'index.html'));
   }
 });
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>N.Crisis - PII Detection Platform</title>
-    <style>
-        :root {
-            --bg-primary: #0D1B2A;
-            --bg-secondary: #112240;
-            --bg-card: #1e293b;
-            --border: #374151;
-            --text-primary: #E0E1E6;
-            --text-secondary: #A5A8B1;
-            --accent: #00ade0;
-            --success: #10b981;
-        }
-        
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+// Error handling middleware
+app.use((error: Error, _req: Request, res: Response, _next: NextFunction): void => {
+  console.error('Server Error:', error);
+  res.status(500).json({
+    error: 'Internal server error',
+    message: process.env.NODE_ENV === 'development' ? error.message : 'Something went wrong',
+    timestamp: new Date().toISOString(),
+  });
+});
+
+async function startServer(): Promise<void> {
+  try {
+    const PORT = process.env.PORT || 5000;
+    const HOST = process.env.HOST || '0.0.0.0';
+    
+    app.listen(PORT, HOST, () => {
+      console.log(`🚀 N.Crisis Server running on http://${HOST}:${PORT}`);
+      console.log(`📊 Health check: http://${HOST}:${PORT}/health`);
+      console.log(`🔍 Queue status: http://${HOST}:${PORT}/api/queue/status`);
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
+}
+
+startServer();
         
         body {
             font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
