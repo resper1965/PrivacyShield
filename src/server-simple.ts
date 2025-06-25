@@ -311,9 +311,54 @@ app.get('/api/v1/reports/detections', async (req: Request, res: Response): Promi
   }
 });
 
-// Serve static files from frontend build
-const frontendPath = path.join(__dirname, '../dist');
-const frontendBuildPath = path.join(__dirname, '../frontend/dist');
+// Serve React frontend
+const frontendPath = path.join(__dirname, '../frontend/dist');
+
+if (fs.existsSync(frontendPath)) {
+  app.use(express.static(frontendPath));
+  
+  app.get('*', (req: Request, res: Response): void => {
+    if (req.path.startsWith('/api/')) {
+      res.status(404).json({
+        error: 'API endpoint not found',
+        path: req.path,
+        timestamp: new Date().toISOString(),
+      });
+    } else {
+      res.sendFile(path.join(frontendPath, 'index.html'));
+    }
+  });
+} else {
+  app.get('/', (_req: Request, res: Response): void => {
+    res.status(200).json({
+      name: 'N.Crisis API',
+      version: '2.1.0',
+      description: 'PII Detection & LGPD Compliance Platform',
+      status: 'operational',
+      note: 'React frontend building...',
+      endpoints: {
+        health: '/health',
+        upload: '/api/v1/archives/upload',
+        detections: '/api/v1/reports/detections',
+      },
+      timestamp: new Date().toISOString(),
+    });
+  });
+
+  app.all('*', (req: Request, res: Response): void => {
+    if (req.path.startsWith('/api/')) {
+      res.status(404).json({
+        error: 'API endpoint not found',
+        path: req.path,
+        timestamp: new Date().toISOString(),
+      });
+    } else {
+      res.redirect('/');
+    }
+  });
+}
+
+// Legacy code removed to fix variable redeclaration
 
 // Try multiple frontend paths
 if (fs.existsSync(frontendBuildPath)) {
@@ -323,7 +368,7 @@ if (fs.existsSync(frontendBuildPath)) {
 }
 
 // Frontend routes - serve dashboard for main routes
-app.get('/', (req: Request, res: Response): void => {
+app.get('/', (_req: Request, res: Response): void => {
   res.send(`<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -853,27 +898,27 @@ app.get('/', (req: Request, res: Response): void => {
 });
 
 // Dashboard routes
-app.get('/dashboard', (req: Request, res: Response): void => {
+app.get('/dashboard', (_req: Request, res: Response): void => {
   res.redirect('/');
 });
 
-app.get('/upload', (req: Request, res: Response): void => {
+app.get('/upload', (_req: Request, res: Response): void => {
   res.redirect('/#upload');
 });
 
-app.get('/detections', (req: Request, res: Response): void => {
+app.get('/detections', (_req: Request, res: Response): void => {
   res.redirect('/#detections');
 });
 
-app.get('/reports', (req: Request, res: Response): void => {
+app.get('/reports', (_req: Request, res: Response): void => {
   res.redirect('/#reports');
 });
 
-app.get('/search', (req: Request, res: Response): void => {
+app.get('/search', (_req: Request, res: Response): void => {
   res.redirect('/#search');
 });
 
-app.get('/settings', (req: Request, res: Response): void => {
+app.get('/settings', (_req: Request, res: Response): void => {
   res.redirect('/#settings');
 });
 
