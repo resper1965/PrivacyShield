@@ -1,0 +1,36 @@
+he following packages have unmet dependencies:
+ nodejs : Conflicts: npm
+ npm : Depends: node-agent-base but it is not going to be installed
+       Depends: node-archy but it is not going to be installed
+       Depends: node-cacache (>= 17) but it is not going to be installed
+       Depends: node-chalk (>= 5.1.2-2~) but it is not going to be installed
+       Depends: node-cli-table3
+       Depends: node-columnify but it is not going to be installed
+       Depends: node-cssesc
+       Depends: node-debug but it is not going to be installed
+       Depends: node-emoji-regex
+       Depends: node-gyp but it is not going to be installed
+       Depends: node-http-proxy-agent but it is not going to be installed
+       Depends: node-https-proxy-agent but it is not going to be installed
+       Depends: node-mkdirp but it is not going to be installed
+       Depends: node-ms but it is not going to be installed
+       Depends: node-nopt but it is not going to be installed
+       Depends: node-normalize-package-data but it is not going to be installed
+       Depends: node-npm-bundled but it is not going to be installed
+       Depends: node-npm-normalize-package-bin
+       Depends: node-npm-package-arg (>= 10) but it is not going to be installed
+       Depends: node-npmlog but it is not going to be installed
+       Depends: node-postcss-selector-parser
+       Depends: node-read-package-json but it is not going to be installed
+       Depends: node-rimraf but it is not going to be installed
+       Depends: node-semver but it is not going to be installed
+       Depends: node-string-width but it is not going to be installed
+       Depends: node-strip-ansi but it is not going to be installed
+       Depends: node-tar but it is not going to be installed
+       Depends: node-validate-npm-package-name but it is not going to be installed
+       Depends: node-which but it is not going to be installed
+       Depends: nodejs:any
+       Recommends: node-tap but it is not going to be installed
+sh: 0: getcwd() failed: No such file or directory
+E: Unable to correct problems, you have held broken packages.
+root@monster:~# 
