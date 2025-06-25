@@ -29,6 +29,10 @@ waitForPort = 5000
 run = ["sh", "-c", "npm install express cors helmet compression @types/express @types/cors @types/helmet @types/compression typescript ts-node @typescript-eslint/parser @typescript-eslint/eslint-plugin eslint prettier eslint-config-prettier eslint-plugin-prettier"]
 
 [[ports]]
+localPort = 80
+externalPort = 3001
+
+[[ports]]
 localPort = 5000
 externalPort = 5000
 
