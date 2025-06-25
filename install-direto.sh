@@ -76,8 +76,19 @@ cd "$INSTALL_DIR"
 git clone "$REPO_URL" .
 
 log "Instalando dependências da aplicação..."
-npm ci --only=production
-cd frontend && npm ci --only=production && npm run build && cd ..
+
+# Backend - gerar package-lock.json primeiro
+npm install --package-lock-only
+npm ci --omit=dev --no-audit --no-fund
+
+# Frontend 
+cd frontend
+npm install --package-lock-only
+npm ci --omit=dev --no-audit --no-fund
+npm run build
+cd ..
+
+# Build backend
 npm run build
 
 log "Configurando ambiente..."
