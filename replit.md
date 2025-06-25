@@ -109,6 +109,7 @@ Production deployment: All documentation and scripts updated for v2.1 with AI ca
 ## Changelog
 
 Recent Updates:
+- June 25, 2025: **Instalação VPS Simplificada** - Criado install-vps-simples.sh com instalação completamente automatizada em comando único. Script de 200+ linhas instala todo o ambiente (Node.js, PostgreSQL, Redis, ClamAV, Nginx, SSL) e compila aplicação sem interação manual. Tempo: 15-20 minutos para VPS completa
 - June 25, 2025: **Token GitHub Fix** - Corrigido problema de reconhecimento do GITHUB_PERSONAL_ACCESS_TOKEN no install-ncrisis.sh. Script agora carrega variáveis de ambiente persistentes e permite execução com sudo -E. Comando direto criado: `GITHUB_PERSONAL_ACCESS_TOKEN="token" sudo -E ./install-ncrisis.sh`
 - June 25, 2025: **APT Sources Fixed** - Corrigido problema definitivo de repositórios APT duplicados no VPS Ubuntu com script fix-apt-sources.sh e integração automática no install-ncrisis.sh. Comando one-liner criado para correção imediata dos warnings "Target ... is configured multiple times"
 - June 25, 2025: **Documentation Unified** - Consolidada toda documentação VPS em arquivos únicos: INSTALACAO_VPS_COMPLETA.md (guia detalhado) e COMANDO_INSTALACAO_VPS.md (comando one-liner). Removidos arquivos duplicados, mantido apenas install-ncrisis.sh como script principal
