@@ -2,6 +2,9 @@
   "name": "workspace",
   "version": "1.0.0",
   "main": ".eslintrc.js",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
 
     "test": "jest",
