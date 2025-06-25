@@ -6,9 +6,10 @@ interface AppLayoutProps {
 }
 
 const menuItems = [
-  { path: '/dashboard', label: 'Dashboard' },
+  { path: '/', label: 'Dashboard' },
   { path: '/casos', label: 'Casos' },
   { path: '/arquivos', label: 'Arquivos' },
+  { path: '/busca-ia', label: 'Busca IA' },
   { path: '/relatorio', label: 'Relatório' },
   { path: '/configuracao', label: 'Configuração' },
 ];

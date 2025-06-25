@@ -8,6 +8,7 @@ import TelaArquivos from './pages/TelaArquivos';
 import TelaAnalise from './pages/TelaAnalise';
 import TelaRelatorios from './pages/TelaRelatorios';
 import TelaConfiguracoes from './pages/TelaConfiguracoes';
+import Search from './pages/Search';
 import { WebSocketProvider } from './hooks/useWebSocket';
 
 // Create a client
@@ -33,6 +34,7 @@ function App() {
               <Route path="/incidents" element={<TelaCadastroCaso />} />
               <Route path="/arquivos" element={<TelaArquivos />} />
               <Route path="/analise" element={<TelaAnalise />} />
+              <Route path="/busca-ia" element={<Search />} />
               <Route path="/relatorio" element={<TelaRelatorios />} />
               <Route path="/configuracao" element={<TelaConfiguracoes />} />
             </Routes>
