@@ -34,7 +34,18 @@ sudo git clone "https://$GITHUB_PERSONAL_ACCESS_TOKEN@github.com/resper1965/Priv
 sudo chmod +x install-ncrisis.sh && sudo ./install-ncrisis.sh
 ```
 
-### Script de Correção Automática
+### Script de Correção APT (Se houver warnings)
+
+```bash
+# Corrigir repositórios duplicados
+curl -H "Authorization: token $GITHUB_PERSONAL_ACCESS_TOKEN" \
+  -s "https://api.github.com/repos/resper1965/PrivacyShield/contents/fix-apt-sources.sh" | \
+  grep '"content"' | cut -d'"' -f4 | base64 -d > fix-apt-sources.sh
+
+chmod +x fix-apt-sources.sh && sudo ./fix-apt-sources.sh
+```
+
+### Script de Correção Instalação
 
 ```bash
 # Download do script corretor
@@ -303,9 +314,9 @@ cat /opt/ncrisis/.env
 
 ## 📝 Comandos Testados para VPS Zerada
 
-**Comando de Correção (Para Diretório Existente):**
+**Comando Completo com Correção APT:**
 ```bash
-export GITHUB_PERSONAL_ACCESS_TOKEN="seu_token" && export OPENAI_API_KEY="sua_chave" && curl -H "Authorization: token $GITHUB_PERSONAL_ACCESS_TOKEN" -s "https://api.github.com/repos/resper1965/PrivacyShield/contents/fix-vps-install.sh" | grep '"content"' | cut -d'"' -f4 | base64 -d | sudo bash && cd /opt/ncrisis && sudo ./install-ncrisis.sh
+export GITHUB_PERSONAL_ACCESS_TOKEN="ghp_H1MWEVFG8RIqYSKtmBQAk1XqA1cjyAFmL" && export OPENAI_API_KEY="sua_chave" && sudo rm -f /etc/apt/sources.list.d/ubuntu-mirrors.list && sudo rm -rf /var/lib/apt/lists/* && sudo apt clean && sudo apt update && cd /opt/ncrisis && sudo ./install-ncrisis.sh
 ```
 
 **Comando Manual (Alternativo):**

@@ -109,6 +109,7 @@ Production deployment: All documentation and scripts updated for v2.1 with AI ca
 ## Changelog
 
 Recent Updates:
+- June 25, 2025: **APT Sources Fixed** - Corrigido problema definitivo de repositórios APT duplicados no VPS Ubuntu com script fix-apt-sources.sh e integração automática no install-ncrisis.sh. Comando one-liner criado para correção imediata dos warnings "Target ... is configured multiple times"
 - June 25, 2025: **Documentation Unified** - Consolidada toda documentação VPS em arquivos únicos: INSTALACAO_VPS_COMPLETA.md (guia detalhado) e COMANDO_INSTALACAO_VPS.md (comando one-liner). Removidos arquivos duplicados, mantido apenas install-ncrisis.sh como script principal
 - June 25, 2025: **Unified Installation Script Complete** - Criado script unificado install-ncrisis.sh com 1000+ linhas, tratamento robusto de erros, suporte a múltiplas distribuições Linux (Ubuntu/CentOS/RHEL), modo atualização integrado, testes abrangentes, monitoramento automatizado, backup automático e configuração completa de produção
 - June 25, 2025: **VPS Installation Documentation Complete** - Criada documentação completa de instalação VPS v2.1 com guias detalhados, script automatizado de produção, configurações avançadas de segurança, monitoramento e troubleshooting. Inclui instalação rápida e guia completo para Ubuntu 22.04 com todas as funcionalidades AI

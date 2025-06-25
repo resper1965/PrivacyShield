@@ -201,6 +201,15 @@ install_base_packages() {
     
     case "$DISTRO" in
         "ubuntu"|"debian")
+            # Corrigir repositórios duplicados primeiro
+            log "INFO" "Corrigindo repositórios APT duplicados..."
+            if [[ -f "/etc/apt/sources.list.d/ubuntu-mirrors.list" ]]; then
+                rm -f /etc/apt/sources.list.d/ubuntu-mirrors.list
+                log "INFO" "Removido arquivo ubuntu-mirrors.list duplicado"
+            fi
+            rm -rf /var/lib/apt/lists/*
+            apt clean
+            
             retry 3 5 "apt update"
             retry 3 5 "DEBIAN_FRONTEND=noninteractive apt upgrade -y"
             retry 3 5 "DEBIAN_FRONTEND=noninteractive apt install -y \
