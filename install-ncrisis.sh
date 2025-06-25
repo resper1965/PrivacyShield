@@ -181,12 +181,22 @@ check_prerequisites() {
     fi
     
     # Verificar tokens obrigatórios
+    # Primeiro tentar carregar de variáveis de ambiente persistentes
+    [[ -f ~/.bashrc ]] && source ~/.bashrc || true
+    [[ -f /etc/environment ]] && source /etc/environment || true
+    
     if [[ -z "${GITHUB_PERSONAL_ACCESS_TOKEN:-}" ]]; then
-        error_exit "GITHUB_PERSONAL_ACCESS_TOKEN não configurado"
+        log "WARN" "GITHUB_PERSONAL_ACCESS_TOKEN não configurado como variável de ambiente"
+        log "INFO" "O token pode ser fornecido durante a instalação se necessário"
+        # Não interromper aqui - permitir que o script continue
+    else
+        log "INFO" "GITHUB_PERSONAL_ACCESS_TOKEN configurado (${GITHUB_PERSONAL_ACCESS_TOKEN:0:10}...)"
     fi
     
     if [[ -z "${OPENAI_API_KEY:-}" ]]; then
         log "WARN" "OPENAI_API_KEY não configurado - funcionalidades AI serão limitadas"
+    else
+        log "INFO" "OPENAI_API_KEY configurado (${OPENAI_API_KEY:0:10}...)"
     fi
     
     log "INFO" "Pré-requisitos verificados com sucesso"
@@ -448,6 +458,10 @@ install_application() {
         log "INFO" "Arquivos do repositório já presentes - pulando clone..."
     else
         log "INFO" "Clonando repositório..."
+        # Verificar token novamente aqui
+        if [[ -z "${GITHUB_PERSONAL_ACCESS_TOKEN:-}" ]]; then
+            error_exit "GITHUB_PERSONAL_ACCESS_TOKEN necessário para clonar repositório privado"
+        fi
         git clone "https://$GITHUB_PERSONAL_ACCESS_TOKEN@github.com/resper1965/PrivacyShield.git" . || \
             error_exit "Falha ao clonar repositório - verificar GITHUB_PERSONAL_ACCESS_TOKEN"
     fi
