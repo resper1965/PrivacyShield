@@ -30,7 +30,7 @@ log "N.Crisis - Instalação Automática"
 # Coleta interativa de configurações
 echo "=== Configuração ==="
 read -p "Tem GitHub token para repo privado? (y/n): " HAS_TOKEN
-if [[ "$HAS_TOKEN" == "y" ]]; then
+if [ "$HAS_TOKEN" = "y" ]; then
     read -p "GitHub Personal Access Token: " -s GITHUB_TOKEN
     echo
     REPO_URL="https://oauth2:${GITHUB_TOKEN}@github.com/resper1965/PrivacyShield.git"

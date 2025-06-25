@@ -115,9 +115,9 @@ Production deployment: All documentation and scripts updated for v2.1 with AI ca
 - **Logs**: `/var/log/ncrisis-install.log`
 
 ### Scripts Consolidados
-- `install-public.sh` - Repositório público, sem autenticação
-- `install-private.sh` - Repositório privado, com token GitHub + N8N opcional
-- `INSTALACAO_COMPLETA.md` - Documentação única completa
+- `install-fix.sh` - Script principal corrigido (funciona para público/privado)
+- `install-simples.sh` - Versão ultra simples como fallback
+- `README_INSTALACAO.md` - Documentação única completa
 
 ### Múltiplas Instâncias
 Sistema preparado para conviver com N8N e outros serviços no mesmo servidor, cada um em seu diretório `/opt/` isolado.
