@@ -435,6 +435,8 @@ install_application() {
         log "INFO" "Atualizando repositório existente..."
         git fetch origin
         git reset --hard origin/main
+    elif [[ -f "package.json" && -f "src/server-simple.ts" ]]; then
+        log "INFO" "Arquivos do repositório já presentes - pulando clone..."
     else
         log "INFO" "Clonando repositório..."
         git clone "https://$GITHUB_PERSONAL_ACCESS_TOKEN@github.com/resper1965/PrivacyShield.git" . || \
