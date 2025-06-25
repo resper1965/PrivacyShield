@@ -17,19 +17,32 @@ curl -H "Authorization: token $GITHUB_PERSONAL_ACCESS_TOKEN" \
 cd /opt/ncrisis && sudo ./install-ncrisis.sh
 ```
 
-## 🔧 Método Alternativo Git Clone
+## 🔧 Método Git Clone (Se Diretório Existir)
 
-Se o comando acima falhar:
+Se o diretório `/opt/ncrisis` já existe:
 
 ```bash
-# Instalar git se necessário
-sudo apt update && sudo apt install -y git
+# Fazer backup e limpar
+sudo mv /opt/ncrisis /opt/ncrisis-backup-$(date +%Y%m%d-%H%M%S)
+sudo mkdir -p /opt/ncrisis
+cd /opt/ncrisis
 
-# Clone direto para /opt/ncrisis
-sudo git clone "https://$GITHUB_PERSONAL_ACCESS_TOKEN@github.com/resper1965/PrivacyShield.git" /opt/ncrisis
+# Clone para diretório atual
+sudo git clone "https://$GITHUB_PERSONAL_ACCESS_TOKEN@github.com/resper1965/PrivacyShield.git" .
 
 # Executar instalação
-cd /opt/ncrisis && sudo chmod +x install-ncrisis.sh && sudo ./install-ncrisis.sh
+sudo chmod +x install-ncrisis.sh && sudo ./install-ncrisis.sh
+```
+
+### Script de Correção Automática
+
+```bash
+# Download do script corretor
+curl -H "Authorization: token $GITHUB_PERSONAL_ACCESS_TOKEN" \
+  -s "https://api.github.com/repos/resper1965/PrivacyShield/contents/fix-vps-install.sh" | \
+  grep '"content"' | cut -d'"' -f4 | base64 -d > fix-vps-install.sh
+
+chmod +x fix-vps-install.sh && sudo ./fix-vps-install.sh
 ```
 
 ## 🚀 Instalação Completa em Uma Linha
@@ -290,12 +303,12 @@ cat /opt/ncrisis/.env
 
 ## 📝 Comandos Testados para VPS Zerada
 
-**Comando Download Direto (Recomendado):**
+**Comando de Correção (Para Diretório Existente):**
 ```bash
-export GITHUB_PERSONAL_ACCESS_TOKEN="seu_token" && export OPENAI_API_KEY="sua_chave" && curl -H "Authorization: token $GITHUB_PERSONAL_ACCESS_TOKEN" -s "https://api.github.com/repos/resper1965/PrivacyShield/contents/download-ncrisis.sh" | grep '"content"' | cut -d'"' -f4 | base64 -d | sudo bash && cd /opt/ncrisis && sudo ./install-ncrisis.sh
+export GITHUB_PERSONAL_ACCESS_TOKEN="seu_token" && export OPENAI_API_KEY="sua_chave" && curl -H "Authorization: token $GITHUB_PERSONAL_ACCESS_TOKEN" -s "https://api.github.com/repos/resper1965/PrivacyShield/contents/fix-vps-install.sh" | grep '"content"' | cut -d'"' -f4 | base64 -d | sudo bash && cd /opt/ncrisis && sudo ./install-ncrisis.sh
 ```
 
-**Comando Git Clone (Mais Simples):**
+**Comando Manual (Alternativo):**
 ```bash
-export GITHUB_PERSONAL_ACCESS_TOKEN="seu_token" && export OPENAI_API_KEY="sua_chave" && sudo git clone "https://$GITHUB_PERSONAL_ACCESS_TOKEN@github.com/resper1965/PrivacyShield.git" /opt/ncrisis && cd /opt/ncrisis && sudo chmod +x install-ncrisis.sh && sudo ./install-ncrisis.sh
+export GITHUB_PERSONAL_ACCESS_TOKEN="seu_token" && export OPENAI_API_KEY="sua_chave" && sudo mv /opt/ncrisis /opt/ncrisis-backup-$(date +%Y%m%d-%H%M%S) && sudo mkdir -p /opt/ncrisis && cd /opt/ncrisis && sudo git clone "https://$GITHUB_PERSONAL_ACCESS_TOKEN@github.com/resper1965/PrivacyShield.git" . && sudo chmod +x install-ncrisis.sh && sudo ./install-ncrisis.sh
 ```
