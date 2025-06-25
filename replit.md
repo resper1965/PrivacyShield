@@ -108,6 +108,7 @@ Installation directory: `/opt/ncrisis` - standardized across all scripts and doc
 ## Changelog
 
 Recent Updates:
+- June 25, 2025: **N8N Webhook Integration** - Criado endpoint POST /api/v1/n8n/webhook/incident para receber webhooks de registro de incidentes do n8n, com validação de fileId e logs de auditoria
 - June 24, 2025: **Unified Installation Script** - Criado install-and-start.sh que agrega toda a funcionalidade de instalação, configuração e inicialização em um script único funcional. Remove dependência do Docker e configura PostgreSQL, Node.js, firewall e systemd automaticamente
 - June 24, 2025: **VPS Installation Complete** - Script install-vps-complete.sh executado pelo usuário, criado guia de próximos passos para verificação e configuração final do sistema no servidor monster.e-ness.com.br
 - June 24, 2025: **VPS Installation Fix** - Corrigido erro de diretório existente no install-vps-complete.sh, adicionado verificação e opções para resolver conflitos de diretório /opt/ncrisis

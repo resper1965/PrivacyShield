@@ -21,6 +21,7 @@ import { clamAVService } from './services/clamav';
 import { initializeWebSocketService, getWebSocketService } from './services/websocket';
 import { Server } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
+import n8nRouter from './routes/n8n';
 
 const app: Application = express();
 const server = new Server(app);
@@ -267,6 +268,9 @@ app.post('/api/v1/archives/upload', upload.single('file'), async (req: Request, 
 });
 
 // Detections endpoint
+// N8N Integration Routes
+app.use('/', n8nRouter);
+
 app.get('/api/v1/reports/detections', async (req: Request, res: Response): Promise<void> => {
   try {
     const { limit = 50, offset = 0 } = req.query;
