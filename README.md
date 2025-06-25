@@ -59,6 +59,8 @@ Este repositório inclui arquivos como `virus_test.zip` e `infected_test.zip` ut
 
 ## 🚀 Instalação
 
+Certifique-se de que o **Node.js 20 ou superior** esteja instalado antes de prosseguir.
+
 ### Desenvolvimento
 ```bash
 # Clone o repositório
