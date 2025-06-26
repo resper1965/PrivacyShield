@@ -1,7 +1,7 @@
 {
-  "name": "workspace",
+  "name": "privacy-shield-backend",
   "version": "1.0.0",
-  "main": ".eslintrc.js",
+  "main": "build/src/server-simple.js",
   "engines": {
     "node": ">=20"
   },
@@ -9,12 +9,15 @@
     "test": "jest",
     "dev": "ts-node src/server-simple.ts",
     "build": "tsc",
-    "start": "node build/src/server-simple.js"
+    "start": "node build/src/server-simple.js",
+    "db:migrate": "prisma migrate deploy",
+    "db:generate": "prisma generate",
+    "db:studio": "prisma studio"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["pii", "detection", "lgpd", "privacy", "security"],
+  "author": "PrivacyShield Team",
   "license": "MIT",
-  "description": "",
+  "description": "PII Detection and LGPD Compliance Platform",
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
     "@prisma/client": "^6.10.1",

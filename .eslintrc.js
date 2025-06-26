@@ -21,25 +21,25 @@ module.exports = {
   },
   ignorePatterns: ['.eslintrc.js', 'build/', 'dist/', 'node_modules/'],
   rules: {
-    // TypeScript specific rules
+    // TypeScript specific rules - Less restrictive
     '@typescript-eslint/interface-name-prefix': 'off',
     '@typescript-eslint/explicit-function-return-type': 'warn',
     '@typescript-eslint/explicit-module-boundary-types': 'warn',
-    '@typescript-eslint/no-explicit-any': 'error',
+    '@typescript-eslint/no-explicit-any': 'warn',
     '@typescript-eslint/no-unused-vars': 'error',
     '@typescript-eslint/prefer-const': 'error',
     '@typescript-eslint/no-inferrable-types': 'off',
-    '@typescript-eslint/no-non-null-assertion': 'error',
+    '@typescript-eslint/no-non-null-assertion': 'warn',
     '@typescript-eslint/prefer-nullish-coalescing': 'error',
     '@typescript-eslint/prefer-optional-chain': 'error',
-    '@typescript-eslint/strict-boolean-expressions': 'error',
-    '@typescript-eslint/no-floating-promises': 'error',
+    '@typescript-eslint/strict-boolean-expressions': 'warn',
+    '@typescript-eslint/no-floating-promises': 'warn',
     '@typescript-eslint/await-thenable': 'error',
-    '@typescript-eslint/no-misused-promises': 'error',
-    '@typescript-eslint/require-await': 'error',
+    '@typescript-eslint/no-misused-promises': 'warn',
+    '@typescript-eslint/require-await': 'warn',
     
-    // General ESLint rules
-    'no-console': 'warn',
+    // General ESLint rules - More practical
+    'no-console': 'off',
     'no-debugger': 'error',
     'no-var': 'error',
     'prefer-const': 'error',

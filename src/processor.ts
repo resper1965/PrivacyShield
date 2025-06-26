@@ -3,38 +3,9 @@
  * Combines regex detection with GPT-4o risk assessment
  */
 
-import { detectPIIInText, PIIDetection } from './services/processor';
-import { DetectionSession } from './detectPII';
+import { PIIDetection, DetectionSession, EnhancedPIIDetection, ProcessingResult } from './types/pii';
+import { detectPIIInText } from './services/processor';
 import { batchValidateWithOpenAI, calculateFileRiskScore, AIValidationResult } from './ai/openaiValidator';
-
-export interface EnhancedPIIDetection extends PIIDetection {
-  riskLevel: 'low' | 'medium' | 'high' | 'critical';
-  aiConfidence: number;
-  sensitivityScore: number;
-  recommendations: string[];
-  reasoning: string;
-  contextualRisk: string;
-}
-
-export interface ProcessingResult {
-  detections: EnhancedPIIDetection[];
-  aiValidations: AIValidationResult[];
-  fileRiskScore: {
-    overallRiskLevel: 'low' | 'medium' | 'high' | 'critical';
-    riskScore: number;
-    criticalCount: number;
-    highCount: number;
-    mediumCount: number;
-    lowCount: number;
-  };
-  processingStats: {
-    totalDetections: number;
-    validDetections: number;
-    falsePositives: number;
-    aiProcessingTime: number;
-    regexProcessingTime: number;
-  };
-}
 
 /**
  * Process file content with enhanced AI validation
